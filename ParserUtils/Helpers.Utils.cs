@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ParserUtils
+namespace Helpers
 {
-    public class ParserUtils
+    public class Utils
     {
     }
 }
