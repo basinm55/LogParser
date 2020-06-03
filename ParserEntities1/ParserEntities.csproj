@@ -7,8 +7,8 @@
     <ProjectGuid>{454E9FCE-74D7-4547-B91F-429E96B8AD89}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ParserEntities1</RootNamespace>
-    <AssemblyName>ParserEntities1</AssemblyName>
+    <RootNamespace>ParserEntities</RootNamespace>
+    <AssemblyName>ParserEntities</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
