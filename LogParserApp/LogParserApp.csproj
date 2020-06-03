@@ -56,8 +56,6 @@
     <Compile Include="ProfileManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Helpers.ScanFormatted.cs" />
-    <Compile Include="Helpers.TextParser.cs" />
     <EmbeddedResource Include="FrmMain.resx">
       <DependentUpon>FrmMain.cs</DependentUpon>
     </EmbeddedResource>
@@ -87,6 +85,16 @@
     <Content Include="LogParserProfile.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ParserEntities1\ParserEntities.csproj">
+      <Project>{454e9fce-74d7-4547-b91f-429e96b8ad89}</Project>
+      <Name>ParserEntities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ParserUtils\ParserUtils.csproj">
+      <Project>{c4473b26-1f46-4b88-9fcd-4ccd9dc544b1}</Project>
+      <Name>ParserUtils</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

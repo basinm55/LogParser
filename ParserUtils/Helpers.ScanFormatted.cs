@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 
 
 /*
+http://www.blackbeltcoder.com/Articles/strings/a-sscanf-replacement-for-net
+
 The scanf() format string provides a flexible way to describe the fields in the input string.
 Although there are standards, different C compilers seemed to have slightly different rules about the meaning
 of some parts of the format string. The following definition is for format strings used by the class
