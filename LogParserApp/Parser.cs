@@ -5,20 +5,22 @@ using System.Dynamic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Xml.Linq;
 using System.Linq.Expressions;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Helpers;
-using ParserEntities;
+using System.Xml;
 
 namespace LogParserApp
 { 
     public partial class Parser
     {                         
         string _logFileName;
-        List<LogEntry> _logEntries;  
+        //List<LogEntry> _logEntries;  
         public Parser(string logFileName)
         {
             if (string.IsNullOrWhiteSpace(logFileName) || !File.Exists(logFileName))
@@ -26,12 +28,12 @@ namespace LogParserApp
             else
             {
                 _logFileName = logFileName;
-                _logEntries = new List<LogEntry>();
+                //_logEntries = new List<LogEntry>();
             }
 
         }
 
-        public void Run(NameValueCollection profile)
+        public void Run(XElement profile)
         {
             //Example:  
             //dynamic person = new ExpandoObject();
@@ -41,15 +43,15 @@ namespace LogParserApp
 
 
 
-            _logEntries.Clear();
+            //_logEntries.Clear();
             var list = ReadLogFileToList();
             foreach (var line in list)
             {
                 try
                 {
-                    var logEntry =  ParseLogLine(line, profile);
-                    if (logEntry != null)
-                        _logEntries.Add(logEntry);
+                    ParseLogLine(line, profile);
+                    //if (logEntry != null)
+                        //_logEntries.Add(logEntry);
                 }
                 catch (Exception e)
                 {
@@ -67,8 +69,8 @@ namespace LogParserApp
             return File.ReadLines(_logFileName).ToList();
         }
 
-        private LogEntry ParseLogLine(string line, NameValueCollection profile)
-        {         
+        private void ParseLogLine(string line, XElement profile)
+        {
             //[0]44D8.44D0::05/31/2020-16:46:30.355
             //format "%[*][width][modifiers]type"
             //format example: "[%d]%d.%4s::%s %s %20c"
@@ -76,28 +78,44 @@ namespace LogParserApp
 
             //[6]0004.0230::05/31/2020-16:43:13.894 [jtucxip]CPort::BindUsbDevice port 4 CUsbDevice FFFFC30247334410
 
-            //string parsingFormat = "[%d]%d.%4s::%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s"; //TODO: Read it from profile            
+            //Timestamp
+            string parsingFormat = "[%*1d]%*4c.%*4c::%s";//TODO: Read it from profile            
+            //Device
+            //string parsingFormat = "%*s [%*7c]CUsbDevice::CUsbDevice: %s";
+
+            //if (!string.IsNullOrWhiteSpace(beginFrom))
+            //{
+            //    int matchPos = line.IndexOf(beginFrom);
+            //    if (matchPos >= 0)
+            //    {
+            //        int startPos = matchPos + beginFrom.Length;
+            //        line = line.Substring(startPos);
+            //    }
+            //}
+
 
             var sf = new ScanFormatted();                        
-            sf.Parse(line, profile["ParsingFormat"]);
-                                 
-            var logEntry = new LogEntry();
+            var x = sf.Parse(line, parsingFormat/*profile["ParsingFormat"]*/);
+
+            //var regex = Regex.Match(line, "[0-9]{1}[0-9]{1}");
+
+            //var logEntry = new LogEntry();
 
             //Convert time string to DateTime
-            if (sf.Results.Count > 3) // Because the buffer contents problem TODO
-               logEntry.Time = DateTime.ParseExact(sf.Results[3].ToString(), profile["DateTimeFormat"], null);
+            //if (sf.Results.Count > 3) // Because the buffer contents problem TODO
+               //logEntry.Time = DateTime.ParseExact(sf.Results[3].ToString(), profile["DateTimeFormat"], null);
 
-            if (sf.Results.Count > 4)
-                logEntry.EntryType = sf.Results[4].ToString();
+            //if (sf.Results.Count > 4)
+                //logEntry.EntryType = sf.Results[4].ToString();
 
 
             if (sf.Results.Count > 5)
             {
-                var descriptionList = sf.Results.GetRange(5, sf.Results.Count - 5);                
-                logEntry.Description = string.Join(" ", descriptionList); 
+                //var descriptionList = sf.Results.GetRange(5, sf.Results.Count - 5);                
+                //logEntry.Description = string.Join(" ", descriptionList); 
             }
 
-            return logEntry;
+            //return logEntry;
         }        
     }
 }

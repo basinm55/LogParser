@@ -10,6 +10,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace LogParserApp
 {
@@ -17,7 +19,7 @@ namespace LogParserApp
     {
         private Parser _parser;
         private ProfileManager _profileMng;
-        private NameValueCollection _selectedProfile;
+        private XElement _selectedProfile;
 
         public FrmMain()
         {           
@@ -27,13 +29,15 @@ namespace LogParserApp
         private void FrmMain_Load(object sender, EventArgs e)
         {            
             _profileMng = new ProfileManager();
-            
-            cmbProfile.Items.AddRange(_profileMng.GetProfileNames().ToArray());
-            cmbProfile.SelectedItem = "default";
+            _profileMng.LoadXmlFile("LogParserProfile.xml");
+            _profileMng.GetProfileByName("Default");
+            cmbProfile.Items.AddRange(_profileMng.GetProfileNames());
+
+            cmbProfile.SelectedItem = "Default";
             if (cmbProfile.SelectedItem == null)
                 cmbProfile.SelectedIndex = -1;
             else
-                _selectedProfile = _profileMng.GetProfileByName("default");
+                _selectedProfile = _profileMng.CurrentProfile;
 
             rbPort.Checked = true;
             UpdateControlsState();
@@ -79,15 +83,7 @@ namespace LogParserApp
 
             UpdateControlsState();
 
-        }
-
-
-        private void GetProfiles()
-        {
-            var config = ConfigurationManager.OpenExeConfiguration(Application.ExecutablePath);
-            var x = config.SectionGroups["profileSettingsGroup"];
-            //NameValueCollection test = (NameValueCollection)ConfigurationManager.GetSection("profileSettingsGroup/default");
-        }
+        }     
 
         private void UpdateControlsState()
         {

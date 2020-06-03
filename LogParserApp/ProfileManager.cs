@@ -5,49 +5,41 @@ using System.Configuration;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Xml.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml;
 
 namespace LogParserApp
 {
-    public class Profile
-    {
-        public string Font { get; set; }
-        public string ForeColor { get; set; }
-        public string BackColor { get; set; }
-        public string TextFormat { get; set; }
-        public string DateTimeFormat { get; set; }
-
-    }
-
     public class ProfileManager
     {
-        Configuration _config;
-        public ProfileManager()
+
+        public XElement ProfileCollection { get; private set; }
+
+        public XElement CurrentProfile { get; private set; }
+        public void LoadXmlFile(string fileName)
+        {            
+            ProfileCollection = XElement.Load(fileName);           
+        }
+
+        public XElement GetProfileByName(string profileName)
         {
-            _config = ConfigurationManager.OpenExeConfiguration(Application.ExecutablePath);
+            IEnumerable<XElement> profiles =
+                    from elm in ProfileCollection.Elements("Profile")
+                    where (string)elm.Attribute("Name") == profileName
+                    select elm;
+
+            CurrentProfile = profiles.FirstOrDefault();
+
+            return CurrentProfile;
         }
 
-        public List<string> GetProfileNames()
-        {                 
-            var groups = _config.SectionGroups["profileSettingsGroup"];
-            if (groups == null) return null;
-
-            var result = new List<string>();
-
-            var profileSections = groups.Sections;
-            if (profileSections != null && profileSections.Count > 0)
-            {                
-                foreach (var sect in profileSections)
-                    result.Add(((ConfigurationSection)sect).SectionInformation.Name);
-            }
- 
-            return result;
-        }
-
-        public NameValueCollection GetProfileByName(string profileName)
-        {           
-            return (NameValueCollection)ConfigurationManager.GetSection(string.Format("profileSettingsGroup/{0}", profileName));    
+        public object[] GetProfileNames()
+        {          
+            return ProfileCollection.Descendants().Attributes()
+            .Where(attr => attr.Name.LocalName=="Name")
+            .Select(attr => attr.Value).ToArray();
         }
     }
 }

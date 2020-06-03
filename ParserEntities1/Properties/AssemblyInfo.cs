@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("LogParserApp")]
+[assembly: AssemblyTitle("ParserEntities1")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("LogParserApp")]
+[assembly: AssemblyProduct("ParserEntities1")]
 [assembly: AssemblyCopyright("Copyright ©  2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("f59aabb9-cf42-40e9-98df-34d75c9a75ed")]
+[assembly: Guid("454e9fce-74d7-4547-b91f-429e96b8ad89")]
 
 // Version information for an assembly consists of the following four values:
 //

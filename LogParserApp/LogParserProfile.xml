@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<LogParser>
+	<Profile Name ="Default">
+		<PreFilters>
+			<PreFilter>
+				<StartDelimiter>[</StartDelimiter>
+				<StopDelimiter>]</StopDelimiter>
+				<Action>TimeStamp</Action>
+				</PreFilter>
+		</PreFilters>
+	</Profile>
+	<Profile Name ="Second">
+		<PreFilters>
+			<PreFilter>
+				<StartDelimiter>[</StartDelimiter>
+				<StopDelimiter>]</StopDelimiter>
+				<Action>TimeStamp</Action>
+			</PreFilter>
+		</PreFilters>
+	</Profile>
+</LogParser>

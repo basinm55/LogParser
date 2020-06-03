@@ -4,6 +4,58 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
+/*
+The scanf() format string provides a flexible way to describe the fields in the input string.
+Although there are standards, different C compilers seemed to have slightly different rules about the meaning
+of some parts of the format string. The following definition is for format strings used by the class
+I'll present in this article.
+
+Characters	Description
+--------------------------
+Whitespace	Any whitespace characters in the format string causes the position to advance to the next
+non-whitespace character in the input string. Whitespace characters include spaces, tabs and new lines.
+Non-Whitespace except percent (%)	Any character that is not a whitespace character or part of a format
+specifier (which begins with a % character) advances past the same matching character in the input string.
+Format specifier. A sequence that begins with a percent sign (%) to signify a format specifier, or field,
+that will be parsed and stored in a variable. A format specifier has the following form.
+
+%[*][width][modifiers]type
+
+Items within square brackets ([]) are optional. The following table describes elements within the format specifier.
+
+Element	Meaning
+----------------
+*	Indicates that this field is parsed normally but not stored in a variable.
+width	Specifies the maximum number of characters to be read for this field.
+modifiers	If supplied, modifies the size of the data type where the field is stored. If not supplied,
+the default size is used. Supported modifiers are listed below.
+hh: For integer fields, the result is stored in an 8-bit variable. Ignored for floating point fields.
+h: For integer fields, the result is stored in a 16-bit variable. Ignored for floating point fields.
+l For integer fields, the result is stored in a 64-bit variable. Floating point fields are stored in a double.
+ll Same effect as the l modifier.
+width	Specifies the maximum number of characters to include in this field.
+type	Specifies the field type as described in the following table.
+
+Type Meaning
+-------------
+c Reads a single character. If a width > 1 is specified, an array of characters is read.
+d, i	Reads a decimal integer. Number may begin with 0 (octal), 0x (hexadecimal) or a + or - sign.
+e, E, f, g,G Reads a floating point variable. Number may begin with a + or - sign, and may be written using exponential notation.
+o Reads an unsigned octal integer
+s Reads a string of characters up to the end of the input string, the next whitespace character, or until the number of characters specified for the width has been read.
+u Reads an unsigned decimal integer. Number may begin with 0 (octal), 0x (hexadecimal) or a + sign.
+x, X Reads an unsigned hexadecimal integer.
+[ Reads a string of characters that are included within square brackets.
+  For example, "[abc]" will read all characters that are either a, b, or c.
+  Use "[^abc]" to read all character that are not a, b, or c.
+  If the first character after "[" or after "[^" is "]", the closing square bracket is considered to be one
+  of the characters rather than the end of the scanset.
+ */
+
+
+
+
 namespace Helpers
 {
     /// <summary>
