@@ -87,10 +87,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ParserEntities1\ParserEntities.csproj">
-      <Project>{454e9fce-74d7-4547-b91f-429e96b8ad89}</Project>
-      <Name>ParserEntities</Name>
-    </ProjectReference>
     <ProjectReference Include="..\ParserUtils\ParserUtils.csproj">
       <Project>{c4473b26-1f46-4b88-9fcd-4ccd9dc544b1}</Project>
       <Name>ParserUtils</Name>
