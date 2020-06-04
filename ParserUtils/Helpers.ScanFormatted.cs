@@ -53,6 +53,11 @@ x, X Reads an unsigned hexadecimal integer.
   Use "[^abc]" to read all character that are not a, b, or c.
   If the first character after "[" or after "[^" is "]", the closing square bracket is considered to be one
   of the characters rather than the end of the scanset.
+
+My changes
+-----------
+JumpToText(input, format) added
+
  */
 
 
@@ -144,6 +149,9 @@ namespace Helpers
         /// <param name="format">Specifies rules for parsing input</param>
         public int Parse(string input, string format)
         {
+
+            input = JumpToText(input, format);              
+
             TextParser inp = new TextParser(input);
             TextParser fmt = new TextParser(format);
             List<object> results = new List<object>();
@@ -621,6 +629,22 @@ namespace Helpers
             else
                 obj = Convert.ToUInt32(token, radix);
             Results.Add(obj);
+        }
+
+
+        private string JumpToText(string input, string format)
+        {
+            int firstPercentPosition = format.IndexOf("%");
+            if (firstPercentPosition > 0)
+            {
+                var prefix = format.Substring(0, firstPercentPosition);
+                int matchPos = input.IndexOf(prefix);
+                if (matchPos >= 0)
+                    return input.Substring(matchPos).TrimStart();
+                else
+                    return input;
+            }
+            return input;
         }
     }
 }

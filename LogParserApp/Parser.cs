@@ -73,17 +73,9 @@ namespace LogParserApp
             string parsingFormat = "[%*1d]%*4c.%*4c::%s";//TODO: Read it from profile            
             //Device
             //string parsingFormat = "%*s [%*7c]CUsbDevice::CUsbDevice: %s";
+        
 
-            //if (!string.IsNullOrWhiteSpace(beginFrom))
-            //{
-            //    int matchPos = line.IndexOf(beginFrom);
-            //    if (matchPos >= 0)
-            //    {
-            //        int startPos = matchPos + beginFrom.Length;
-            //        line = line.Substring(startPos);
-            //    }
-            //}
-
+            //string parsingFormat = "CUsbipRequest::CUsbipRequest: type %s";
 
             var sf = new ScanFormatted();                        
             var x = sf.Parse(line, parsingFormat/*profile["ParsingFormat"]*/);
