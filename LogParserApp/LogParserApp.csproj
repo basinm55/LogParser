@@ -87,9 +87,9 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ParserUtils\ParserUtils.csproj">
+    <ProjectReference Include="..\ParserUtils\ParserHelpers.csproj">
       <Project>{c4473b26-1f46-4b88-9fcd-4ccd9dc544b1}</Project>
-      <Name>ParserUtils</Name>
+      <Name>ParserHelpers</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
