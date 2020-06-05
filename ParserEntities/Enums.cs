@@ -9,7 +9,7 @@ namespace Entities
     public class Enums
     {
 
-        public enum Action
+        public enum PropertyAction
         {
             New = 0,
             Locate = 1,
@@ -28,8 +28,23 @@ namespace Entities
         {
             String = 0,
             Decimal = 1,
-            Hex = 2,
+            Hexadecimal = 2,
             DateTime = 3
+        }
+
+        public enum Visibility
+        {
+            Visible = 0,
+            Hidden = 1
+        }
+
+        public enum ObjectState
+        {
+            New = 0,
+            Prepared,
+            Sent,
+            Completed,
+            Destroyed
         }
     }
 }

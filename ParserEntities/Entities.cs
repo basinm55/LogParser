@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Dynamic;
+using static Entities.Enums;
 
 namespace Entities
 { 
@@ -52,5 +53,18 @@ namespace Entities
             else
                 throw new Exception(string.Format("Property '{0}' not found", propertyName));
         }
+    }
+
+    public class PropertyDefinition
+    {
+        public int Index { get; set; }
+
+        public string Name { get; set; }
+
+        public PropertyAction Action { get; set; }
+
+        public PropertyDataType Type { get; set; }
+
+        public object Value { get; set; }
     }
 }

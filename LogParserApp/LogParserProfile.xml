@@ -1,21 +1,85 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <LogParser>
 	<Profile Name ="Default">
-		<PreFilters>
-			<PreFilter>
-				<StartDelimiter>[</StartDelimiter>
-				<StopDelimiter>]</StopDelimiter>
-				<Action>TimeStamp</Action>
-				</PreFilter>
-		</PreFilters>
+		<Filters>
+			<Filter>			
+				<Pattern>CUsbDevice::CUsbDevice: %s</Pattern>
+				<Properties>
+					<Property i="0">
+						<Name>Device</Name>
+						<Action>New</Action>
+						<Type>string</Type>
+					</Property>
+				</Properties>
+			</Filter>
+			<Filter>
+				<Pattern>CPort::BindUsbDevice port %d CUsbDevice %s</Pattern>
+				<Properties>
+					<Property i="0">
+						<Name>Port</Name>
+						<Action>Assign</Action>
+						<Type>dec</Type>
+					</Property>
+					<Property i="1">
+						<Name>Device</Name>
+						<Action>Locate</Action>
+						<Type>string</Type>
+					</Property>				
+				</Properties>
+			</Filter>	
+			<Filter>
+				<Pattern>CUsbipRequest::CUsbipRequest: type %s dev %s -> %s</Pattern>
+				<Properties>
+					<Property i="0">
+						<Name>Type</Name>
+						<Action>Assign</Action>
+						<Type>string</Type>
+					</Property>
+					<Property i="1">
+						<Name>DeviceParentOf</Name>
+						<Action>Locate</Action>
+						<Type>string</Type>
+					</Property>
+					<Property i="2">
+						<Name>Request</Name>
+						<Action>New</Action>
+						<Type>string</Type>
+					</Property>
+				</Properties>
+			</Filter>
+			<Filter>
+				<Pattern>CUsbipRequest::Prepare:%s: %s(%d)%s, req %s</Pattern>
+				<Properties>
+					<Property i="0">
+						<Name>Address</Name>
+						<Action>Assign</Action>
+						<Type>string</Type>
+					</Property>
+					<Property i="1">
+						<Name>Function</Name>
+						<Action>Assign</Action>
+						<Type>string</Type>
+					</Property>
+					<Property i="2">
+						<Name>Unknown1</Name>
+						<Action>drop</Action>
+						<Type>dec</Type>
+					</Property>
+					<Property i="3">
+						<Name>Unknown2</Name>
+						<Action>Drop</Action>
+						<Type>dec</Type>
+					</Property>
+					<Property i="4">
+						<Name>Reqest</Name>
+						<Action>Drop</Action>
+						<Type>string</Type>
+					</Property>
+				</Properties>
+			</Filter>			
+		</Filters>			
 	</Profile>
-	<Profile Name ="Second">
-		<PreFilters>
-			<PreFilter>
-				<StartDelimiter>[</StartDelimiter>
-				<StopDelimiter>]</StopDelimiter>
-				<Action>TimeStamp</Action>
-			</PreFilter>
-		</PreFilters>
-	</Profile>
+	
+	
+	<Profile Name ="Second" />
 </LogParser>
