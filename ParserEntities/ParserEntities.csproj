@@ -41,9 +41,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Enums.cs" />
-    <Compile Include="Entities.cs" />
+    <Compile Include="Entities.Enums.cs" />
+    <Compile Include="Entities.ParserObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ParserUtils\ParserUtils.csproj">
+      <Project>{c4473b26-1f46-4b88-9fcd-4ccd9dc544b1}</Project>
+      <Name>ParserUtils</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

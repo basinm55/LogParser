@@ -53,6 +53,7 @@
       <DependentUpon>FrmMain.cs</DependentUpon>
     </Compile>
     <Compile Include="Parser.cs" />
+    <Compile Include="ParserActions.cs" />
     <Compile Include="ProfileManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -91,9 +92,9 @@
       <Project>{e0d23060-68ad-427b-a437-0d64c65c9115}</Project>
       <Name>ParserEntities</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ParserUtils\ParserHelpers.csproj">
+    <ProjectReference Include="..\ParserUtils\ParserUtils.csproj">
       <Project>{c4473b26-1f46-4b88-9fcd-4ccd9dc544b1}</Project>
-      <Name>ParserHelpers</Name>
+      <Name>ParserUtils</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

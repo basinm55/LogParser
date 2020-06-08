@@ -8,13 +8,14 @@ using System.Windows.Forms;
 using Helpers;
 using Entities;
 using static Entities.Enums;
+using static Entities.ParserObject;
 
 namespace LogParserApp
 {
     public partial class Parser
     {                         
         string _logFileName;
-        //List<LogEntry> _logEntries;
+        List<ParserObject> _objList;
 
         private ScanFormatted _sf;
         public Parser(string logFileName)
@@ -24,22 +25,16 @@ namespace LogParserApp
             else
             {
                 _logFileName = logFileName;
-                //_logEntries = new List<LogEntry>();
+                _objList = new List<ParserObject>();
             }
 
         }
 
         public void Run(XElement profile)
-        {
-            //Example:  
-            //dynamic person = new ExpandoObject();
-            //var dictionary = (IDictionary<string, object>)person;
-            //dictionary.Add("Name", "Filip");
-            //dictionary.Add("Age", 24);
-
+        {  
             _sf = new ScanFormatted();
 
-            //_logEntries.Clear();
+            _objList.Clear();
             var list = ReadLogFileToList();
             foreach (var line in list)
             {
@@ -72,10 +67,7 @@ namespace LogParserApp
             var filters = profile.XPathSelectElements("Filters/Filter");
             foreach (var filter in filters)
             {
-                var propDef = ApplyFilter(line, filter);
-                if (propDef != null && propDef.Count > 0)
-                    linePropertyList.AddRange(propDef);
-
+                ApplyFilter(line, filter);   
             }
 
                 //[0]44D8.44D0::05/31/2020-16:46:30.355
@@ -117,35 +109,59 @@ namespace LogParserApp
             //return logEntry;
         }        
 
-        private List<PropertyDefinition> ApplyFilter(string line, XElement filter)
+        private void ApplyFilter(string line, XElement filter)
         {
             var result = new List<PropertyDefinition>();
-            var filterPattern = filter.XPathSelectElement("Pattern").Value;
-            var valCount = _sf.Parse(line, filterPattern);
+            var filterPatterns = filter.XPathSelectElements("Patterns/Pattern");
+            foreach (var filterPattern in filterPatterns)
+            {
 
-            if (valCount == 0) return result;   
-                                   
-            foreach (var prop in filter.XPathSelectElements("Properties/Property"))
-            {              
-                if (Int32.TryParse(prop.Attribute("i").Value, out int index))
-                {                    
-                    if (index < valCount)
+                var valCount = _sf.Parse(line, filterPattern.Value);
+
+                if (valCount == 0)
+                    continue;
+
+                foreach (var prop in filter.XPathSelectElements("Properties/Property"))
+                {
+                    if (Int32.TryParse(prop.Attribute("i").Value, out int index))
                     {
-                        result.Add(new PropertyDefinition()
-                        {
-                            Index = index,
-                            Name = prop.Element("Name").Value,
-                            Action = prop.Element("Action").Value.ToEnum<PropertyAction>(),
-                            Type = prop.Element("Type").Value.ToEnum<PropertyDataType>(),
-                            Value = _sf.Results[index]
-
-                        });                         
+                        if (index < valCount)
+                            DoObjectAction(prop, index, _sf.Results[index]);                                         
                     }
                 }
+            }            
+
+        }
+
+        private bool DoObjectAction(XElement profilePropDefinition, int parsedIndex, object parsedValue)
+        {
+            bool actionSuccess;
+            var action = profilePropDefinition.Element("Action").Value.ToEnum<PropertyAction>();       
+
+            switch (action)
+            {
+                case PropertyAction.New:
+                    actionSuccess = ParserActions.DoActionNew(profilePropDefinition, parsedIndex, parsedValue, _objList);
+                    break;
+                case PropertyAction.Locate:
+                    actionSuccess = ParserActions.DoActionLocate(profilePropDefinition, parsedIndex, parsedValue, _objList);
+                    break;
+                case PropertyAction.Assign:
+                    actionSuccess = ParserActions.DoActionAssign(profilePropDefinition, parsedIndex, parsedValue, _objList);
+                    break;
+                case PropertyAction.Drop:
+                    actionSuccess = ParserActions.DoActionDrop(profilePropDefinition, parsedIndex, parsedValue, _objList);
+                    break;
+                case PropertyAction.Delete:
+                    actionSuccess = ParserActions.DoActionDelete(profilePropDefinition, parsedIndex, parsedValue, _objList);
+                    break;
+
+                default:
+                    actionSuccess = false;
+                    break;
             }
 
-            return result;
-
+            return actionSuccess;
         }
     }
 }

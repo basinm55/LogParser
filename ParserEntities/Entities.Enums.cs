@@ -11,11 +11,12 @@ namespace Entities
 
         public enum PropertyAction
         {
-            New = 0,
-            Locate = 1,
-            Assign = 2,
-            Drop = 3,
-            Delete = 4
+            Unrecognized = 0,
+            New = 1,
+            Locate = 2,
+            Assign = 3,
+            Drop = 4,
+            Delete = 5
         }
 
         public enum Shape
@@ -29,7 +30,8 @@ namespace Entities
             String = 0,
             Decimal = 1,
             Hexadecimal = 2,
-            DateTime = 3
+            DateTime = 3,
+            Enum = 4
         }
 
         public enum Visibility
@@ -41,10 +43,10 @@ namespace Entities
         public enum ObjectState
         {
             New = 0,
-            Prepared,
-            Sent,
-            Completed,
-            Destroyed
+            Prepared = 1,
+            Sent = 2,
+            Completed = 3,
+            Destroyed = 4
         }
     }
 }

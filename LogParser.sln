@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogParserApp", "LogParserApp\LogParserApp.csproj", "{F59AABB9-CF42-40E9-98DF-34D75C9A75ED}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParserHelpers", "ParserUtils\ParserHelpers.csproj", "{C4473B26-1F46-4B88-9FCD-4CCD9DC544B1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParserUtils", "ParserUtils\ParserUtils.csproj", "{C4473B26-1F46-4B88-9FCD-4CCD9DC544B1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParserEntities", "ParserEntities\ParserEntities.csproj", "{E0D23060-68AD-427B-A437-0D64C65C9115}"
 EndProject

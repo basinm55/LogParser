@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Helpers
 {
-    public static class EnumHelpers
+    public static class GenericEnumHelper
     {
         private const string MustBeAnEnumeratedType = @"T must be an enumerated type";
 
@@ -64,9 +65,33 @@ namespace Helpers
             IDictionary<string, T> list = new Dictionary<string, T>();
             Enum.GetNames(typeof(T)).ToList().ForEach(name => list.Add(name, name.ToEnum<T>()));
             return list;
-        }
-        public class Utils
-        {
-        }
+        }  
+
     }
+    public static class NongenericEnumHelper
+        {
+            static MethodInfo enumTryParse;
+
+            static NongenericEnumHelper()
+            {
+                enumTryParse = typeof(Enum).GetMethods(BindingFlags.Public | BindingFlags.Static)
+                    .Where(m => m.Name == "TryParse" && m.GetParameters().Length == 3)
+                    .First();
+            }
+
+            public static bool TryParse(
+                Type enumType,
+                string value,
+                bool ignoreCase,
+                out object enumValue)
+            {
+                MethodInfo genericEnumTryParse = enumTryParse.MakeGenericMethod(enumType);
+
+                object[] args = new object[] { value, ignoreCase, Enum.ToObject(enumType, 0) };
+                bool success = (bool)genericEnumTryParse.Invoke(null, args);
+                enumValue = args[2];
+
+                return success;
+            }
+        }
 }
