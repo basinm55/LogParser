@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using System.Xml.Linq;
+using Entities;
+using Helpers;
 
 namespace LogParserApp
 {
@@ -32,48 +35,39 @@ namespace LogParserApp
                 _selectedProfile = _profileMng.CurrentProfile;
 
             rbPort.Checked = true;
-            UpdateControlsState();
-
-            CreateGridView();
+            UpdateControlsState();            
         }
 
-        public string loadedLogFileName;
-
-        private void CreateGridView()
-        {
-            var data = new List<MyStruct>() { new MyStruct("a", "b"), new MyStruct("c", "d") };     
-
-            var source = new BindingSource();
-            source.DataSource = data;
-            dataGV.AutoGenerateColumns = true;
-            dataGV.DataSource = source;
-
-            foreach (DataGridViewColumn col in dataGV.Columns)
-            {
-                col.DividerWidth = 10;
-            }
-            foreach (DataGridViewRow row in dataGV.Rows)
-            {
-                row.DividerHeight = 10;
-            }
-
-
-            dataGV.Rows[1].Cells[1].Style.BackColor = Color.Aquamarine;
-            dataGV.Rows[1].Cells[0].Style.BackColor = Color.Aquamarine;
-        }
+        public string loadedLogFileName;   
 
         private void btnLoadLog_Click(object sender, EventArgs e)
         {   
             dlgLoadLog.Filter = "Log files (*.log)|*.log|All files (*.*)|*.*";
             dlgLoadLog.DefaultExt = "*.log";
             if (dlgLoadLog.ShowDialog() != DialogResult.Cancel)
-            {
+            {  
                 loadedLogFileName = dlgLoadLog.FileName;
                 _parser = new Parser(loadedLogFileName);
-                _parser.Run(_selectedProfile);
-            }
+                
+                Cursor.Current = Cursors.WaitCursor;
+                try
+                {
+                    _parser.Run(_selectedProfile);
+                    if (_parser.ObjectCollection != null && _parser.ObjectCollection.Count > 0)
+                        ParserView.CreateGridView(_parser.ObjectCollection, dataGV);
+                    else
+                    {
+                        Cursor.Current = Cursors.Default;
+                        MessageBox.Show(string.Format("There is no parsing results for the file: '{0}'", loadedLogFileName));
+                    }
+                }
+                finally
+                {
+                    Cursor.Current = Cursors.Default;
+                }
 
-            UpdateControlsState();
+                UpdateControlsState();
+            }
 
         }     
 
@@ -94,6 +88,8 @@ namespace LogParserApp
             }
         }
 
+
+
         private void btnSearch_Click(object sender, EventArgs e)
         {
             ///TODO
@@ -103,18 +99,14 @@ namespace LogParserApp
         {
             _selectedProfile = _profileMng.GetProfileByName(cmbProfile.SelectedItem.ToString());
         }
-    }
 
-    class MyStruct
-    {
-        public string Name { get; set; }
-        public string Address { get; set; }
-
-
-        public MyStruct(string name, string adress)
+        private void dataGV_CellStateChanged(object sender, DataGridViewCellStateChangedEventArgs e)
         {
-            Name = name;
-            Address = adress;
+            //Set empty cells unselectable
+            if (e.Cell == null || e.StateChanged != DataGridViewElementStates.Selected)
+                return;
+            if (string.IsNullOrWhiteSpace((string)e.Cell.Value))
+                e.Cell.Selected = false;
         }
-    }
+    }  
 }

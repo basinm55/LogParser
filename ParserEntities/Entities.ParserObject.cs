@@ -9,25 +9,27 @@ namespace Entities
 { 
     public class ParserObject
     {
-        public string ObjectClass { get; private set; }
-        public DateTime CreationTimeStamp { get; set; }                
-        private dynamic _dynObject { get; }
+        public string ObjectClass { get; set; }                       
+        public dynamic DynObject { get; set; }
 
-        private IDictionary<string, object> _dynObjectDictionary;
+        public IDictionary<string, object> DynObjectDictionary;
+
+        public List<ParserObject> VisualObjectCollection { get; private set; }
 
 
         //C'tor
         public ParserObject(string objectClass)
         {
-            _dynObject = new ExpandoObject();
-            _dynObjectDictionary = (IDictionary<string, object>)_dynObject;
-            ObjectClass = objectClass;
+            DynObject = new ExpandoObject();
+            DynObjectDictionary = (IDictionary<string, object>)DynObject;            
+            ObjectClass = objectClass;            
+            VisualObjectCollection = new List<ParserObject>();
         }
 
 
         private bool DynPropertyExists(string propertyName)
         {
-            return _dynObjectDictionary.ContainsKey(propertyName);
+            return DynObjectDictionary.ContainsKey(propertyName);
         }
 
         private object CovertValueToRequiredDataType(string value,
@@ -47,7 +49,12 @@ namespace Entities
                         return decVal;
                     else
                         return null;
-                case PropertyDataType.DateTime:
+                case PropertyDataType.Boolean:
+                    if (bool.TryParse(value, out bool boolVal))
+                        return boolVal;
+                    else
+                        return null;
+                case PropertyDataType.Time:
                     var format = dateTimeFormat ?? "MM/dd/yyyy-HH:mm:ss.FFF";
                     if (DateTime.TryParseExact(value, format, new CultureInfo("en-US"), DateTimeStyles.None, out DateTime datetimeVal))
                         return datetimeVal;
@@ -63,8 +70,7 @@ namespace Entities
                             return enumValue;
                         else
                             return null;
-                    }
-                       
+                    }                      
                     else
                         return null;
 
@@ -74,59 +80,78 @@ namespace Entities
         }
     
 
-        public void AddDynProperty(string propertyName, object propertyValue, PropertyDataType propertyDataType = PropertyDataType.String, Type enumType = null, string dateTimeFormat = null)
+        public void SetDynProperty(string propertyName, object propertyValue, PropertyDataType propertyDataType = PropertyDataType.String, string format = null, Type enumType = null)
         {
 
             if (!DynPropertyExists(propertyName))
-                _dynObjectDictionary.Add(propertyName, CovertValueToRequiredDataType(propertyValue.ToString(), propertyDataType, enumType, dateTimeFormat));
-                
+                DynObjectDictionary.Add(propertyName, CovertValueToRequiredDataType(propertyValue != null ? propertyValue.ToString() : null, propertyDataType, enumType, format));
+            else
+                DynObjectDictionary[propertyName] = CovertValueToRequiredDataType(propertyValue != null ? propertyValue.ToString() : null, propertyDataType, enumType, format);
+
         }
 
-        public void RemoveDynProperty(string propertyName, object propertyValue)
+        public void RemoveDynProperty(string propertyName)
         {
             if (!DynPropertyExists(propertyName))
                 throw new Exception(string.Format("Property '{0}' not found." +
                  Environment.NewLine +
-                 "Check LogParserProfile definitions."
+                 "Check the LogParserProfile definitions."
                  , propertyName));
 
-            _dynObjectDictionary.Remove(propertyName);
+            DynObjectDictionary.Remove(propertyName);
         }
 
         public void ClearDynProperties()
         {
-            _dynObjectDictionary.Clear();
+            DynObjectDictionary.Clear();
+        }
+
+        public bool GetDynPropertyValue(string propertyName, out object propertyValue)
+        {
+            return DynObjectDictionary.TryGetValue(propertyName, out propertyValue); 
         }
 
         public object GetDynPropertyValue(string propertyName)
         {
-            _dynObjectDictionary.TryGetValue(propertyName, out object value);
-            return value;
+            GetDynPropertyValue(propertyName, out object propertyValue);
+            return propertyValue;
         }
 
-        public void SetDynPropertyValue(string propertyName, object value, PropertyDataType propertyDataType = PropertyDataType.String, Type enumType = null, string dateTimeFormat = null)
+        public void SetDynPropertyValue(string propertyName, object propertyValue, PropertyDataType propertyDataType = PropertyDataType.String, Type enumType = null, string dateTimeFormat = null)
         {
             if (!DynPropertyExists(propertyName))
                 throw new Exception(string.Format("Property '{0}' not found." +
                     Environment.NewLine +
-                    "Check LogParserProfile definitions."
+                    "Check the LogParserProfile definitions."
                     , propertyName));
 
-            _dynObjectDictionary[propertyName] = CovertValueToRequiredDataType(value.ToString(), propertyDataType, enumType, dateTimeFormat);
+            DynObjectDictionary[propertyName] = CovertValueToRequiredDataType(propertyValue.ToString(), propertyDataType, enumType, dateTimeFormat);
+        }           
+    }
+
+    public static class Extensions
+    {
+        public static ParserObject CreateVisualObject(this ParserObject original)
+        {
+            var result = new ParserObject(original.ObjectClass);
+
+            result.DynObject = DeepClone(original.DynObject);
+            result.DynObjectDictionary = (IDictionary<string, object>)result.DynObject;
+            result.ObjectClass = original.ObjectClass;          
+            return result;
         }
 
+        private static ExpandoObject DeepClone(ExpandoObject original)
+        {
+            var clone = new ExpandoObject();
 
-        public class PropertyDefinition
-    {
-        public int Index { get; set; }
+            var _original = (IDictionary<string, object>)original;
+            var _clone = (IDictionary<string, object>)clone;
 
-        public string Name { get; set; }
+            foreach (var kvp in _original)
+                _clone.Add(kvp.Key, kvp.Value is ExpandoObject ? DeepClone((ExpandoObject)kvp.Value) : kvp.Value);
 
-        public PropertyAction Action { get; set; }
-
-        public PropertyDataType Type { get; set; }
-
-        public object Value { get; set; }
-    }
+            return clone;
+        }
     }
 }

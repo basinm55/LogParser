@@ -9,13 +9,15 @@ using Helpers;
 using Entities;
 using static Entities.Enums;
 using static Entities.ParserObject;
+using System.Drawing;
 
 namespace LogParserApp
 {
     public partial class Parser
     {                         
         string _logFileName;
-        List<ParserObject> _objList;
+        public List<ParserObject> ObjectCollection { get; private set; }
+        ParserObject _currentObj, _locatedObj;
 
         private ScanFormatted _sf;
         public Parser(string logFileName)
@@ -25,24 +27,22 @@ namespace LogParserApp
             else
             {
                 _logFileName = logFileName;
-                _objList = new List<ParserObject>();
+                ObjectCollection = new List<ParserObject>();
             }
 
         }
 
         public void Run(XElement profile)
-        {  
+        {      
             _sf = new ScanFormatted();
 
-            _objList.Clear();
+            ObjectCollection.Clear();
             var list = ReadLogFileToList();
             foreach (var line in list)
             {
                 try
                 {
-                    ParseLogLine(line, profile);
-                    //if (logEntry != null)
-                        //_logEntries.Add(logEntry);
+                    ParseLogLine(line, profile);     
                 }
                 catch (Exception e)
                 {
@@ -61,14 +61,18 @@ namespace LogParserApp
         }
 
         private void ParseLogLine(string line, XElement profile)
-        {
-            var linePropertyList = new List<PropertyDefinition>();
-
+        {            
             var filters = profile.XPathSelectElements("Filters/Filter");
             foreach (var filter in filters)
             {
-                ApplyFilter(line, filter);   
+                var filterKey = filter.Attribute("key");               
+                if (filterKey != null)
+                {
+                    if (string.IsNullOrWhiteSpace(filterKey.Value) || line.ContainsCaseInsensitive(filterKey.Value))
+                        ApplyFilter(line, filter);
+                }
             }
+
 
                 //[0]44D8.44D0::05/31/2020-16:46:30.355
                 //format "%[*][width][modifiers]type"
@@ -111,57 +115,73 @@ namespace LogParserApp
 
         private void ApplyFilter(string line, XElement filter)
         {
-            var result = new List<PropertyDefinition>();
+            var state = _currentObj != null ? (string)_currentObj.GetDynPropertyValue("State") : null;
+
             var filterPatterns = filter.XPathSelectElements("Patterns/Pattern");
             foreach (var filterPattern in filterPatterns)
             {
+                _sf.Parse(line, filterPattern.Value);
 
-                var valCount = _sf.Parse(line, filterPattern.Value);
-
-                if (valCount == 0)
+                if (_sf.Results.Count == 0)
                     continue;
 
                 foreach (var prop in filter.XPathSelectElements("Properties/Property"))
                 {
-                    if (Int32.TryParse(prop.Attribute("i").Value, out int index))
+                    if (prop.Element("PatternIndex") == null || prop.Attribute("i") == null) continue;
+
+                    if (Int32.TryParse(prop.Attribute("i").Value, out int sequenceNum) &&
+                        Int32.TryParse(prop.Element("PatternIndex").Value, out int patternIndex))
                     {
-                        if (index < valCount)
-                            DoObjectAction(prop, index, _sf.Results[index]);                                         
+                        if (patternIndex < _sf.Results.Count)
+                            DoObjectAction(prop, sequenceNum, patternIndex, _sf.Results[patternIndex], filter);
                     }
                 }
-            }            
+            }
+
+            if (_currentObj != null)
+            {               
+                var newState = (string)_currentObj.GetDynPropertyValue("State");
+
+                //if (state == null && newState != null)
+                    //state = newState;
+
+                if (newState != null &&
+                _currentObj.GetDynPropertyValue("IsVisible").ToString().ToBoolean() &&
+                !newState.Equals(state, StringComparison.InvariantCultureIgnoreCase))
+                    _currentObj.VisualObjectCollection.Add(_currentObj.CreateVisualObject());
+            }
 
         }
 
-        private bool DoObjectAction(XElement profilePropDefinition, int parsedIndex, object parsedValue)
+        private void DoObjectAction(XElement profilePropDefinition, int sequenceNum, int patternIndex, object parsedValue, XElement filter)
         {
-            bool actionSuccess;
-            var action = profilePropDefinition.Element("Action").Value.ToEnum<PropertyAction>();       
+            if (profilePropDefinition.Element("Action") == null) return;
+            var action = profilePropDefinition.Element("Action").Value.ToEnum<PropertyAction>();   
 
             switch (action)
             {
                 case PropertyAction.New:
-                    actionSuccess = ParserActions.DoActionNew(profilePropDefinition, parsedIndex, parsedValue, _objList);
+                    DoActionNew(filter, profilePropDefinition, sequenceNum, patternIndex, parsedValue);
+                    break;
+                case PropertyAction.AssignToSelf:
+                    DoActionAssignToSelf(filter, profilePropDefinition, sequenceNum, patternIndex, parsedValue);
                     break;
                 case PropertyAction.Locate:
-                    actionSuccess = ParserActions.DoActionLocate(profilePropDefinition, parsedIndex, parsedValue, _objList);
+                    DoActionLocate(filter, profilePropDefinition, sequenceNum, patternIndex, parsedValue);
                     break;
                 case PropertyAction.Assign:
-                    actionSuccess = ParserActions.DoActionAssign(profilePropDefinition, parsedIndex, parsedValue, _objList);
+                    DoActionAssign(filter, profilePropDefinition, sequenceNum, patternIndex, parsedValue);
                     break;
                 case PropertyAction.Drop:
-                    actionSuccess = ParserActions.DoActionDrop(profilePropDefinition, parsedIndex, parsedValue, _objList);
+                    DoActionDrop(filter, profilePropDefinition, sequenceNum, patternIndex, parsedValue);
                     break;
                 case PropertyAction.Delete:
-                    actionSuccess = ParserActions.DoActionDelete(profilePropDefinition, parsedIndex, parsedValue, _objList);
+                    DoActionDelete(filter, profilePropDefinition, sequenceNum, patternIndex, parsedValue);
                     break;
 
-                default:
-                    actionSuccess = false;
+                default:                   
                     break;
-            }
-
-            return actionSuccess;
+            }      
         }
     }
 }

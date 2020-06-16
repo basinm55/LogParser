@@ -632,8 +632,9 @@ namespace Helpers
         }
 
 
-        private string JumpToText(string input, string format)
+        private string JumpToText(string input, string format, string textToJump = null)
         {
+  
             int firstPercentPosition = format.IndexOf("%");
             if (firstPercentPosition > 0)
             {

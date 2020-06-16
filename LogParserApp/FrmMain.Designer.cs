@@ -70,6 +70,7 @@
             this.dataGV.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
             this.dataGV.Size = new System.Drawing.Size(907, 374);
             this.dataGV.TabIndex = 0;
+            this.dataGV.CellStateChanged += new System.Windows.Forms.DataGridViewCellStateChangedEventHandler(this.dataGV_CellStateChanged);
             // 
             // btnLoadLog
             // 

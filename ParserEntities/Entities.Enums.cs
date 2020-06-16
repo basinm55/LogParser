@@ -13,10 +13,11 @@ namespace Entities
         {
             Unrecognized = 0,
             New = 1,
-            Locate = 2,
-            Assign = 3,
-            Drop = 4,
-            Delete = 5
+            AssignToSelf = 2,
+            Locate = 3,
+            Assign = 4,
+            Drop = 5,
+            Delete = 6
         }
 
         public enum Shape
@@ -29,9 +30,11 @@ namespace Entities
         {
             String = 0,
             Decimal = 1,
-            Hexadecimal = 2,
-            DateTime = 3,
-            Enum = 4
+            Boolean = 2,
+            Hexadecimal = 3,
+            Time = 4,
+            Enum = 5,
+            Object = 6
         }
 
         public enum Visibility
@@ -42,11 +45,21 @@ namespace Entities
 
         public enum ObjectState
         {
-            New = 0,
-            Prepared = 1,
-            Sent = 2,
-            Completed = 3,
-            Destroyed = 4
+            Unrecognized = 0,
+            New = 1,                       
+            Prepared = 2,
+            Queued = 3,
+            Sent = 4,
+            Responded = 5,
+            Completed = 6,
+            Deleted = 7
+        }
+
+        public enum ObjectType
+        {
+            Unrecognized = 0,
+            Device = 1,
+            Request = 2
         }
     }
 }

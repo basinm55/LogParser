@@ -54,6 +54,7 @@
     </Compile>
     <Compile Include="Parser.cs" />
     <Compile Include="ParserActions.cs" />
+    <Compile Include="ParserView.cs" />
     <Compile Include="ProfileManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

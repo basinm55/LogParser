@@ -1,99 +1,147 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <LogParser>
 	<Profile Name ="Default">
-		<Filters>
-			<Filter>
+		<Filters>			
+			<Filter key="CUsbDevice::CUsbDevice" IsVisible ="0" IsFindable = "1">
+				<State>Created</State>
+				<Color>LightYellow</Color>
 				<Patterns>
-					<Pattern>CUsbDevice::CUsbDevice: %s</Pattern>
-				</Patterns>
+					<Pattern>[%*1d]%*4c.%*4c::%s [%*7s]CUsbDevice::CUsbDevice: %s</Pattern>
+				</Patterns>				
 				<Properties>
 					<Property i="0">
+						<PatternIndex>1</PatternIndex>
 						<Name>Device</Name>						
-						<Type>string</Type>
+						<DataType>string</DataType>
 						<Action>New</Action>						
 						<Target>this</Target>
 					</Property>
+					<Property i="1">
+						<PatternIndex>0</PatternIndex>
+						<Name>Timestamp</Name>
+						<DataType Format ="MM/dd/yyyy-HH:mm:ss.FFF">Time</DataType>
+						<Action>AssignToSelf</Action>	
+					</Property>					
 				</Properties>
 			</Filter>
-			<Filter>
+			<Filter key="CPort::BindUsbDevice" IsVisible ="1" IsFindable = "1">
+				<State />
+				<Color>LightSkyBlue</Color>
 				<Patterns>
-					<Pattern>CPort::BindUsbDevice port %s CUsbDevice %s</Pattern>
+					<Pattern>CPort::BindUsbDevice port %d CUsbDevice %s</Pattern>
 			    </Patterns>
-				<Properties>
+				<Properties>	
 					<Property i="0">
-						<Name>Port</Name>
-						<Type>string</Type>						
-						<Action>Assign</Action>
-						<Target>Port</Target>
-					</Property>
-					<Property i="1">
+						<PatternIndex>1</PatternIndex>
 						<Name>Device</Name>
-						<Type>string</Type>						
+						<DataType>string</DataType>						
 						<Action>Locate</Action>
 						<Target>this</Target>
-					</Property>				
+					</Property>
+					<Property i="1">
+						<PatternIndex>0</PatternIndex>						
+						<Name>Port</Name>
+						<DataType>decimal</DataType>
+						<Action>Assign</Action>
+						<Target>Port</Target>
+					</Property>									
 				</Properties>
-			</Filter>	
-			<Filter>
+			</Filter>
+			<Filter key="CUsbDevice::ReportDeviceDecriptor" IsVisible ="1" IsFindable = "1">
+				<State />
+				<Color>LightSkyBlue</Color>
+				<Patterns>
+					<Pattern>CUsbDevice::ReportDeviceDecriptor: dev %s VID:PID %s</Pattern>
+				</Patterns>
+				<Properties>
+					<Property i="0">
+						<PatternIndex>0</PatternIndex>
+						<Name>Device</Name>
+						<DataType>string</DataType>
+						<Action>Locate</Action>
+						<Target>this</Target>
+					</Property>
+					<Property i="1">
+						<PatternIndex>1</PatternIndex>
+						<Name>ID</Name>
+						<DataType>decimal</DataType>
+						<Action>Assign</Action>
+						<Target>ID</Target>
+					</Property>
+				</Properties>
+			</Filter>
+			<Filter key="CUsbipRequest::CUsbipRequest" IsVisible ="1" IsFindable = "1">
+				<State>Created</State>
+				<Color>LightSkyBlue</Color>
 				<Patterns>
 					<Pattern>CUsbipRequest::CUsbipRequest: type %s dev %s -> %s</Pattern>
 				</Patterns>
 				<Properties>
 					<Property i="0">
-						<Name>Type</Name>
-						<Action>Assign</Action>
-						<Type>string</Type>
-						<Target>this</Target>
-					</Property>
-					<Property i="1">
-						<Name>DeviceParentOf</Name>
-						<Action>Locate</Action>
-						<Type>string</Type>
-						<Target>this</Target>
-					</Property>
-					<Property i="2">
+						<PatternIndex>2</PatternIndex>
 						<Name>Request</Name>
+						<DataType>string</DataType>
 						<Action>New</Action>
-						<Type>string</Type>
 						<Target>this</Target>
+					</Property>								
+					<Property i="1">
+						<PatternIndex>1</PatternIndex>
+						<Name>Parent</Name>
+						<DataType>string</DataType>
+						<Action>AssignToSelf</Action>
+						<Target>Parent</Target>
+					</Property>					
+					<Property i="2">
+						<PatternIndex>0</PatternIndex>
+						<Name>Type</Name>
+						<DataType>string</DataType>
+						<Action>AssignToSelf</Action>						
+					</Property>	
+					<Property i="3"> <!--???????-->
+						<PatternIndex>2</PatternIndex>
+						<Name>ChildRequest</Name>
+						<DataType>object</DataType>
+						<Action>Assign</Action>
 					</Property>
 				</Properties>
 			</Filter>
-			<Filter>
+			<Filter key="CUsbipRequest::Prepare" IsVisible ="1" IsFindable = "1">
+				<State>Queued</State>
+				<Color>LightSkyBlue</Color>
 				<Patterns>
-					<Pattern>CUsbipRequest::Prepare:@%s: %s(%d)%s, req %s</Pattern>
+					<Pattern>[%*1d]%*4c.%*4c::%s [%*7s]CUsbipRequest::Prepare:@%2c: %s trvil %s req %s</Pattern>
 				</Patterns>
 				<Properties>
 					<Property i="0">
-						<Name>Address</Name>
-						<Action>Assign</Action>
-						<Type>string</Type>
+						<PatternIndex>4</PatternIndex>
+						<Name>Request</Name>
+						<DataType>string</DataType>						
+						<Action>Locate</Action>
 						<Target>this</Target>
 					</Property>
 					<Property i="1">
-						<Name>Function</Name>
-						<Target>this</Target>
+						<PatternIndex>0</PatternIndex>						
+						<Name>Address</Name>
+						<DataType>string</DataType>
 						<Action>Assign</Action>
-						<Type>string</Type>
-						<Target>this</Target>
 					</Property>
 					<Property i="2">
-						<Name>Unknown1</Name>
-						<Action>drop</Action>
-						<Type>dec</Type>
-						<Target>this</Target>
+						<PatternIndex>1</PatternIndex>
+						<Name></Name>
+						<DataType>decimal</DataType>						
+						<Action>Drop</Action>
 					</Property>
 					<Property i="3">
-						<Name>Unknown2</Name>
+						<PatternIndex>2</PatternIndex>
+						<Name>Drop</Name>
+						<DataType>decimal</DataType>
 						<Action>Drop</Action>
-						<Type>dec</Type>
-						<Target>this</Target>
 					</Property>
 					<Property i="4">
-						<Name>Reqest</Name>
-						<Action>Drop</Action>
-						<Type>string</Type>
-						<Target>this</Target>
+						<PatternIndex>3</PatternIndex>						
+						<Name>Drop</Name>
+						<DataType>string</DataType>						
+						<Action>Drop</Action>	
 					</Property>
 				</Properties>
 			</Filter>			
