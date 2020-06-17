@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             this.dataGV = new System.Windows.Forms.DataGridView();
             this.btnLoadLog = new System.Windows.Forms.Button();
@@ -39,8 +40,11 @@
             this.txtSearch = new System.Windows.Forms.TextBox();
             this.cmbProfile = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.gridCmStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.showRelatedLogEntryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.dataGV)).BeginInit();
             this.gbSearch.SuspendLayout();
+            this.gridCmStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // dataGV
@@ -70,6 +74,8 @@
             this.dataGV.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
             this.dataGV.Size = new System.Drawing.Size(907, 374);
             this.dataGV.TabIndex = 0;
+            this.dataGV.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dataGV_CellFormatting);
+            this.dataGV.CellMouseDown += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataGV_CellMouseDown);
             this.dataGV.CellStateChanged += new System.Windows.Forms.DataGridViewCellStateChangedEventHandler(this.dataGV_CellStateChanged);
             // 
             // btnLoadLog
@@ -153,6 +159,20 @@
             this.label1.TabIndex = 5;
             this.label1.Text = "Select Profile:";
             // 
+            // gridCmStrip
+            // 
+            this.gridCmStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.showRelatedLogEntryToolStripMenuItem});
+            this.gridCmStrip.Name = "gridCmStrip";
+            this.gridCmStrip.Size = new System.Drawing.Size(196, 26);
+            // 
+            // showRelatedLogEntryToolStripMenuItem
+            // 
+            this.showRelatedLogEntryToolStripMenuItem.Name = "showRelatedLogEntryToolStripMenuItem";
+            this.showRelatedLogEntryToolStripMenuItem.Size = new System.Drawing.Size(195, 22);
+            this.showRelatedLogEntryToolStripMenuItem.Text = "Show related Log Entry";
+            this.showRelatedLogEntryToolStripMenuItem.Click += new System.EventHandler(this.showRelatedLogEntryToolStripMenuItem_Click);
+            // 
             // FrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -169,6 +189,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.dataGV)).EndInit();
             this.gbSearch.ResumeLayout(false);
             this.gbSearch.PerformLayout();
+            this.gridCmStrip.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -186,6 +207,8 @@
         private System.Windows.Forms.Button btnSearch;
         private System.Windows.Forms.ComboBox cmbProfile;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.ContextMenuStrip gridCmStrip;
+        private System.Windows.Forms.ToolStripMenuItem showRelatedLogEntryToolStripMenuItem;
     }
 }
 

@@ -14,51 +14,35 @@ namespace LogParserApp
     public partial class ParserView
     {
         public static void CreateGridView(List<ParserObject> data, DataGridView dataGV)
-        {
-            //var data1 = new List<MyStruct>() { new MyStruct("a", "b"), new MyStruct("c", "d") };     
-
-            //var source = new BindingSource();
-            //source.DataSource = data;
-            dataGV.AutoGenerateColumns = false;
-            //dataGV.DataSource = source;
-
+        {        
+            dataGV.AutoGenerateColumns = false;            
             dataGV.Columns.Clear();
+            
 
-            var columnsCount = data.Max(x => x.VisualObjectCollection.Distinct().Count());
-            //dataGV.ColumnCount = columnsCount;
+            var columnsCount = data.Max(x => x.VisualObjectCollection.Distinct().Count());           
 
             for (int i = 0; i < columnsCount; i++)
             {
                 var col = new DataGridViewColumn();
                 col.CellTemplate = new DataGridViewTextBoxCell();
-                col.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
-                //col.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;               
+                col.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;                               
                 col.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
                 col.Width = 100;
                 col.DividerWidth = 10;                
                 dataGV.Columns.Add(col);                      
             }
 
-
+           
             for (int i = 0; i < columnsCount; i++)
             {
+                if (i >= data.Count)
+                    break;
+                
                 CreateGridRow(data[i], dataGV.Columns[i], dataGV);
             }
 
-
-            foreach (var c in dataGV.Columns)
-            {
-                ((DataGridViewColumn)c).Width = 100;
-                ((DataGridViewColumn)c).DividerWidth = 10;
-            }
-
-            foreach (var r in dataGV.Rows)
-            {
-                ((DataGridViewRow)r).Height = 100;
-                ((DataGridViewRow)r).DividerHeight = 10;
-            }
-
-            dataGV.Refresh();
+            SetGridParameters(dataGV);
+     
             dataGV.ClearSelection();       
         }
 
@@ -84,15 +68,13 @@ namespace LogParserApp
         }
 
         private static Color CreateGridCell(ParserObject visualObj, DataGridViewRow row, int cellIndex, Color currentColor)
-        {
-            //Color col = ColorConverter.ConvertFromString("#FFDFD991") as Color;
-            //string colorcode = "#FFDFD991";                       
-
+        {                     
             var cell = new DataGridViewTextBoxCell();
 
             currentColor = currentColor == Color.Transparent ?
-                Color.FromName((string)visualObj.GetDynPropertyValue("BaseColor")) :
-                Utils.DarkerColor(currentColor, 20f);           
+                //Color.FromName((string)visualObj.GetDynPropertyValue("BaseColor")) :
+                Color.LightSkyBlue:
+                Utils.DarkerColor(currentColor, 10f);           
 
             cell.Style = new DataGridViewCellStyle
             {
@@ -107,7 +89,10 @@ namespace LogParserApp
             visualDescription.AppendLine((string)visualObj.GetDynPropertyValue("this"));
             visualDescription.AppendLine((string)visualObj.GetDynPropertyValue("FilterKey"));      
             visualDescription.AppendLine((string)visualObj.GetDynPropertyValue("State"));
-            cell.Value = visualDescription.ToString();
+            visualObj.VisualDescription = visualDescription.ToString();
+            if (visualObj == null || visualObj.VisualDescription == "")
+                visualObj.VisualDescription = null;
+            cell.Value = visualObj;
 
 
             row.Cells[cellIndex] = cell;
@@ -117,10 +102,26 @@ namespace LogParserApp
 
         private static void CreateGridCell(DataGridViewRow row, int cellIndex)
         {
-            //Create an emoty cell
+            //Create an empty cell
             var cell = new DataGridViewTextBoxCell();
             cell.Value = string.Empty;
             row.Cells[cellIndex] = cell;           
+        }
+
+        private static void SetGridParameters(DataGridView dataGV)
+        {
+            foreach (var c in dataGV.Columns)
+            {
+                ((DataGridViewColumn)c).Width = 100;
+                ((DataGridViewColumn)c).DividerWidth = 10;
+            }
+
+            foreach (var r in dataGV.Rows)
+            {
+                ((DataGridViewRow)r).Height = 100;
+                ((DataGridViewRow)r).DividerHeight = 10;
+            }
+
         }
     }
 }

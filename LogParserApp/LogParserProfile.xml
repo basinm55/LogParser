@@ -3,8 +3,7 @@
 	<Profile Name ="Default">
 		<Filters>			
 			<Filter key="CUsbDevice::CUsbDevice" IsVisible ="0" IsFindable = "1">
-				<State>Created</State>
-				<Color>LightYellow</Color>
+				<State>Created</State>				
 				<Patterns>
 					<Pattern>[%*1d]%*4c.%*4c::%s [%*7s]CUsbDevice::CUsbDevice: %s</Pattern>
 				</Patterns>				
@@ -25,8 +24,7 @@
 				</Properties>
 			</Filter>
 			<Filter key="CPort::BindUsbDevice" IsVisible ="1" IsFindable = "1">
-				<State />
-				<Color>LightSkyBlue</Color>
+				<State />				
 				<Patterns>
 					<Pattern>CPort::BindUsbDevice port %d CUsbDevice %s</Pattern>
 			    </Patterns>
@@ -49,7 +47,6 @@
 			</Filter>
 			<Filter key="CUsbDevice::ReportDeviceDecriptor" IsVisible ="1" IsFindable = "1">
 				<State />
-				<Color>LightSkyBlue</Color>
 				<Patterns>
 					<Pattern>CUsbDevice::ReportDeviceDecriptor: dev %s VID:PID %s</Pattern>
 				</Patterns>
@@ -72,7 +69,6 @@
 			</Filter>
 			<Filter key="CUsbipRequest::CUsbipRequest" IsVisible ="1" IsFindable = "1">
 				<State>Created</State>
-				<Color>LightSkyBlue</Color>
 				<Patterns>
 					<Pattern>CUsbipRequest::CUsbipRequest: type %s dev %s -> %s</Pattern>
 				</Patterns>
@@ -107,7 +103,6 @@
 			</Filter>
 			<Filter key="CUsbipRequest::Prepare" IsVisible ="1" IsFindable = "1">
 				<State>Queued</State>
-				<Color>LightSkyBlue</Color>
 				<Patterns>
 					<Pattern>[%*1d]%*4c.%*4c::%s [%*7s]CUsbipRequest::Prepare:@%2c: %s trvil %s req %s</Pattern>
 				</Patterns>
@@ -143,6 +138,66 @@
 						<DataType>string</DataType>						
 						<Action>Drop</Action>	
 					</Property>
+				</Properties>
+			</Filter>
+			<Filter key="CUsbipRequest::FeedRead" IsVisible ="1" IsFindable = "1">
+				<State>Sent</State>
+				<Patterns>
+					<Pattern>[%*1d]%*4c.%*4c::%s [%*7s]CUsbipRequest::FeedRead:@%s #%d %s %s len %d, req %s</Pattern>					
+				</Patterns>
+				<Properties>
+					<Property i="0">
+						<PatternIndex>4</PatternIndex>
+						<Name>Request</Name>
+						<DataType>string</DataType>
+						<Action>Locate</Action>
+						<Target>this</Target>
+					</Property>
+					<Property i="1">
+						<PatternIndex>2</PatternIndex>
+						<Name>Serial</Name>
+						<DataType>string</DataType>
+						<Action>Assign</Action>
+					</Property>
+					<Property i="2">
+						<PatternIndex>5</PatternIndex>
+						<Name>MaxLen</Name>
+						<DataType>decimal</DataType>
+						<Action>Assign</Action>
+					</Property>
+					<Property i="3">
+						<PatternIndex>5</PatternIndex>
+						<Name>Len</Name>
+						<DataType>decimal</DataType>
+						<Action>Assign</Action>
+					</Property>					
+				</Properties>
+			</Filter>
+			<Filter key="CUsbipRequest::FeedWrite" IsVisible ="1" IsFindable = "1">
+				<State>Responded</State>
+				<Patterns>
+					<Pattern>[%*1d]%*4c.%*4c::%s [%*7s]CUsbipRequest::FeedWrite:%16s: %*s %d = %s</Pattern>
+				</Patterns>
+				<Properties>
+					<Property i="0">
+						<PatternIndex>1</PatternIndex>
+						<Name>Request</Name>
+						<DataType>string</DataType>
+						<Action>Locate</Action>
+						<Target>this</Target>
+					</Property>
+					<Property i="1">
+						<PatternIndex>2</PatternIndex>
+						<Name>Len</Name>
+						<DataType>decimal</DataType>
+						<Action>Assign</Action>
+					</Property>
+					<Property i="2">
+						<PatternIndex>3</PatternIndex>
+						<Name>Status</Name>
+						<DataType>string</DataType>
+						<Action>Assign</Action>
+					</Property>				
 				</Properties>
 			</Filter>			
 		</Filters>			

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -52,6 +53,10 @@ namespace LogParserApp
                 Cursor.Current = Cursors.WaitCursor;
                 try
                 {
+                    dataGV.DataSource = null;
+                    dataGV.Rows.Clear();
+                    dataGV.Refresh();
+
                     _parser.Run(_selectedProfile);
                     if (_parser.ObjectCollection != null && _parser.ObjectCollection.Count > 0)
                         ParserView.CreateGridView(_parser.ObjectCollection, dataGV);
@@ -105,8 +110,48 @@ namespace LogParserApp
             //Set empty cells unselectable
             if (e.Cell == null || e.StateChanged != DataGridViewElementStates.Selected)
                 return;
-            if (string.IsNullOrWhiteSpace((string)e.Cell.Value))
+            if (e.Cell.Value != null && (e.Cell.Value is ParserObject)) return;
                 e.Cell.Selected = false;
+        }
+
+        private void dataGV_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            // Ignore if a column or row header is clicked
+            if (e.RowIndex != -1 && e.ColumnIndex != -1)
+            {
+                if (e.Button == MouseButtons.Right)
+                {
+                    DataGridViewCell clickedCell = (sender as DataGridView).Rows[e.RowIndex].Cells[e.ColumnIndex];
+
+                    if (!(clickedCell.Value is ParserObject)) return;
+                   
+                    // Here you can do whatever you want with the cell
+                    dataGV.CurrentCell = clickedCell;  // Select the clicked cell, for instance
+
+                    // Get mouse position relative to the vehicles grid
+                    var relativeMousePosition = dataGV.PointToClient(Cursor.Position);
+
+                    // Show the context menu
+                    gridCmStrip.Show(dataGV, relativeMousePosition);
+                }
+            }
+        }
+
+        private void showRelatedLogEntryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (dataGV.CurrentCell != null && dataGV.CurrentCell.Value != null && dataGV.CurrentCell.Value is ParserObject)
+            { 
+                var relatedParserObject = (ParserObject)dataGV.CurrentCell.Value;
+                if (relatedParserObject != null)                    
+                    FlexibleMessageBox.Show(relatedParserObject.LogLine, "Related Log Entry", MessageBoxButtons.OK);    
+            }
+            
+        }
+
+        private void dataGV_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {          
+            if (e.Value != null && e.Value is ParserObject)
+                e.Value = ((ParserObject)e.Value).VisualDescription;
         }
     }  
 }

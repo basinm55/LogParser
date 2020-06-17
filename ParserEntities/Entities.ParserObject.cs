@@ -9,7 +9,11 @@ namespace Entities
 { 
     public class ParserObject
     {
-        public string ObjectClass { get; set; }                       
+        public string ObjectClass { get; set; }
+
+        public string LogLine { get; set; }
+
+        public string VisualDescription { get; set; }
         public dynamic DynObject { get; set; }
 
         public IDictionary<string, object> DynObjectDictionary;
@@ -137,7 +141,7 @@ namespace Entities
 
             result.DynObject = DeepClone(original.DynObject);
             result.DynObjectDictionary = (IDictionary<string, object>)result.DynObject;
-            result.ObjectClass = original.ObjectClass;          
+            result.ObjectClass = original.ObjectClass;            
             return result;
         }
 

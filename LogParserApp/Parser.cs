@@ -133,7 +133,7 @@ namespace LogParserApp
                         Int32.TryParse(prop.Element("PatternIndex").Value, out int patternIndex))
                     {
                         if (patternIndex < _sf.Results.Count)
-                            DoObjectAction(prop, sequenceNum, patternIndex, _sf.Results[patternIndex], filter);
+                            DoObjectAction(prop, sequenceNum, patternIndex, _sf.Results[patternIndex], filter, line);
                     }
                 }
             }
@@ -142,18 +142,19 @@ namespace LogParserApp
             {               
                 var newState = (string)_currentObj.GetDynPropertyValue("State");
 
-                //if (state == null && newState != null)
-                    //state = newState;
-
                 if (newState != null &&
                 _currentObj.GetDynPropertyValue("IsVisible").ToString().ToBoolean() &&
                 !newState.Equals(state, StringComparison.InvariantCultureIgnoreCase))
-                    _currentObj.VisualObjectCollection.Add(_currentObj.CreateVisualObject());
+                {
+                    var visualObject = _currentObj.CreateVisualObject();
+                    visualObject.LogLine = line;
+                    _currentObj.VisualObjectCollection.Add(visualObject);
+                }
             }
 
         }
 
-        private void DoObjectAction(XElement profilePropDefinition, int sequenceNum, int patternIndex, object parsedValue, XElement filter)
+        private void DoObjectAction(XElement profilePropDefinition, int sequenceNum, int patternIndex, object parsedValue, XElement filter, string logLine)
         {
             if (profilePropDefinition.Element("Action") == null) return;
             var action = profilePropDefinition.Element("Action").Value.ToEnum<PropertyAction>();   
@@ -161,22 +162,22 @@ namespace LogParserApp
             switch (action)
             {
                 case PropertyAction.New:
-                    DoActionNew(filter, profilePropDefinition, sequenceNum, patternIndex, parsedValue);
+                    DoActionNew(filter, profilePropDefinition, sequenceNum, patternIndex, parsedValue, logLine);
                     break;
                 case PropertyAction.AssignToSelf:
-                    DoActionAssignToSelf(filter, profilePropDefinition, sequenceNum, patternIndex, parsedValue);
+                    DoActionAssignToSelf(filter, profilePropDefinition, sequenceNum, patternIndex, parsedValue, logLine);
                     break;
                 case PropertyAction.Locate:
-                    DoActionLocate(filter, profilePropDefinition, sequenceNum, patternIndex, parsedValue);
+                    DoActionLocate(filter, profilePropDefinition, sequenceNum, patternIndex, parsedValue, logLine);
                     break;
                 case PropertyAction.Assign:
-                    DoActionAssign(filter, profilePropDefinition, sequenceNum, patternIndex, parsedValue);
+                    DoActionAssign(filter, profilePropDefinition, sequenceNum, patternIndex, parsedValue, logLine);
                     break;
                 case PropertyAction.Drop:
-                    DoActionDrop(filter, profilePropDefinition, sequenceNum, patternIndex, parsedValue);
+                    DoActionDrop(filter, profilePropDefinition, sequenceNum, patternIndex, parsedValue, logLine);
                     break;
                 case PropertyAction.Delete:
-                    DoActionDelete(filter, profilePropDefinition, sequenceNum, patternIndex, parsedValue);
+                    DoActionDelete(filter, profilePropDefinition, sequenceNum, patternIndex, parsedValue, logLine);
                     break;
 
                 default:                   

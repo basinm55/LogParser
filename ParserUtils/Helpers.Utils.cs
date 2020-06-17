@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Helpers
 {
@@ -30,9 +31,7 @@ namespace Helpers
         }
 
         public static Color ToColor(this string colorcode)
-        {
-            //string colorcode = "#FFFFFF00";
-            //int argb = Int32.Parse(colorcode.Replace("#", ""), NumberStyles.HexNumber);
+        {            
             if (Int32.TryParse(colorcode.Replace("#", ""), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out int result))
                 return Color.FromArgb(result);
             else
@@ -53,6 +52,35 @@ namespace Helpers
             const float rgb255 = 255f;
             return Color.FromArgb((int)(color.R + ((rgb255 - color.R) * correctionfactor)), (int)(color.G + ((rgb255 - color.G) * correctionfactor)), (int)(color.B + ((rgb255 - color.B) * correctionfactor))
                 );
+        }
+    }
+
+    public static class Prompt
+    {
+        public static string ShowDialog(string text, string headerText, string caption)
+        {
+            Form prompt = new Form()
+            {
+                Width = 500,
+                Height = 150,
+                FormBorderStyle = FormBorderStyle.FixedDialog,
+                Text = caption,
+                StartPosition = FormStartPosition.CenterParent
+            };
+            //Label textLabel = new Label() { Left = 50, Top = 20, Text = headerText };
+            TextBox textBox = new TextBox() { Left = 50, Top = 20, Width = 400 };
+            textBox.Text = text;
+            textBox.Multiline = true;
+            textBox.WordWrap = true;
+            textBox.ReadOnly = true;
+            Button confirmation = new Button() { Text = "OK", Left = 350, Width = 100, Top = 70, DialogResult = DialogResult.OK };
+            confirmation.Click += (sender, e) => { prompt.Close(); };
+            prompt.Controls.Add(textBox);
+            prompt.Controls.Add(confirmation);
+            //prompt.Controls.Add(textLabel);
+            prompt.AcceptButton = confirmation;
+
+            return prompt.ShowDialog() == DialogResult.OK ? textBox.Text : "";
         }
     }
 
