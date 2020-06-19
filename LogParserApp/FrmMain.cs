@@ -4,6 +4,7 @@ using System.Collections.Specialized;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using Entities;
@@ -26,14 +27,8 @@ namespace LogParserApp
         {            
             _profileMng = new ProfileManager();
             _profileMng.LoadXmlFile("LogParserProfile.xml");
-            _profileMng.GetProfileByName("Default");
-            cmbProfile.Items.AddRange(_profileMng.GetProfileNames());
-
-            cmbProfile.SelectedItem = "Default";
-            if (cmbProfile.SelectedItem == null)
-                cmbProfile.SelectedIndex = -1;
-            else
-                _selectedProfile = _profileMng.CurrentProfile;
+            _profileMng.GetProfileByName("Default");                                            
+            _selectedProfile = _profileMng.CurrentProfile;
 
             rbPort.Checked = true;
             UpdateControlsState();            
@@ -57,7 +52,7 @@ namespace LogParserApp
                     dataGV.Rows.Clear();
                     dataGV.Refresh();
 
-                    _parser.Run(_selectedProfile);
+                    _parser.Run(_selectedProfile, toolStripStatusLabel1);
                     if (_parser.ObjectCollection != null && _parser.ObjectCollection.Count > 0)
                         ParserView.CreateGridView(_parser.ObjectCollection, dataGV);
                     else
@@ -99,11 +94,7 @@ namespace LogParserApp
         {
             ///TODO
         }
-
-        private void cmbProfile_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            _selectedProfile = _profileMng.GetProfileByName(cmbProfile.SelectedItem.ToString());
-        }
+      
 
         private void dataGV_CellStateChanged(object sender, DataGridViewCellStateChangedEventArgs e)
         {
@@ -124,34 +115,54 @@ namespace LogParserApp
                     DataGridViewCell clickedCell = (sender as DataGridView).Rows[e.RowIndex].Cells[e.ColumnIndex];
 
                     if (!(clickedCell.Value is ParserObject)) return;
-                   
-                    // Here you can do whatever you want with the cell
-                    dataGV.CurrentCell = clickedCell;  // Select the clicked cell, for instance
+                                       
+                    dataGV.CurrentCell = clickedCell;  // Select the clicked cell
 
-                    // Get mouse position relative to the vehicles grid
+                    // Get mouse position relative to the grid
                     var relativeMousePosition = dataGV.PointToClient(Cursor.Position);
 
                     // Show the context menu
                     gridCmStrip.Show(dataGV, relativeMousePosition);
                 }
             }
-        }
-
-        private void showRelatedLogEntryToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (dataGV.CurrentCell != null && dataGV.CurrentCell.Value != null && dataGV.CurrentCell.Value is ParserObject)
-            { 
-                var relatedParserObject = (ParserObject)dataGV.CurrentCell.Value;
-                if (relatedParserObject != null)                    
-                    FlexibleMessageBox.Show(relatedParserObject.LogLine, "Related Log Entry", MessageBoxButtons.OK);    
-            }
-            
-        }
+        }     
 
         private void dataGV_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {          
             if (e.Value != null && e.Value is ParserObject)
                 e.Value = ((ParserObject)e.Value).VisualDescription;
+        }
+
+
+        private void showRelatedLogEntryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (dataGV.CurrentCell != null && dataGV.CurrentCell.Value != null && dataGV.CurrentCell.Value is ParserObject)
+            {
+                var relatedParserObject = (ParserObject)dataGV.CurrentCell.Value;
+                if (relatedParserObject != null)
+                    FlexibleMessageBox.Show(relatedParserObject.LogLine, "Related Log Entry", MessageBoxButtons.OK);
+            }
+
+        }
+
+        private void showPropertiesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (dataGV.CurrentCell != null && dataGV.CurrentCell.Value != null && dataGV.CurrentCell.Value is ParserObject)
+            {
+                var relatedParserObject = (ParserObject)dataGV.CurrentCell.Value;
+                if (relatedParserObject != null)
+                {
+                    var properties = new StringBuilder();
+                    foreach (var prop in relatedParserObject.DynObjectDictionary)
+                        properties.AppendLine(prop.Key + " = " + prop.Value.ToString());
+                   
+                    FlexibleMessageBox.Show(properties.ToString(),
+                        string.Format("Properties of {0}: {1}",
+                            relatedParserObject.ObjectClass,
+                            relatedParserObject.GetDynPropertyValue("this")),
+                        MessageBoxButtons.OK);
+                }
+            }
         }
     }  
 }

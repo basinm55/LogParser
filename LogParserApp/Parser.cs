@@ -32,17 +32,24 @@ namespace LogParserApp
 
         }
 
-        public void Run(XElement profile)
-        {      
+        public void Run(XElement profile, ToolStripStatusLabel toolStripStatusLabel)
+        {
+            int maxLines = 100000;
             _sf = new ScanFormatted();
 
             ObjectCollection.Clear();
             var list = ReadLogFileToList();
+            int i = 0;
             foreach (var line in list)
             {
                 try
                 {
-                    ParseLogLine(line, profile);     
+                    i++;
+                    toolStripStatusLabel.Text = i.ToString();
+                    //Application.DoEvents();
+                    if (i > maxLines) break;
+
+                    ParseLogLine(line, profile);      
                 }
                 catch (Exception e)
                 {
@@ -121,9 +128,8 @@ namespace LogParserApp
             foreach (var filterPattern in filterPatterns)
             {
                 _sf.Parse(line, filterPattern.Value);
-
-                if (_sf.Results.Count == 0)
-                    continue;
+                if (!IsParsingSuccessful(filterPattern))
+                    continue;           
 
                 foreach (var prop in filter.XPathSelectElements("Properties/Property"))
                 {
@@ -152,6 +158,19 @@ namespace LogParserApp
                 }
             }
 
+        }
+
+        private bool IsParsingSuccessful(XElement filterPattern)
+        {
+            if (_sf.Results.Count == 0)
+              return false;
+
+            var percentCount = filterPattern.Value.Count(c => c == '%');
+            var droppedPercentCount = filterPattern.Value.Split(new string[] {"%*"}, StringSplitOptions.None).Length - 1;
+            if (_sf.Results.Count != percentCount - droppedPercentCount)
+                return false;
+
+            return true;
         }
 
         private void DoObjectAction(XElement profilePropDefinition, int sequenceNum, int patternIndex, object parsedValue, XElement filter, string logLine)

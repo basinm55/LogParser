@@ -150,7 +150,7 @@ namespace Helpers
         public int Parse(string input, string format)
         {
 
-            input = JumpToText(input, format);              
+            input = JumpToText(input, format);         
 
             TextParser inp = new TextParser(input);
             TextParser fmt = new TextParser(format);
@@ -646,6 +646,6 @@ namespace Helpers
                     return input;
             }
             return input;
-        }
+        }  
     }
 }

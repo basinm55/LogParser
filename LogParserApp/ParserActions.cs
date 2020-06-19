@@ -148,9 +148,9 @@ namespace LogParserApp
             _currentObj.SetDynProperty("PatternIndex", patternIndex, PropertyDataType.Decimal);
             _currentObj.SetDynProperty("DataType", dataType, PropertyDataType.Enum, format, typeof(PropertyDataType));
 
-            _currentObj.SetDynProperty("Action",
-                profilePropDefinition.Element("Action").Value.ToEnum<PropertyAction>(),
-                    PropertyDataType.Enum, null, typeof(PropertyAction));
+            //_currentObj.SetDynProperty("Action",
+            //    profilePropDefinition.Element("Action").Value.ToEnum<PropertyAction>(),
+            //        PropertyDataType.Enum, null, typeof(PropertyAction));
 
             if (string.Equals(name, "Timestamp", StringComparison.InvariantCultureIgnoreCase))
                 _currentObj.SetDynProperty("Timestamp", parsedValue, PropertyDataType.Time, format);

@@ -38,13 +38,15 @@
             this.rbSession = new System.Windows.Forms.RadioButton();
             this.rbPort = new System.Windows.Forms.RadioButton();
             this.txtSearch = new System.Windows.Forms.TextBox();
-            this.cmbProfile = new System.Windows.Forms.ComboBox();
-            this.label1 = new System.Windows.Forms.Label();
             this.gridCmStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.showRelatedLogEntryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.propertiesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.statusStrip = new System.Windows.Forms.StatusStrip();
+            this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             ((System.ComponentModel.ISupportInitialize)(this.dataGV)).BeginInit();
             this.gbSearch.SuspendLayout();
             this.gridCmStrip.SuspendLayout();
+            this.statusStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // dataGV
@@ -72,7 +74,7 @@
             this.dataGV.RowsDefaultCellStyle = dataGridViewCellStyle1;
             this.dataGV.RowTemplate.Height = 66;
             this.dataGV.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
-            this.dataGV.Size = new System.Drawing.Size(907, 374);
+            this.dataGV.Size = new System.Drawing.Size(907, 408);
             this.dataGV.TabIndex = 0;
             this.dataGV.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dataGV_CellFormatting);
             this.dataGV.CellMouseDown += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataGV_CellMouseDown);
@@ -140,31 +142,13 @@
             this.txtSearch.Size = new System.Drawing.Size(312, 20);
             this.txtSearch.TabIndex = 5;
             // 
-            // cmbProfile
-            // 
-            this.cmbProfile.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbProfile.FormattingEnabled = true;
-            this.cmbProfile.Location = new System.Drawing.Point(172, 55);
-            this.cmbProfile.Name = "cmbProfile";
-            this.cmbProfile.Size = new System.Drawing.Size(121, 21);
-            this.cmbProfile.TabIndex = 4;
-            this.cmbProfile.SelectedIndexChanged += new System.EventHandler(this.cmbProfile_SelectedIndexChanged);
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(172, 32);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(72, 13);
-            this.label1.TabIndex = 5;
-            this.label1.Text = "Select Profile:";
-            // 
             // gridCmStrip
             // 
             this.gridCmStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.showRelatedLogEntryToolStripMenuItem});
+            this.showRelatedLogEntryToolStripMenuItem,
+            this.propertiesToolStripMenuItem});
             this.gridCmStrip.Name = "gridCmStrip";
-            this.gridCmStrip.Size = new System.Drawing.Size(196, 26);
+            this.gridCmStrip.Size = new System.Drawing.Size(196, 48);
             // 
             // showRelatedLogEntryToolStripMenuItem
             // 
@@ -173,13 +157,34 @@
             this.showRelatedLogEntryToolStripMenuItem.Text = "Show related Log Entry";
             this.showRelatedLogEntryToolStripMenuItem.Click += new System.EventHandler(this.showRelatedLogEntryToolStripMenuItem_Click);
             // 
+            // propertiesToolStripMenuItem
+            // 
+            this.propertiesToolStripMenuItem.Name = "propertiesToolStripMenuItem";
+            this.propertiesToolStripMenuItem.Size = new System.Drawing.Size(195, 22);
+            this.propertiesToolStripMenuItem.Text = "Properties...";
+            this.propertiesToolStripMenuItem.Click += new System.EventHandler(this.showPropertiesToolStripMenuItem_Click);
+            // 
+            // statusStrip
+            // 
+            this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripStatusLabel1});
+            this.statusStrip.Location = new System.Drawing.Point(0, 444);
+            this.statusStrip.Name = "statusStrip";
+            this.statusStrip.Size = new System.Drawing.Size(910, 22);
+            this.statusStrip.TabIndex = 4;
+            // 
+            // toolStripStatusLabel1
+            // 
+            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(112, 17);
+            this.toolStripStatusLabel1.Text = "toolStripStatusLabel";
+            // 
             // FrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(910, 466);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.cmbProfile);
+            this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.gbSearch);
             this.Controls.Add(this.btnLoadLog);
             this.Controls.Add(this.dataGV);
@@ -190,6 +195,8 @@
             this.gbSearch.ResumeLayout(false);
             this.gbSearch.PerformLayout();
             this.gridCmStrip.ResumeLayout(false);
+            this.statusStrip.ResumeLayout(false);
+            this.statusStrip.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -205,10 +212,11 @@
         private System.Windows.Forms.RadioButton rbSession;
         private System.Windows.Forms.RadioButton rbPort;
         private System.Windows.Forms.Button btnSearch;
-        private System.Windows.Forms.ComboBox cmbProfile;
-        private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ContextMenuStrip gridCmStrip;
         private System.Windows.Forms.ToolStripMenuItem showRelatedLogEntryToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem propertiesToolStripMenuItem;
+        private System.Windows.Forms.StatusStrip statusStrip;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
     }
 }
 

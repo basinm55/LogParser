@@ -119,7 +119,7 @@ namespace LogParserApp
             foreach (var r in dataGV.Rows)
             {
                 ((DataGridViewRow)r).Height = 100;
-                ((DataGridViewRow)r).DividerHeight = 10;
+                ((DataGridViewRow)r).DividerHeight = 20;
             }
 
         }

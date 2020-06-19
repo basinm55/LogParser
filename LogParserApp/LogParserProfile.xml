@@ -70,31 +70,37 @@
 			<Filter key="CUsbipRequest::CUsbipRequest" IsVisible ="1" IsFindable = "1">
 				<State>Created</State>
 				<Patterns>
-					<Pattern>CUsbipRequest::CUsbipRequest: type %s dev %s -> %s</Pattern>
+					<Pattern>[%*1d]%*4c.%*4c::%s [%*7s]CUsbipRequest::CUsbipRequest: type %s dev %s -> %s</Pattern>
 				</Patterns>
 				<Properties>
 					<Property i="0">
-						<PatternIndex>2</PatternIndex>
+						<PatternIndex>3</PatternIndex>
 						<Name>Request</Name>
 						<DataType>string</DataType>
 						<Action>New</Action>
 						<Target>this</Target>
-					</Property>								
+					</Property>
 					<Property i="1">
-						<PatternIndex>1</PatternIndex>
+						<PatternIndex>0</PatternIndex>
+						<Name>Timestamp</Name>
+						<DataType Format ="MM/dd/yyyy-HH:mm:ss.FFF">Time</DataType>
+						<Action>AssignToSelf</Action>
+					</Property>					
+					<Property i="1">
+						<PatternIndex>2</PatternIndex>
 						<Name>Parent</Name>
 						<DataType>string</DataType>
 						<Action>AssignToSelf</Action>
 						<Target>Parent</Target>
 					</Property>					
 					<Property i="2">
-						<PatternIndex>0</PatternIndex>
+						<PatternIndex>1</PatternIndex>
 						<Name>Type</Name>
 						<DataType>string</DataType>
 						<Action>AssignToSelf</Action>						
 					</Property>	
 					<Property i="3"> <!--???????-->
-						<PatternIndex>2</PatternIndex>
+						<PatternIndex>3</PatternIndex>
 						<Name>ChildRequest</Name>
 						<DataType>object</DataType>
 						<Action>Assign</Action>
@@ -104,11 +110,11 @@
 			<Filter key="CUsbipRequest::Prepare" IsVisible ="1" IsFindable = "1">
 				<State>Queued</State>
 				<Patterns>
-					<Pattern>[%*1d]%*4c.%*4c::%s [%*7s]CUsbipRequest::Prepare:@%2c: %s trvil %s req %s</Pattern>
+					<Pattern>CUsbipRequest::Prepare:@%2s: %s trvil %s req %s</Pattern>
 				</Patterns>
 				<Properties>
 					<Property i="0">
-						<PatternIndex>4</PatternIndex>
+						<PatternIndex>3</PatternIndex>
 						<Name>Request</Name>
 						<DataType>string</DataType>						
 						<Action>Locate</Action>
@@ -121,23 +127,17 @@
 						<Action>Assign</Action>
 					</Property>
 					<Property i="2">
-						<PatternIndex>1</PatternIndex>
-						<Name></Name>
-						<DataType>decimal</DataType>						
-						<Action>Drop</Action>
+						<PatternIndex>2</PatternIndex>
+						<Name>Direction</Name>
+						<DataType>string</DataType>						
+						<Action>Assign</Action>
 					</Property>
 					<Property i="3">
-						<PatternIndex>2</PatternIndex>
-						<Name>Drop</Name>
-						<DataType>decimal</DataType>
-						<Action>Drop</Action>
-					</Property>
-					<Property i="4">
-						<PatternIndex>3</PatternIndex>						
-						<Name>Drop</Name>
-						<DataType>string</DataType>						
-						<Action>Drop</Action>	
-					</Property>
+						<PatternIndex>1</PatternIndex>
+						<Name>Type</Name>
+						<DataType>string</DataType>
+						<Action>Assign</Action>
+					</Property>			
 				</Properties>
 			</Filter>
 			<Filter key="CUsbipRequest::FeedRead" IsVisible ="1" IsFindable = "1">
@@ -199,7 +199,34 @@
 						<Action>Assign</Action>
 					</Property>				
 				</Properties>
-			</Filter>			
+			</Filter>
+			<Filter key="CUsbipRequest::Complete" IsVisible ="1" IsFindable = "1">
+				<State>Completed</State>
+				<Patterns>
+					<Pattern>[%*1d]%*4c.%*4c::%s [%*7s]CUsbipRequest::Complete:@%s #%d %s done in %d ms, wdf %s = %x, req %s</Pattern>					
+				</Patterns>
+				<Properties>
+					<Property i="0">
+						<PatternIndex>6</PatternIndex>
+						<Name>Request</Name>
+						<DataType>string</DataType>
+						<Action>Locate</Action>
+						<Target>this</Target>
+					</Property>
+					<Property i="1">
+						<PatternIndex>3</PatternIndex>
+						<Name>TimeToComplete</Name>
+						<DataType>decimal</DataType>
+						<Action>Assign</Action>
+					</Property>
+					<Property i="2">
+						<PatternIndex>5</PatternIndex>
+						<Name>IrpStatus</Name>
+						<DataType>string</DataType>
+						<Action>Assign</Action>
+					</Property>			
+				</Properties>
+			</Filter>
 		</Filters>			
 	</Profile>
 	
