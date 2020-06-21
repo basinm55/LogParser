@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -21,6 +22,8 @@ namespace LogParserApp
         public FrmMain()
         {           
             InitializeComponent();
+            bkgWorker.WorkerReportsProgress = true;
+            bkgWorker.WorkerSupportsCancellation = true;
         }
 
         private void FrmMain_Load(object sender, EventArgs e)
@@ -31,6 +34,9 @@ namespace LogParserApp
             _selectedProfile = _profileMng.CurrentProfile;
 
             rbPort.Checked = true;
+            btnStopLoading.Visible = false;                       
+            cmbShowDevice.SelectedIndex = -1;
+            cmbShowDevice.Enabled = false;
             UpdateControlsState();            
         }
 
@@ -43,30 +49,21 @@ namespace LogParserApp
             if (dlgLoadLog.ShowDialog() != DialogResult.Cancel)
             {  
                 loadedLogFileName = dlgLoadLog.FileName;
-                _parser = new Parser(loadedLogFileName);
-                
-                Cursor.Current = Cursors.WaitCursor;
-                try
+                _parser = new Parser(loadedLogFileName);                               
+                if (!bkgWorker.IsBusy)
                 {
                     dataGV.DataSource = null;
                     dataGV.Rows.Clear();
                     dataGV.Refresh();
 
-                    _parser.Run(_selectedProfile, toolStripStatusLabel1);
-                    if (_parser.ObjectCollection != null && _parser.ObjectCollection.Count > 0)
-                        ParserView.CreateGridView(_parser.ObjectCollection, dataGV);
-                    else
-                    {
-                        Cursor.Current = Cursors.Default;
-                        MessageBox.Show(string.Format("There is no parsing results for the file: '{0}'", loadedLogFileName));
-                    }
-                }
-                finally
-                {
-                    Cursor.Current = Cursors.Default;
-                }
-
-                UpdateControlsState();
+                    // Start the asynchronous operation.
+                    btnLoadLog.Enabled = false;
+                    btnStopLoading.Visible = true;
+                    calculateLabel.Text = string.Empty;
+                    cmbShowDevice.Enabled = false;
+                    cmbShowDevice.SelectedIndex = -1;
+                    bkgWorker.RunWorkerAsync();
+                }               
             }
 
         }     
@@ -164,5 +161,127 @@ namespace LogParserApp
                 }
             }
         }
-    }  
+
+
+        #region Background Worker
+
+        private bool closePending;
+
+        private void bkgWorker_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+        {            
+            _parser.Run(_selectedProfile, sender as BackgroundWorker, e);       
+        }
+
+        private void bkgWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            resultLabel.Text = (e.ProgressPercentage.ToString() + "%");
+            if (!closePending)
+                progressBar.Value = e.ProgressPercentage;
+        }
+
+        private void bkgWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {  
+            if (e.Error != null)
+                resultLabel.Text = "Load Error: " + e.Error.Message;
+            else if (e.Cancelled == true)
+                resultLabel.Text = "Load interrupted by user";
+            else
+                resultLabel.Text = "Load Done";
+
+            calculateLabel.Text = string.Format("({0} of {1} log entries completed)", _parser.CompletedLogLines, _parser.TotalLogLines);
+
+            if (e.Error == null && _parser.ObjectCollection != null && _parser.ObjectCollection.Count > 0)
+            {
+                //Fill devices                
+                //cmbShowDevice.DataSource = _parser.ObjectCollection.
+                //    Where(o => (string)o.GetDynPropertyValue("Name") == "Device").
+                //    Select(o => o.GetDynPropertyValue("this")).ToArray();
+
+                CreateComboDeviceDataSource();
+
+                if (cmbShowDevice.Items.Count > 0)
+                    cmbShowDevice.SelectedIndex = 0;
+                cmbShowDevice.Enabled = true;
+                btnLoadLog.Enabled = true; 
+                UpdateControlsState();
+            }
+            else
+                MessageBox.Show(string.Format("There is no parsing results for the file: '{0}'", loadedLogFileName));
+
+            btnStopLoading.Visible = false;
+            closePending = false;
+        }
+
+        #endregion Background Worker
+
+
+        private void CreateComboDeviceDataSource()
+        {
+            var ds = _parser.ObjectCollection.
+                                Where(o => (string)o.GetDynPropertyValue("Name") == "Device").Distinct().
+                                ToList();
+
+            var comboSource = new Dictionary<string, ParserObject>();
+            foreach (var itm in ds)
+                comboSource.Add((string)itm.GetDynPropertyValue("this"), itm);
+
+            cmbShowDevice.DataSource = new BindingSource(comboSource, null);
+            cmbShowDevice.DisplayMember = "Key";
+            cmbShowDevice.ValueMember = "Value";
+        }
+
+        private void chkShowAll_CheckedChanged(object sender, EventArgs e)
+        {
+            cmbShowDevice.Enabled = !chkShowAll.Checked && cmbShowDevice.Items.Count > 0;
+            if (chkShowAll.Checked)
+                cmbShowDevice.SelectedIndex = -1;
+
+            ParserView.CreateGridView(_parser.ObjectCollection, dataGV, null);
+        }    
+
+        private void btnStopLoading_ButtonClick(object sender, EventArgs e)
+        {
+            if (bkgWorker.WorkerSupportsCancellation == true)
+                bkgWorker.CancelAsync();
+        }
+
+        private void cmbShowDevice_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cmbShowDevice.SelectedValue != null)
+            {           
+                UpdateDeviceDetails();
+
+                //Filter by selected device
+                var deviceFilter = ((KeyValuePair<string, ParserObject>)cmbShowDevice.SelectedItem).Key; 
+                ParserView.CreateGridView(_parser.ObjectCollection, dataGV, deviceFilter);
+            }                       
+        }
+
+        private void UpdateDeviceDetails()
+        {
+            var deviceAddress = ((KeyValuePair<string, ParserObject>)cmbShowDevice.SelectedItem).Key;
+            var obj = ((KeyValuePair<string, ParserObject>)cmbShowDevice.SelectedItem).Value;
+            var timestamp = obj.GetDynPropertyValue("Timestamp");
+
+            lblHeader.Text = string.Format("{0}   Time: {1}", deviceAddress, timestamp);
+        }
+            
+
+        private void FrmMain_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (bkgWorker.IsBusy)
+            {
+                if (MessageBox.Show("Do you want to cancel loading?", "Log Loading in progress...", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+                {
+                    closePending = true;
+                    bkgWorker.CancelAsync();
+                }
+                else                
+                    e.Cancel = true;
+
+                return;
+            }   
+
+        }
+    }
 }

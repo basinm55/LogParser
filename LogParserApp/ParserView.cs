@@ -13,7 +13,7 @@ namespace LogParserApp
 {
     public partial class ParserView
     {
-        public static void CreateGridView(List<ParserObject> data, DataGridView dataGV)
+        public static void CreateGridView(List<ParserObject> data, DataGridView dataGV, string deviceFilter)
         {        
             dataGV.AutoGenerateColumns = false;            
             dataGV.Columns.Clear();
@@ -38,7 +38,7 @@ namespace LogParserApp
                 if (i >= data.Count)
                     break;
                 
-                CreateGridRow(data[i], dataGV.Columns[i], dataGV);
+                CreateGridRow(data[i], dataGV.Columns[i], dataGV, deviceFilter);
             }
 
             SetGridParameters(dataGV);
@@ -46,10 +46,15 @@ namespace LogParserApp
             dataGV.ClearSelection();       
         }
 
-        private static void CreateGridRow(ParserObject obj, DataGridViewColumn column, DataGridView dataGV)
+        private static void CreateGridRow(ParserObject obj, DataGridViewColumn column, DataGridView dataGV, string device)
         {
             if (obj == null) return;
-            var parserRowCollection = obj.VisualObjectCollection;
+            List<ParserObject> parserRowCollection;
+            if (device != null)
+                parserRowCollection = obj.VisualObjectCollection.Where(o => (string)o.GetDynPropertyValue("Parent") == device).ToList();
+            else
+                parserRowCollection = obj.VisualObjectCollection;
+
             if (parserRowCollection.Count == 0) return;
 
             var rowIndex = dataGV.Rows.Add();

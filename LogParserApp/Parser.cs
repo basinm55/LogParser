@@ -10,16 +10,21 @@ using Entities;
 using static Entities.Enums;
 using static Entities.ParserObject;
 using System.Drawing;
+using System.ComponentModel;
 
 namespace LogParserApp
 {
-    public partial class Parser
-    {                         
+    public partial class Parser : IDisposable
+    {
         string _logFileName;
         public List<ParserObject> ObjectCollection { get; private set; }
         ParserObject _currentObj, _locatedObj;
 
         private ScanFormatted _sf;
+
+        public int TotalLogLines { get; private set; }
+        public int CompletedLogLines { get; private set; }
+
         public Parser(string logFileName)
         {
             if (string.IsNullOrWhiteSpace(logFileName) || !File.Exists(logFileName))
@@ -32,34 +37,54 @@ namespace LogParserApp
 
         }
 
-        public void Run(XElement profile, ToolStripStatusLabel toolStripStatusLabel)
+        public Parser(string logFileName, bool getDeviceNamesOnly)
         {
-            int maxLines = 100000;
+            _logFileName = logFileName;
+            ObjectCollection = new List<ParserObject>();
+        }
+
+
+        public List<string> GetAllDeviceNames()
+        {
+            List<string> result  = null;
+            return result;
+        }
+
+        public void Run(XElement profile, BackgroundWorker worker, DoWorkEventArgs e)
+        {
+            const int maxLines = 100000;
+
             _sf = new ScanFormatted();
 
             ObjectCollection.Clear();
             var list = ReadLogFileToList();
-            int i = 0;
+            TotalLogLines = list.Count;
+            CompletedLogLines = 0;
             foreach (var line in list)
             {
-                try
+                if (worker.CancellationPending == true)
                 {
-                    i++;
-                    toolStripStatusLabel.Text = i.ToString();
-                    //Application.DoEvents();
-                    if (i > maxLines) break;
+                    e.Cancel = true;
+                    break;
+                }
+                else
+                {
+                    // Perform a time consuming operation and report progress.
+                    //System.Threading.Thread.Sleep(1);
+                    int percentComplete = (int)(CompletedLogLines / (float)TotalLogLines * 100);
 
-                    ParseLogLine(line, profile);      
+                    worker.ReportProgress(percentComplete);
                 }
-                catch (Exception e)
-                {
-                    MessageBox.Show("Can't parse this line:"
-                        + Environment.NewLine
-                        + Environment.NewLine + line
-                        + Environment.NewLine
-                        + Environment.NewLine + e.ToString());
-                }
+
+
+                CompletedLogLines++;
+
+                if (CompletedLogLines >= maxLines) break;
+
+                ParseLogLine(line, profile);
             }
+            if (!e.Cancel)
+                worker.ReportProgress(100);
         }
 
         private List<string> ReadLogFileToList()
@@ -68,11 +93,11 @@ namespace LogParserApp
         }
 
         private void ParseLogLine(string line, XElement profile)
-        {            
+        {
             var filters = profile.XPathSelectElements("Filters/Filter");
             foreach (var filter in filters)
             {
-                var filterKey = filter.Attribute("key");               
+                var filterKey = filter.Attribute("key");
                 if (filterKey != null)
                 {
                     if (string.IsNullOrWhiteSpace(filterKey.Value) || line.ContainsCaseInsensitive(filterKey.Value))
@@ -81,18 +106,18 @@ namespace LogParserApp
             }
 
 
-                //[0]44D8.44D0::05/31/2020-16:46:30.355
-                //format "%[*][width][modifiers]type"
-                //format example: "[%d]%d.%4s::%s %s %20c"
-                //datetime format "MM/dd/yyyy-HH:mm:ss.FFF"
+            //[0]44D8.44D0::05/31/2020-16:46:30.355
+            //format "%[*][width][modifiers]type"
+            //format example: "[%d]%d.%4s::%s %s %20c"
+            //datetime format "MM/dd/yyyy-HH:mm:ss.FFF"
 
-                //[6]0004.0230::05/31/2020-16:43:13.894 [jtucxip]CPort::BindUsbDevice port 4 CUsbDevice FFFFC30247334410
+            //[6]0004.0230::05/31/2020-16:43:13.894 [jtucxip]CPort::BindUsbDevice port 4 CUsbDevice FFFFC30247334410
 
-                //Timestamp
-                //string parsingFormat = "[%*1d]%*4c.%*4c::%s";//TODO: Read it from profile            
+            //Timestamp
+            //string parsingFormat = "[%*1d]%*4c.%*4c::%s";//TODO: Read it from profile            
             //Device
             //string parsingFormat = "%*s [%*7c]CUsbDevice::CUsbDevice: %s";
-        
+
 
             //string parsingFormat = "CUsbipRequest::CUsbipRequest: type %s";
 
@@ -105,10 +130,10 @@ namespace LogParserApp
 
             //Convert time string to DateTime
             //if (sf.Results.Count > 3) // Because the buffer contents problem TODO
-               //logEntry.Time = DateTime.ParseExact(sf.Results[3].ToString(), profile["DateTimeFormat"], null);
+            //logEntry.Time = DateTime.ParseExact(sf.Results[3].ToString(), profile["DateTimeFormat"], null);
 
             //if (sf.Results.Count > 4)
-                //logEntry.EntryType = sf.Results[4].ToString();
+            //logEntry.EntryType = sf.Results[4].ToString();
 
 
             //if (_sf.Results.Count > 5)
@@ -118,7 +143,7 @@ namespace LogParserApp
             //}
 
             //return logEntry;
-        }        
+        }
 
         private void ApplyFilter(string line, XElement filter)
         {
@@ -129,7 +154,7 @@ namespace LogParserApp
             {
                 _sf.Parse(line, filterPattern.Value);
                 if (!IsParsingSuccessful(filterPattern))
-                    continue;           
+                    continue;
 
                 foreach (var prop in filter.XPathSelectElements("Properties/Property"))
                 {
@@ -145,7 +170,7 @@ namespace LogParserApp
             }
 
             if (_currentObj != null)
-            {               
+            {
                 var newState = (string)_currentObj.GetDynPropertyValue("State");
 
                 if (newState != null &&
@@ -163,10 +188,10 @@ namespace LogParserApp
         private bool IsParsingSuccessful(XElement filterPattern)
         {
             if (_sf.Results.Count == 0)
-              return false;
+                return false;
 
             var percentCount = filterPattern.Value.Count(c => c == '%');
-            var droppedPercentCount = filterPattern.Value.Split(new string[] {"%*"}, StringSplitOptions.None).Length - 1;
+            var droppedPercentCount = filterPattern.Value.Split(new string[] { "%*" }, StringSplitOptions.None).Length - 1;
             if (_sf.Results.Count != percentCount - droppedPercentCount)
                 return false;
 
@@ -176,7 +201,7 @@ namespace LogParserApp
         private void DoObjectAction(XElement profilePropDefinition, int sequenceNum, int patternIndex, object parsedValue, XElement filter, string logLine)
         {
             if (profilePropDefinition.Element("Action") == null) return;
-            var action = profilePropDefinition.Element("Action").Value.ToEnum<PropertyAction>();   
+            var action = profilePropDefinition.Element("Action").Value.ToEnum<PropertyAction>();
 
             switch (action)
             {
@@ -199,9 +224,18 @@ namespace LogParserApp
                     DoActionDelete(filter, profilePropDefinition, sequenceNum, patternIndex, parsedValue, logLine);
                     break;
 
-                default:                   
+                default:
                     break;
-            }      
+            }
+        }
+
+        public void Dispose()
+        {
+            _logFileName = null;
+            ObjectCollection.Clear();
+            //ParserObject _currentObj = null, _locatedObj = null;
+            //ScanFormatted _sf = null;
+            TotalLogLines = 0;
         }
     }
 }

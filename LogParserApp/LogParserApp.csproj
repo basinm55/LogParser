@@ -84,6 +84,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="cancel.png" />
     <Content Include="LogParserProfile.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

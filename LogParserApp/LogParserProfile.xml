@@ -111,6 +111,7 @@
 				<State>Queued</State>
 				<Patterns>
 					<Pattern>CUsbipRequest::Prepare:@%2s: %s trvil %s req %s</Pattern>
+					<Pattern>CUsbipRequest::Prepare:@%2s: %s %s req %s</Pattern>
 				</Patterns>
 				<Properties>
 					<Property i="0">
@@ -227,6 +228,21 @@
 					</Property>			
 				</Properties>
 			</Filter>
+			<Filter key="CUsbDevice::~CUsbDevice" IsVisible ="1" IsFindable = "0">
+				<State>Destroyed</State>
+				<Patterns>
+					<Pattern>CUsbDevice::~CUsbDevice %s</Pattern>
+				</Patterns>
+				<Properties>
+					<Property i="0">
+						<PatternIndex>0</PatternIndex>
+						<Name>Request</Name>
+						<DataType>string</DataType>
+						<Action>Locate</Action>
+						<Target>this</Target>
+					</Property>						
+				</Properties>
+			</Filter>			
 		</Filters>			
 	</Profile>
 	
