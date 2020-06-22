@@ -32,11 +32,12 @@ namespace LogParserApp
             _profileMng.LoadXmlFile("LogParserProfile.xml");
             _profileMng.GetProfileByName("Default");                                            
             _selectedProfile = _profileMng.CurrentProfile;
-
-            rbPort.Checked = true;
+           
             btnStopLoading.Visible = false;                       
             cmbShowDevice.SelectedIndex = -1;
             cmbShowDevice.Enabled = false;
+            chkShowAll.Checked = false;
+            chkShowAll.Enabled = false;
             UpdateControlsState();            
         }
 
@@ -52,6 +53,7 @@ namespace LogParserApp
                 _parser = new Parser(loadedLogFileName);                               
                 if (!bkgWorker.IsBusy)
                 {
+                    lblHeader.Text = string.Empty;
                     dataGV.DataSource = null;
                     dataGV.Rows.Clear();
                     dataGV.Refresh();
@@ -61,6 +63,8 @@ namespace LogParserApp
                     btnStopLoading.Visible = true;
                     calculateLabel.Text = string.Empty;
                     cmbShowDevice.Enabled = false;
+                    chkShowAll.Checked = false;
+                    chkShowAll.Enabled = false;
                     cmbShowDevice.SelectedIndex = -1;
                     bkgWorker.RunWorkerAsync();
                 }               
@@ -72,15 +76,11 @@ namespace LogParserApp
         {
             if (!string.IsNullOrWhiteSpace(loadedLogFileName) && File.Exists(loadedLogFileName))
             {
-                var shortLogFileName = Path.GetFileName(loadedLogFileName);
-                gbSearch.Enabled = true;
-                gbSearch.Text = string.Format("Search in {0}", shortLogFileName);
+                var shortLogFileName = Path.GetFileName(loadedLogFileName); 
                 Text = string.Format("LogParser [{0}]", shortLogFileName);
             }
             else
-            {
-                gbSearch.Enabled = false;
-                gbSearch.Text = "Search";
+            { 
                 Text = "LogParser";
             }
         }
@@ -149,10 +149,12 @@ namespace LogParserApp
                 var relatedParserObject = (ParserObject)dataGV.CurrentCell.Value;
                 if (relatedParserObject != null)
                 {
-                    var properties = new StringBuilder();
+                    var properties = new StringBuilder();                    
                     foreach (var prop in relatedParserObject.DynObjectDictionary)
                         properties.AppendLine(prop.Key + " = " + prop.Value.ToString());
-                   
+
+                    properties.AppendLine("LineNum = " + relatedParserObject.LineNum.ToString());
+
                     FlexibleMessageBox.Show(properties.ToString(),
                         string.Format("Properties of {0}: {1}",
                             relatedParserObject.ObjectClass,
@@ -202,6 +204,7 @@ namespace LogParserApp
                 if (cmbShowDevice.Items.Count > 0)
                     cmbShowDevice.SelectedIndex = 0;
                 cmbShowDevice.Enabled = true;
+                chkShowAll.Enabled = true;
                 btnLoadLog.Enabled = true; 
                 UpdateControlsState();
             }
@@ -223,7 +226,11 @@ namespace LogParserApp
 
             var comboSource = new Dictionary<string, ParserObject>();
             foreach (var itm in ds)
-                comboSource.Add((string)itm.GetDynPropertyValue("this"), itm);
+            {
+                var key = (string)itm.GetDynPropertyValue("this");
+                if (!comboSource.ContainsKey(key))
+                    comboSource.Add((string)itm.GetDynPropertyValue("this"), itm);
+            }
 
             cmbShowDevice.DataSource = new BindingSource(comboSource, null);
             cmbShowDevice.DisplayMember = "Key";
@@ -231,10 +238,15 @@ namespace LogParserApp
         }
 
         private void chkShowAll_CheckedChanged(object sender, EventArgs e)
-        {
+        {           
             cmbShowDevice.Enabled = !chkShowAll.Checked && cmbShowDevice.Items.Count > 0;
             if (chkShowAll.Checked)
-                cmbShowDevice.SelectedIndex = -1;
+                lblHeader.Text = string.Empty;
+            else
+            {
+                cmbShowDevice.SelectedIndex = 0;
+                UpdateDeviceDetails();
+            }
 
             ParserView.CreateGridView(_parser.ObjectCollection, dataGV, null);
         }    
@@ -259,11 +271,11 @@ namespace LogParserApp
 
         private void UpdateDeviceDetails()
         {
-            var deviceAddress = ((KeyValuePair<string, ParserObject>)cmbShowDevice.SelectedItem).Key;
+            var device = ((KeyValuePair<string, ParserObject>)cmbShowDevice.SelectedItem).Key;
             var obj = ((KeyValuePair<string, ParserObject>)cmbShowDevice.SelectedItem).Value;
-            var timestamp = obj.GetDynPropertyValue("Timestamp");
+            var timestamp = string.Format("{0:MM/dd/yyyy-HH:mm:ss.FFF}", obj.GetDynPropertyValue("Timestamp"));
 
-            lblHeader.Text = string.Format("{0}   Time: {1}", deviceAddress, timestamp);
+            lblHeader.Text = string.Format("{0}   Time: {1}", device, timestamp);
         }
             
 

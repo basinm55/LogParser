@@ -60,6 +60,7 @@ namespace LogParserApp
             var list = ReadLogFileToList();
             TotalLogLines = list.Count;
             CompletedLogLines = 0;
+            int lineNumber = 0;
             foreach (var line in list)
             {
                 if (worker.CancellationPending == true)
@@ -81,7 +82,9 @@ namespace LogParserApp
 
                 if (CompletedLogLines >= maxLines) break;
 
-                ParseLogLine(line, profile);
+                ParseLogLine(lineNumber, line, profile);
+
+                lineNumber++;
             }
             if (!e.Cancel)
                 worker.ReportProgress(100);
@@ -92,8 +95,10 @@ namespace LogParserApp
             return File.ReadLines(_logFileName).ToList();
         }
 
-        private void ParseLogLine(string line, XElement profile)
+        private void ParseLogLine(int lineNumber, string line, XElement profile)
         {
+            if (string.IsNullOrWhiteSpace(line)) return;
+
             var filters = profile.XPathSelectElements("Filters/Filter");
             foreach (var filter in filters)
             {
@@ -101,7 +106,7 @@ namespace LogParserApp
                 if (filterKey != null)
                 {
                     if (string.IsNullOrWhiteSpace(filterKey.Value) || line.ContainsCaseInsensitive(filterKey.Value))
-                        ApplyFilter(line, filter);
+                        ApplyFilter(lineNumber, line, filter);
                 }
             }
 
@@ -145,7 +150,7 @@ namespace LogParserApp
             //return logEntry;
         }
 
-        private void ApplyFilter(string line, XElement filter)
+        private void ApplyFilter(int lineNumber, string line, XElement filter)
         {
             var state = _currentObj != null ? (string)_currentObj.GetDynPropertyValue("State") : null;
 
@@ -160,11 +165,10 @@ namespace LogParserApp
                 {
                     if (prop.Element("PatternIndex") == null || prop.Attribute("i") == null) continue;
 
-                    if (Int32.TryParse(prop.Attribute("i").Value, out int sequenceNum) &&
-                        Int32.TryParse(prop.Element("PatternIndex").Value, out int patternIndex))
+                    if (Int32.TryParse(prop.Element("PatternIndex").Value, out int patternIndex))
                     {
                         if (patternIndex < _sf.Results.Count)
-                            DoObjectAction(prop, sequenceNum, patternIndex, _sf.Results[patternIndex], filter, line);
+                            DoObjectAction(prop, lineNumber, patternIndex, _sf.Results[patternIndex], filter, line);
                     }
                 }
             }
@@ -177,9 +181,31 @@ namespace LogParserApp
                 _currentObj.GetDynPropertyValue("IsVisible").ToString().ToBoolean() &&
                 !newState.Equals(state, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    var visualObject = _currentObj.CreateVisualObject();
-                    visualObject.LogLine = line;
-                    _currentObj.VisualObjectCollection.Add(visualObject);
+                    var prevIndex = ObjectCollection.Count >= 2 ? ObjectCollection.Count - 2 : -1;
+                    ParserObject prevObj = prevIndex > 0 ? ObjectCollection[prevIndex] : null;
+
+                    var this1 = _currentObj.GetDynPropertyValue("this").ToString();
+
+
+                    if (true || _currentObj.GetDynPropertyValue("State").ToString().ToEnum<ObjectState>()
+                        == ObjectState.Created ||
+                        prevObj == null ||
+                        _currentObj.GetDynPropertyValue("this").ToString()
+                        == prevObj.GetDynPropertyValue("this").ToString())
+                    {
+                        var visualObject = _currentObj.CreateVisualObject();
+                        visualObject.LogLine = line;
+                        visualObject.LineNum = lineNumber;
+                        _currentObj.VisualObjectCollection.Add(visualObject);
+                    }
+                    else
+                    {
+                        _currentObj = _currentObj.CreateObjectClone();
+                        var visualObject = _currentObj.CreateVisualObject();
+                        visualObject.LogLine = line;
+                        visualObject.LineNum = lineNumber;
+                        _currentObj.VisualObjectCollection.Add(visualObject);
+                    }
                 }
             }
 
@@ -198,7 +224,7 @@ namespace LogParserApp
             return true;
         }
 
-        private void DoObjectAction(XElement profilePropDefinition, int sequenceNum, int patternIndex, object parsedValue, XElement filter, string logLine)
+        private void DoObjectAction(XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, XElement filter, string logLine)
         {
             if (profilePropDefinition.Element("Action") == null) return;
             var action = profilePropDefinition.Element("Action").Value.ToEnum<PropertyAction>();
@@ -206,22 +232,22 @@ namespace LogParserApp
             switch (action)
             {
                 case PropertyAction.New:
-                    DoActionNew(filter, profilePropDefinition, sequenceNum, patternIndex, parsedValue, logLine);
+                    DoActionNew(filter, profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine);
                     break;
                 case PropertyAction.AssignToSelf:
-                    DoActionAssignToSelf(filter, profilePropDefinition, sequenceNum, patternIndex, parsedValue, logLine);
+                    DoActionAssignToSelf(filter, profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine);
                     break;
                 case PropertyAction.Locate:
-                    DoActionLocate(filter, profilePropDefinition, sequenceNum, patternIndex, parsedValue, logLine);
+                    DoActionLocate(filter, profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine);
                     break;
                 case PropertyAction.Assign:
-                    DoActionAssign(filter, profilePropDefinition, sequenceNum, patternIndex, parsedValue, logLine);
+                    DoActionAssign(filter, profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine);
                     break;
                 case PropertyAction.Drop:
-                    DoActionDrop(filter, profilePropDefinition, sequenceNum, patternIndex, parsedValue, logLine);
+                    DoActionDrop(filter, profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine);
                     break;
                 case PropertyAction.Delete:
-                    DoActionDelete(filter, profilePropDefinition, sequenceNum, patternIndex, parsedValue, logLine);
+                    DoActionDelete(filter, profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine);
                     break;
 
                 default:

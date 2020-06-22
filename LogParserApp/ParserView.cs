@@ -14,7 +14,9 @@ namespace LogParserApp
     public partial class ParserView
     {
         public static void CreateGridView(List<ParserObject> data, DataGridView dataGV, string deviceFilter)
-        {        
+        {
+            if (data.Count == 0) return;
+
             dataGV.AutoGenerateColumns = false;            
             dataGV.Columns.Clear();
             

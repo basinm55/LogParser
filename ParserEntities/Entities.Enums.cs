@@ -46,7 +46,7 @@ namespace Entities
         public enum ObjectState
         {
             Unrecognized = 0,
-            New = 1,                       
+            Created = 1,                       
             Prepared = 2,
             Queued = 3,
             Sent = 4,

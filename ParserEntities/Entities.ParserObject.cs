@@ -13,6 +13,8 @@ namespace Entities
 
         public string LogLine { get; set; }
 
+        public int LineNum { get; set; }
+
         public string VisualDescription { get; set; }
         public dynamic DynObject { get; set; }
 
@@ -145,7 +147,17 @@ namespace Entities
             return result;
         }
 
-        private static ExpandoObject DeepClone(ExpandoObject original)
+        public static ParserObject CreateObjectClone(this ParserObject original)
+        {
+            var result = new ParserObject(original.ObjectClass);
+
+            result.DynObject = DeepClone(original.DynObject);
+            result.DynObjectDictionary = (IDictionary<string, object>)result.DynObject;
+            result.ObjectClass = original.ObjectClass;
+            return result;
+        }
+
+        public static ExpandoObject DeepClone(ExpandoObject original)
         {
             var clone = new ExpandoObject();
 

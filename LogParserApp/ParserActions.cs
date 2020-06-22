@@ -14,7 +14,7 @@ namespace LogParserApp
 {
     public partial class Parser
     {
-        private void DoActionNew(XElement filter, XElement profilePropDefinition, int sequenceNum, int patternIndex, object parsedValue, string logLine)
+        private void DoActionNew(XElement filter, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine)
         {
             if (!ValidateProfileDefinition(profilePropDefinition,
                 out string name,
@@ -25,8 +25,7 @@ namespace LogParserApp
 
             SetFilterProperties(filter, logLine);
 
-            SetPropertiesByProfile(profilePropDefinition,
-                sequenceNum,
+            SetPropertiesByProfile(profilePropDefinition,                               
                 patternIndex,
                 parsedValue,
                 name,
@@ -36,7 +35,7 @@ namespace LogParserApp
             ObjectCollection.Add(_currentObj);
         }
 
-        private void DoActionAssignToSelf(XElement filter, XElement profilePropDefinition, int sequenceNum, int patternIndex, object parsedValue, string logLine)
+        private void DoActionAssignToSelf(XElement filter, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine)
         {
             if (_currentObj == null || !ValidateProfileDefinition(profilePropDefinition,
                       out string name,
@@ -47,7 +46,7 @@ namespace LogParserApp
 
             _currentObj.SetDynProperty(name, parsedValue, dataType, format);
         }
-        private void DoActionLocate(XElement filter, XElement profilePropDefinition, int sequenceNum, int patternIndex, object parsedValue, string logLine)
+        private void DoActionLocate(XElement filter, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine)
         {
             if (_currentObj==null || !ValidateProfileDefinition(profilePropDefinition,
                       out string name,
@@ -61,7 +60,7 @@ namespace LogParserApp
             _locatedObj = ObjectCollection.FirstOrDefault(x => x.GetDynPropertyValue("this") == searchValue);            
         }
 
-        private void DoActionAssign(XElement filter, XElement profilePropDefinition, int sequenceNum, int patternIndex, object parsedValue, string logLine)
+        private void DoActionAssign(XElement filter, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine)
         {
             if (_locatedObj == null || !ValidateProfileDefinition(profilePropDefinition,
                       out string name,
@@ -73,7 +72,7 @@ namespace LogParserApp
             _locatedObj.SetDynProperty(name, parsedValue, dataType, format);
             _locatedObj = null;
         }
-        private void DoActionDrop(XElement filter, XElement profilePropDefinition, int sequenceNum, int patternIndex, object parsedValue, string logLine)
+        private void DoActionDrop(XElement filter, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine)
         {
             if (_currentObj == null || !ValidateProfileDefinition(profilePropDefinition,
                       out string name,
@@ -83,7 +82,7 @@ namespace LogParserApp
             SetFilterProperties(filter, logLine);
         }
 
-        private void DoActionDelete(XElement filter, XElement profilePropDefinition, int sequenceNum, int patternIndex, object parsedValue, string logLine)
+        private void DoActionDelete(XElement filter, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine)
         {
             if (_currentObj == null || !ValidateProfileDefinition(profilePropDefinition,
                      out string name,
@@ -141,10 +140,9 @@ namespace LogParserApp
 
         }
 
-        private void SetPropertiesByProfile(XElement profilePropDefinition, int sequenceNum, int patternIndex, object parsedValue, string name, PropertyDataType dataType, string format)
+        private void SetPropertiesByProfile(XElement profilePropDefinition, int patternIndex, object parsedValue, string name, PropertyDataType dataType, string format)
         {           
-            _currentObj.SetDynProperty("Name", name);
-            _currentObj.SetDynProperty("SequenceNum", sequenceNum, PropertyDataType.Decimal);
+            _currentObj.SetDynProperty("Name", name);                       
             _currentObj.SetDynProperty("PatternIndex", patternIndex, PropertyDataType.Decimal);
             _currentObj.SetDynProperty("DataType", dataType, PropertyDataType.Enum, format, typeof(PropertyDataType));
 

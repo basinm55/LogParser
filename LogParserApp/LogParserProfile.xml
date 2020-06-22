@@ -215,7 +215,7 @@
 						<Target>this</Target>
 					</Property>
 					<Property i="1">
-						<PatternIndex>3</PatternIndex>
+						<PatternIndex>4</PatternIndex>
 						<Name>TimeToComplete</Name>
 						<DataType>decimal</DataType>
 						<Action>Assign</Action>
