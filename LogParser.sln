@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParserUtils", "ParserUtils\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParserEntities", "ParserEntities\ParserEntities.csproj", "{E0D23060-68AD-427B-A437-0D64C65C9115}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestParsingPatternTool", "TestParsingPatternTool\TestParsingPatternTool.csproj", "{DA7021A5-29B4-401C-B052-FA8EEEB9E706}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +85,26 @@ Global
 		{E0D23060-68AD-427B-A437-0D64C65C9115}.Release|x64.Build.0 = Release|Any CPU
 		{E0D23060-68AD-427B-A437-0D64C65C9115}.Release|x86.ActiveCfg = Release|Any CPU
 		{E0D23060-68AD-427B-A437-0D64C65C9115}.Release|x86.Build.0 = Release|Any CPU
+		{DA7021A5-29B4-401C-B052-FA8EEEB9E706}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA7021A5-29B4-401C-B052-FA8EEEB9E706}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA7021A5-29B4-401C-B052-FA8EEEB9E706}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{DA7021A5-29B4-401C-B052-FA8EEEB9E706}.Debug|ARM.Build.0 = Debug|Any CPU
+		{DA7021A5-29B4-401C-B052-FA8EEEB9E706}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{DA7021A5-29B4-401C-B052-FA8EEEB9E706}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{DA7021A5-29B4-401C-B052-FA8EEEB9E706}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{DA7021A5-29B4-401C-B052-FA8EEEB9E706}.Debug|x64.Build.0 = Debug|Any CPU
+		{DA7021A5-29B4-401C-B052-FA8EEEB9E706}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DA7021A5-29B4-401C-B052-FA8EEEB9E706}.Debug|x86.Build.0 = Debug|Any CPU
+		{DA7021A5-29B4-401C-B052-FA8EEEB9E706}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA7021A5-29B4-401C-B052-FA8EEEB9E706}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA7021A5-29B4-401C-B052-FA8EEEB9E706}.Release|ARM.ActiveCfg = Release|Any CPU
+		{DA7021A5-29B4-401C-B052-FA8EEEB9E706}.Release|ARM.Build.0 = Release|Any CPU
+		{DA7021A5-29B4-401C-B052-FA8EEEB9E706}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{DA7021A5-29B4-401C-B052-FA8EEEB9E706}.Release|ARM64.Build.0 = Release|Any CPU
+		{DA7021A5-29B4-401C-B052-FA8EEEB9E706}.Release|x64.ActiveCfg = Release|Any CPU
+		{DA7021A5-29B4-401C-B052-FA8EEEB9E706}.Release|x64.Build.0 = Release|Any CPU
+		{DA7021A5-29B4-401C-B052-FA8EEEB9E706}.Release|x86.ActiveCfg = Release|Any CPU
+		{DA7021A5-29B4-401C-B052-FA8EEEB9E706}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
