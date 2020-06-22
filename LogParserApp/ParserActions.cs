@@ -17,20 +17,23 @@ namespace LogParserApp
         private void DoActionNew(XElement filter, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine)
         {
             if (!ValidateProfileDefinition(profilePropDefinition,
-                out string name,
+                out string objectType,
                 out PropertyDataType dataType,
                 out string format)) return;
-          
-            _currentObj = new ParserObject(name);
+
+            _currentObj = new ParserObject(objectType) { LineNum = lineNumber };
+            
 
             SetFilterProperties(filter, logLine);
 
             SetPropertiesByProfile(profilePropDefinition,                               
                 patternIndex,
                 parsedValue,
-                name,
+                objectType,
                 dataType,
-                format);           
+                format);
+
+            SetThis(profilePropDefinition, parsedValue);
 
             ObjectCollection.Add(_currentObj);
         }
@@ -38,22 +41,26 @@ namespace LogParserApp
         private void DoActionAssignToSelf(XElement filter, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine)
         {
             if (_currentObj == null || !ValidateProfileDefinition(profilePropDefinition,
-                      out string name,
+                      out string objectType,
                       out PropertyDataType dataType,
                       out string format)) return;
 
             SetFilterProperties(filter, logLine);
 
-            _currentObj.SetDynProperty(name, parsedValue, dataType, format);
+            SetThis(profilePropDefinition, parsedValue);
+
+            _currentObj.SetDynProperty(objectType, parsedValue, dataType, format);
         }
         private void DoActionLocate(XElement filter, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine)
         {
             if (_currentObj==null || !ValidateProfileDefinition(profilePropDefinition,
-                      out string name,
+                      out string objectType,
                       out PropertyDataType dataType,
                       out string format)) return;
 
             SetFilterProperties(filter, logLine);
+
+            SetThis(profilePropDefinition, parsedValue);
 
             var searchValue = _currentObj.GetDynPropertyValue("this");
 
@@ -63,33 +70,39 @@ namespace LogParserApp
         private void DoActionAssign(XElement filter, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine)
         {
             if (_locatedObj == null || !ValidateProfileDefinition(profilePropDefinition,
-                      out string name,
+                      out string objectType,
                       out PropertyDataType dataType,
                       out string format)) return;
 
             SetFilterProperties(filter, logLine);
 
-            _locatedObj.SetDynProperty(name, parsedValue, dataType, format);
+            SetThis(profilePropDefinition, parsedValue);
+
+            _locatedObj.SetDynProperty(objectType, parsedValue, dataType, format);
             _locatedObj = null;
         }
         private void DoActionDrop(XElement filter, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine)
         {
             if (_currentObj == null || !ValidateProfileDefinition(profilePropDefinition,
-                      out string name,
+                      out string objectType,
                       out PropertyDataType dataType,
                       out string format)) return;
 
             SetFilterProperties(filter, logLine);
+
+            SetThis(profilePropDefinition, parsedValue);
         }
 
         private void DoActionDelete(XElement filter, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine)
         {
             if (_currentObj == null || !ValidateProfileDefinition(profilePropDefinition,
-                     out string name,
+                     out string objectType,
                      out PropertyDataType dataType,
                      out string format)) return;
 
             SetFilterProperties(filter, logLine);
+
+            SetThis(profilePropDefinition, parsedValue);
 
 
         }
@@ -101,6 +114,7 @@ namespace LogParserApp
             name = null;
 
             if (profilePropDefinition.Element("Name") == null) return false;
+
             name = profilePropDefinition.Element("Name").Value;
             if (string.IsNullOrWhiteSpace(name)) return false;
 
@@ -131,12 +145,16 @@ namespace LogParserApp
             string state = filter.Element("State") != null &&
                 !string.IsNullOrWhiteSpace(filter.Element("State").Value)
                 ? filter.Element("State").Value : null;
-            
+
+            string objectType = filter.Element("ObjectType") != null &&
+                !string.IsNullOrWhiteSpace(filter.Element("ObjectType").Value)
+                ? filter.Element("ObjectType").Value : null;
+
             _currentObj.SetDynProperty("FilterKey", filterKey);
-            _currentObj.SetDynProperty("IsVisible", isVisible, PropertyDataType.String);
-            _currentObj.SetDynProperty("IsFindable", isFindable, PropertyDataType.String);            
-            if (_currentObj != null)
-             _currentObj.SetDynProperty("State", state, PropertyDataType.String);
+            _currentObj.SetDynProperty("IsVisible", isVisible);
+            _currentObj.SetDynProperty("IsFindable", isFindable);
+            _currentObj.SetDynProperty("ObjectType", objectType);
+            _currentObj.SetDynProperty("State", state);
 
         }
 
@@ -144,18 +162,18 @@ namespace LogParserApp
         {           
             _currentObj.SetDynProperty("Name", name);                       
             _currentObj.SetDynProperty("PatternIndex", patternIndex, PropertyDataType.Decimal);
-            _currentObj.SetDynProperty("DataType", dataType, PropertyDataType.Enum, format, typeof(PropertyDataType));
-
-            //_currentObj.SetDynProperty("Action",
-            //    profilePropDefinition.Element("Action").Value.ToEnum<PropertyAction>(),
-            //        PropertyDataType.Enum, null, typeof(PropertyAction));
+            _currentObj.SetDynProperty("DataType", dataType, PropertyDataType.Enum, format, typeof(PropertyDataType));      
 
             if (string.Equals(name, "Timestamp", StringComparison.InvariantCultureIgnoreCase))
-                _currentObj.SetDynProperty("Timestamp", parsedValue, PropertyDataType.Time, format);
+                _currentObj.SetDynProperty("Timestamp", parsedValue, PropertyDataType.Time, format);                       
+        }
 
+        private void SetThis(XElement profilePropDefinition, object parsedValue)
+        {
             var target = profilePropDefinition.Element("Target");
-            if (target != null)
-                _currentObj.SetDynProperty(profilePropDefinition.Element("Target").Value, parsedValue);
+            if (target != null && profilePropDefinition.Element("Target") != null &&
+                profilePropDefinition.Element("Target").Value.ToLower() == "this")
+                _currentObj.SetDynProperty("this", parsedValue);      
         }
     }
 }

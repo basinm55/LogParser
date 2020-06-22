@@ -174,24 +174,14 @@ namespace LogParserApp
             }
 
             if (_currentObj != null)
-            {
-                var newState = (string)_currentObj.GetDynPropertyValue("State");
-
-                if (newState != null &&
-                _currentObj.GetDynPropertyValue("IsVisible").ToString().ToBoolean() &&
-                !newState.Equals(state, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    var prevIndex = ObjectCollection.Count >= 2 ? ObjectCollection.Count - 2 : -1;
-                    ParserObject prevObj = prevIndex > 0 ? ObjectCollection[prevIndex] : null;
-
+            {                
+                if (_currentObj.GetDynPropertyValue("IsVisible").ToString().ToBoolean()) 
+                {    
                     var this1 = _currentObj.GetDynPropertyValue("this").ToString();
 
 
-                    if (true || _currentObj.GetDynPropertyValue("State").ToString().ToEnum<ObjectState>()
-                        == ObjectState.Created ||
-                        prevObj == null ||
-                        _currentObj.GetDynPropertyValue("this").ToString()
-                        == prevObj.GetDynPropertyValue("this").ToString())
+                    var prevObjectsFound = ObjectCollection.Where(x => x.GetDynPropertyValue("this").ToString() == _currentObj.GetDynPropertyValue("this").ToString());
+                    if (true)
                     {
                         var visualObject = _currentObj.CreateVisualObject();
                         visualObject.LogLine = line;
@@ -200,12 +190,12 @@ namespace LogParserApp
                     }
                     else
                     {
-                        _currentObj = _currentObj.CreateObjectClone();
+                        var obj = _currentObj.CreateObjectClone();
                         var visualObject = _currentObj.CreateVisualObject();
                         visualObject.LogLine = line;
                         visualObject.LineNum = lineNumber;
                         _currentObj.VisualObjectCollection.Add(visualObject);
-                    }
+                     }
                 }
             }
 

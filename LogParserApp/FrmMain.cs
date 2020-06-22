@@ -196,7 +196,7 @@ namespace LogParserApp
             {
                 //Fill devices                
                 //cmbShowDevice.DataSource = _parser.ObjectCollection.
-                //    Where(o => (string)o.GetDynPropertyValue("Name") == "Device").
+                //    Where(o => (string)o.GetDynPropertyValue("ObjectType") == "Device").
                 //    Select(o => o.GetDynPropertyValue("this")).ToArray();
 
                 CreateComboDeviceDataSource();
@@ -221,7 +221,7 @@ namespace LogParserApp
         private void CreateComboDeviceDataSource()
         {
             var ds = _parser.ObjectCollection.
-                                Where(o => (string)o.GetDynPropertyValue("Name") == "Device").Distinct().
+                                Where(o => (string)o.GetDynPropertyValue("ObjectType") == "Device").Distinct().
                                 ToList();
 
             var comboSource = new Dictionary<string, ParserObject>();
@@ -248,7 +248,19 @@ namespace LogParserApp
                 UpdateDeviceDetails();
             }
 
-            ParserView.CreateGridView(_parser.ObjectCollection, dataGV, null);
+            Cursor.Current = Cursors.WaitCursor;
+            try
+            {
+                ParserView.CreateGridView(_parser.ObjectCollection, dataGV, null);
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                Cursor.Current = Cursors.Default;
+            }
         }    
 
         private void btnStopLoading_ButtonClick(object sender, EventArgs e)
@@ -264,8 +276,20 @@ namespace LogParserApp
                 UpdateDeviceDetails();
 
                 //Filter by selected device
-                var deviceFilter = ((KeyValuePair<string, ParserObject>)cmbShowDevice.SelectedItem).Key; 
-                ParserView.CreateGridView(_parser.ObjectCollection, dataGV, deviceFilter);
+                var deviceFilter = ((KeyValuePair<string, ParserObject>)cmbShowDevice.SelectedItem).Key;
+                Cursor.Current = Cursors.WaitCursor;
+                try
+                {
+                    ParserView.CreateGridView(_parser.ObjectCollection, dataGV, deviceFilter);
+                }
+                catch
+                {
+                    throw;
+                }
+                finally
+                {
+                    Cursor.Current = Cursors.Default;
+                }
             }                       
         }
 
