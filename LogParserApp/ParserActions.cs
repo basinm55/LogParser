@@ -24,7 +24,7 @@ namespace LogParserApp
             _currentObj = new ParserObject(objectType) { LineNum = lineNumber };
             
 
-            SetFilterProperties(filter, logLine);
+            SetFilterProperties(filter);
 
             SetPropertiesByProfile(profilePropDefinition,                               
                 patternIndex,
@@ -34,6 +34,9 @@ namespace LogParserApp
                 format);
 
             SetThis(profilePropDefinition, parsedValue);
+
+            var visualObject = _currentObj.CreateVisualObject();     
+            _currentObj.VisualObjectCollection.Add(visualObject);            
 
             ObjectCollection.Add(_currentObj);
         }
@@ -45,8 +48,11 @@ namespace LogParserApp
                       out PropertyDataType dataType,
                       out string format)) return;
 
-            SetFilterProperties(filter, logLine);
+            SetFilterProperties(filter);
 
+
+            //CheckForCurrentObjectExists(filter, profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine);
+            
             SetThis(profilePropDefinition, parsedValue);
 
             _currentObj.SetDynProperty(objectType, parsedValue, dataType, format);
@@ -58,13 +64,15 @@ namespace LogParserApp
                       out PropertyDataType dataType,
                       out string format)) return;
 
-            SetFilterProperties(filter, logLine);
+            SetFilterProperties(filter);
+
+            //CheckForCurrentObjectExists(filter, profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine);
 
             SetThis(profilePropDefinition, parsedValue);
 
             var searchValue = _currentObj.GetDynPropertyValue("this");
 
-            _locatedObj = ObjectCollection.FirstOrDefault(x => x.GetDynPropertyValue("this") == searchValue);            
+            _locatedObj = ObjectCollection.FirstOrDefault(x => (string)x.GetDynPropertyValue("this") == (string)searchValue);            
         }
 
         private void DoActionAssign(XElement filter, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine)
@@ -74,8 +82,8 @@ namespace LogParserApp
                       out PropertyDataType dataType,
                       out string format)) return;
 
-            SetFilterProperties(filter, logLine);
-
+            SetFilterProperties(filter);
+            //CheckForCurrentObjectExists(filter, profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine);
             SetThis(profilePropDefinition, parsedValue);
 
             _locatedObj.SetDynProperty(objectType, parsedValue, dataType, format);
@@ -88,8 +96,8 @@ namespace LogParserApp
                       out PropertyDataType dataType,
                       out string format)) return;
 
-            SetFilterProperties(filter, logLine);
-
+            SetFilterProperties(filter);
+            //CheckForCurrentObjectExists(filter, profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine);
             SetThis(profilePropDefinition, parsedValue);
         }
 
@@ -100,8 +108,8 @@ namespace LogParserApp
                      out PropertyDataType dataType,
                      out string format)) return;
 
-            SetFilterProperties(filter, logLine);
-
+            SetFilterProperties(filter);
+            //CheckForCurrentObjectExists(filter, profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine);
             SetThis(profilePropDefinition, parsedValue);
 
 
@@ -130,7 +138,7 @@ namespace LogParserApp
 
 
 
-        private void SetFilterProperties(XElement filter, string logLine)
+        private void SetFilterProperties(XElement filter)
         {
             var filterKey = filter.Attribute("key").Value;
 
@@ -174,6 +182,30 @@ namespace LogParserApp
             if (target != null && profilePropDefinition.Element("Target") != null &&
                 profilePropDefinition.Element("Target").Value.ToLower() == "this")
                 _currentObj.SetDynProperty("this", parsedValue);      
+        }
+
+        private void CheckForCurrentObjectExists(XElement filter, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine)
+        {
+            bool isCreated = false;
+            var target = profilePropDefinition.Element("Target");
+            if (target != null && profilePropDefinition.Element("Target") != null &&
+                profilePropDefinition.Element("Target").Value.ToLower() == "this")
+            {
+                var foundList = ObjectCollection.Where(x => x.GetThis() == (string)parsedValue).ToList();
+                if (foundList != null)
+                {
+                    foreach (var obj in foundList)
+                    {
+                        if (obj.VisualObjectCollection != null &&
+                            obj.VisualObjectCollection.FirstOrDefault(x => x.GetState() == ObjectState.Created) != null)
+                            isCreated = true;
+                            break;
+                    }
+                }                                                                   
+            }
+            
+            if (!isCreated)
+                DoActionNew(filter, profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine);
         }
     }
 }

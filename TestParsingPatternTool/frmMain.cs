@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Helpers;
 
-namespace TestParsingPatternTool
+namespace PatternValidator
 {
     public partial class frmMain : Form
     {
@@ -22,7 +22,7 @@ namespace TestParsingPatternTool
             //dGVResults.RowsDefaultCellStyle.SelectionForeColor = dGVResults.RowsDefaultCellStyle.ForeColor.IsEmpty ? System.Drawing.Color.Black : dGVResults.RowsDefaultCellStyle.ForeColor;
         }
 
-        private void btnTest_Click(object sender, EventArgs e)
+        private void btnValidate_Click(object sender, EventArgs e)
         {
             ScanFormatted sf = new ScanFormatted();
             sf.Parse(txtBoxLogEntry.Text.Trim(), txtBoxPattern.Text.Trim());            

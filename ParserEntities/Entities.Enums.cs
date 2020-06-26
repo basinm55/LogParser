@@ -45,14 +45,14 @@ namespace Entities
 
         public enum ObjectState
         {
-            Unrecognized = 0,
-            Created = 1,                       
-            Prepared = 2,
-            Queued = 3,
-            Sent = 4,
-            Responded = 5,
-            Completed = 6,
-            Deleted = 7
+            Unknown = -1,
+            Created = 0,                       
+            Prepared = 1,
+            Queued = 2,
+            Sent = 3,
+            Responded = 4,
+            Completed = 5,
+            Deleted = 6
         }
 
         public enum ObjectType

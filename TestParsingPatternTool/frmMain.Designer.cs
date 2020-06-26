@@ -1,4 +1,4 @@
-﻿namespace TestParsingPatternTool
+﻿namespace PatternValidator
 {
     partial class frmMain
     {
@@ -32,7 +32,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.txtBoxPattern = new System.Windows.Forms.TextBox();
-            this.btnTest = new System.Windows.Forms.Button();
+            this.btnValidate = new System.Windows.Forms.Button();
             this.lblResult = new System.Windows.Forms.Label();
             this.dGVResults = new System.Windows.Forms.DataGridView();
             ((System.ComponentModel.ISupportInitialize)(this.dGVResults)).BeginInit();
@@ -72,15 +72,15 @@
             this.txtBoxPattern.Size = new System.Drawing.Size(878, 89);
             this.txtBoxPattern.TabIndex = 2;
             // 
-            // btnTest
+            // btnValidate
             // 
-            this.btnTest.Location = new System.Drawing.Point(29, 274);
-            this.btnTest.Name = "btnTest";
-            this.btnTest.Size = new System.Drawing.Size(84, 66);
-            this.btnTest.TabIndex = 4;
-            this.btnTest.Text = "Test";
-            this.btnTest.UseVisualStyleBackColor = true;
-            this.btnTest.Click += new System.EventHandler(this.btnTest_Click);
+            this.btnValidate.Location = new System.Drawing.Point(29, 274);
+            this.btnValidate.Name = "btnValidate";
+            this.btnValidate.Size = new System.Drawing.Size(84, 66);
+            this.btnValidate.TabIndex = 4;
+            this.btnValidate.Text = "Validate";
+            this.btnValidate.UseVisualStyleBackColor = true;
+            this.btnValidate.Click += new System.EventHandler(this.btnValidate_Click);
             // 
             // lblResult
             // 
@@ -117,13 +117,13 @@
             this.ClientSize = new System.Drawing.Size(929, 506);
             this.Controls.Add(this.lblResult);
             this.Controls.Add(this.dGVResults);
-            this.Controls.Add(this.btnTest);
+            this.Controls.Add(this.btnValidate);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.txtBoxPattern);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.txtBoxLogEntry);
             this.Name = "frmMain";
-            this.Text = "Test Parsing Pattern Tool";
+            this.Text = "Pattern Validator";
             ((System.ComponentModel.ISupportInitialize)(this.dGVResults)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -136,7 +136,7 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox txtBoxPattern;
-        private System.Windows.Forms.Button btnTest;
+        private System.Windows.Forms.Button btnValidate;
         private System.Windows.Forms.Label lblResult;
         private System.Windows.Forms.DataGridView dGVResults;
     }

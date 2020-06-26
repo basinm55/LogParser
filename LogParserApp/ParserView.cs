@@ -35,12 +35,9 @@ namespace LogParserApp
             }
 
            
-            for (int i = 0; i < columnsCount; i++)
-            {
-                if (i >= data.Count)
-                    break;
-                
-                CreateGridRow(data[i], dataGV.Columns[i], dataGV, deviceFilter);
+            foreach (var row in data)
+            {                  
+                CreateGridRow(row, dataGV, deviceFilter);
             }
 
             SetGridParameters(dataGV);
@@ -48,12 +45,12 @@ namespace LogParserApp
             dataGV.ClearSelection();       
         }
 
-        private static void CreateGridRow(ParserObject obj, DataGridViewColumn column, DataGridView dataGV, string device)
+        private static void CreateGridRow(ParserObject obj, DataGridView dataGV, string device)
         {
             if (obj == null) return;
             List<ParserObject> parserRowCollection;
             if (device != null)
-                parserRowCollection = obj.VisualObjectCollection.Where(o => (string)o.GetDynPropertyValue("Parent") == device).ToList();
+                parserRowCollection = obj.VisualObjectCollection.Where(o => o==null ||(string)o.GetDynPropertyValue("Parent") == device).ToList();
             else
                 parserRowCollection = obj.VisualObjectCollection;
 
@@ -77,6 +74,11 @@ namespace LogParserApp
         private static Color CreateGridCell(ParserObject visualObj, DataGridViewRow row, int cellIndex, Color currentColor)
         {                     
             var cell = new DataGridViewTextBoxCell();
+            if (visualObj == null)
+            {
+                row.Cells[cellIndex] = cell;
+                return Color.Transparent;
+            }
 
             currentColor = currentColor == Color.Transparent ?
                 //Color.FromName((string)visualObj.GetDynPropertyValue("BaseColor")) :

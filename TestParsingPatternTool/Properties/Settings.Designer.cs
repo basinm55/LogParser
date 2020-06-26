@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TestParsingPatternTool.Properties
+namespace PatternValidator.Properties
 {
 
 

@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParserUtils", "ParserUtils\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParserEntities", "ParserEntities\ParserEntities.csproj", "{E0D23060-68AD-427B-A437-0D64C65C9115}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestParsingPatternTool", "TestParsingPatternTool\TestParsingPatternTool.csproj", "{DA7021A5-29B4-401C-B052-FA8EEEB9E706}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PatternValidator", "TestParsingPatternTool\PatternValidator.csproj", "{DA7021A5-29B4-401C-B052-FA8EEEB9E706}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

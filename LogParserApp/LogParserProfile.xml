@@ -24,7 +24,7 @@
 					</Property>					
 				</Properties>
 			</Filter>
-			<Filter key="CPort::BindUsbDevice" IsVisible ="1" IsFindable = "1">
+			<Filter key="CPort::BindUsbDevice" IsVisible ="0" IsFindable = "1">
 				<ObjectType>Device</ObjectType>
 				<State />				
 				<Patterns>

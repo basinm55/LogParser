@@ -15,7 +15,7 @@ namespace Helpers
                 StringComparison stringComparison = StringComparison.InvariantCultureIgnoreCase)
         {
             return text.IndexOf(value, stringComparison) >= 0;
-        }
+        }       
 
         public static bool ToBoolean(this string input)
         {

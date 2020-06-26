@@ -4,6 +4,7 @@ using System.Dynamic;
 using System.Globalization;
 using static Entities.Enums;
 using Helpers;
+using System.Linq;
 
 namespace Entities
 { 
@@ -16,6 +17,8 @@ namespace Entities
         public int LineNum { get; set; }
 
         public string VisualDescription { get; set; }
+
+        public string Parent { get; set; }
         public dynamic DynObject { get; set; }
 
         public IDictionary<string, object> DynObjectDictionary;
@@ -132,18 +135,62 @@ namespace Entities
                     , propertyName));
 
             DynObjectDictionary[propertyName] = CovertValueToRequiredDataType(propertyValue.ToString(), propertyDataType, enumType, dateTimeFormat);
-        }           
+        }
+        
     }
 
     public static class Extensions
     {
-        public static ParserObject CreateVisualObject(this ParserObject original)
-        {
-            var result = new ParserObject(original.ObjectClass);
 
-            result.DynObject = DeepClone(original.DynObject);
-            result.DynObjectDictionary = (IDictionary<string, object>)result.DynObject;
-            result.ObjectClass = original.ObjectClass;            
+        public static ParserObject GetPrevtem(this List<ParserObject> list, ParserObject item)
+        {
+            var i = list.IndexOf(item);
+            var j = (i - 1) % list.Count;
+            return list[j];
+        }
+
+        public static string GetThis(this ParserObject item)
+        {
+            return (string)item.GetDynPropertyValue("this");
+        }
+
+        public static ObjectState GetState(this ParserObject item)
+        {
+            return ((string)item.GetDynPropertyValue("State")).ToEnum<ObjectState>();
+        }
+
+        public static void SetState(this ParserObject item, ObjectState state)
+        {
+            item.SetDynPropertyValue("State", state);
+        }
+
+        public static ObjectType GetObjectType(this ParserObject item)
+        {
+            return ((string)item.GetDynPropertyValue("ObjectType")).ToEnum<ObjectType>();
+        }
+
+        public static ParserObject GetLastVisualObject(this ParserObject item)
+        {
+            return item.VisualObjectCollection.Count > 0 ? item.VisualObjectCollection.LastOrDefault() : null;
+        }
+
+        public static ParserObject GetBeforeLastVisualObject(this ParserObject item)
+        {
+            return item.VisualObjectCollection.Count > 0 ? item.VisualObjectCollection.Skip(-1).LastOrDefault() : null;
+        }
+
+        public static ParserObject CreateVisualObject(this ParserObject baseObject)
+        {
+            var result = new ParserObject(baseObject.ObjectClass);
+
+            result.DynObject = DeepClone(baseObject.DynObject);
+            result.DynObjectDictionary = new Dictionary<string, object>((IDictionary<string, object>)baseObject.DynObject);
+            result.ObjectClass = baseObject.ObjectClass;
+            result.LogLine = baseObject.LogLine;
+            result.LineNum = baseObject.LineNum;
+
+            //_currentObj.VisualObjectCollection.Add(visualObject);
+            //_currentObj.SetState(visualObject.GetState());
             return result;
         }
 
@@ -157,7 +204,17 @@ namespace Entities
             return result;
         }
 
-        public static ExpandoObject DeepClone(ExpandoObject original)
+
+        //public static ParserObject FindLastVisualObjectByLineNumber(this ParserObject obj, int lineNum)
+        //{
+        //    ParserObject result = null;
+        //    if (obj != null && lineNum >= 0)
+        //        result = obj.VisualObjectCollection.Count > 0 ? obj.VisualObjectCollection.LastOrDefault(x => x.LineNum == lineNum) : null;               
+            
+        //    return result;
+        //}
+
+        private static ExpandoObject DeepClone(ExpandoObject original)
         {
             var clone = new ExpandoObject();
 
