@@ -57,9 +57,9 @@ namespace Entities
 
         public enum ObjectType
         {
-            Unrecognized = 0,
-            Device = 1,
-            Request = 2
+            Unknown = -1,
+            Device = 0,
+            Request = 1
         }
     }
 }

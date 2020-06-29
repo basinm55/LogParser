@@ -21,7 +21,7 @@ namespace LogParserApp
             dataGV.Columns.Clear();
             
 
-            var columnsCount = data.Max(x => x.VisualObjectCollection.Distinct().Count());           
+            var columnsCount = data.Max(x => x.VisualObjectCollection.Count());           
 
             for (int i = 0; i < columnsCount; i++)
             {
@@ -80,9 +80,8 @@ namespace LogParserApp
                 return Color.Transparent;
             }
 
-            currentColor = currentColor == Color.Transparent ?
-                //Color.FromName((string)visualObj.GetDynPropertyValue("BaseColor")) :
-                Color.LightSkyBlue:
+            currentColor = currentColor == Color.Transparent ?                
+                ColorTranslator.FromHtml("#87cefa") ://Color.LightSkyBlue :
                 Utils.DarkerColor(currentColor, 10f);           
 
             cell.Style = new DataGridViewCellStyle
@@ -94,12 +93,12 @@ namespace LogParserApp
             };
 
             var visualDescription = new StringBuilder();
-            visualDescription.AppendLine(visualObj.ObjectClass+":");
+            visualDescription.AppendLine(visualObj.ObjectType.ToString());
             visualDescription.AppendLine((string)visualObj.GetDynPropertyValue("this"));
             visualDescription.AppendLine((string)visualObj.GetDynPropertyValue("FilterKey"));      
-            visualDescription.AppendLine((string)visualObj.GetDynPropertyValue("State"));
+            visualDescription.AppendLine(visualObj.ObjectState.ToString());
             visualObj.VisualDescription = visualDescription.ToString();
-            if (visualObj == null || visualObj.VisualDescription == "")
+            if (visualObj == null || string.IsNullOrWhiteSpace(visualObj.VisualDescription))
                 visualObj.VisualDescription = null;
             cell.Value = visualObj;
 

@@ -70,8 +70,7 @@ namespace LogParserApp
                 }
                 else
                 {
-                    // Perform a time consuming operation and report progress.
-                    //System.Threading.Thread.Sleep(1);
+                    // Perform a time consuming operation and report progress.                    
                     int percentComplete = (int)(CompletedLogLines / (float)TotalLogLines * 100);
 
                     worker.ReportProgress(percentComplete);
@@ -82,7 +81,20 @@ namespace LogParserApp
 
                 if (CompletedLogLines >= maxLines) break;
 
-                ParseLogLine(lineNumber, line, profile);
+                try
+                {
+                    ParseLogLine(lineNumber, line, profile);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception(string.Format("Parsing error on the line number: {0}" +
+                                                       Environment.NewLine +
+                                                       "{1}" + Environment.NewLine +
+                                                       "Exception Details:" + Environment.NewLine + "{2}",
+                                                    lineNumber.ToString(),
+                                                    line,
+                                                    ex.ToString()));
+                }
 
                 lineNumber++;
             }
@@ -152,107 +164,109 @@ namespace LogParserApp
 
         private void ApplyFilter(int lineNumber, string line, XElement filter)
         {
-            var state = _currentObj != null ? _currentObj.GetState() : ObjectState.Unknown;
-
+            bool isExistingFound = false;
+            ParserObject foundPrevStateObj = null;
             var filterPatterns = filter.XPathSelectElements("Patterns/Pattern");
             foreach (var filterPattern in filterPatterns)
             {
                 _sf.Parse(line, filterPattern.Value);
                 if (!IsParsingSuccessful(filterPattern))
-                    continue;
+                    continue;         
 
-                foreach (var prop in filter.XPathSelectElements("Properties/Property"))
+                isExistingFound = FindOrCreateBaseObject(lineNumber, filter, _sf.Results, out string objectType, out string thisValue, out string objectState, out ParserObject foundPrevStateObject);
+                foundPrevStateObj = foundPrevStateObject;
+
+                var properties = filter.XPathSelectElements("Properties/Property");
+                properties.OrderBy(e => e.Attribute("i").Value);
+
+                foreach (var prop in properties)
                 {
                     if (prop.Element("PatternIndex") == null || prop.Attribute("i") == null) continue;
 
-                    if (Int32.TryParse(prop.Element("PatternIndex").Value, out int patternIndex))
+                    if (int.TryParse(prop.Element("PatternIndex").Value, out int patternIndex))
                     {
                         if (patternIndex < _sf.Results.Count)
                         {                           
-                            DoObjectAction(prop, lineNumber, patternIndex, _sf.Results[patternIndex], filter, line);
+                            DoObjectAction(prop, lineNumber, patternIndex, _sf.Results[patternIndex], line, objectType, thisValue);
                         }
                     }
                 }
             }
-
-            if (_currentObj != null)
-            {                
-                if (_currentObj.GetDynPropertyValue("IsVisible").ToString().ToBoolean()) 
-                {
-                    //var prevObjectsFound = ObjectCollection.Where(x => (string)x.GetDynPropertyValue("this") == (string)_currentObj.GetDynPropertyValue("this").ToString());                    
-                    if (true)
-                    {
-                        var visualObject = _currentObj.CreateVisualObject();                        
-
-                        _currentObj.VisualObjectCollection.Add(visualObject);
-                        //_currentObj.SetState(visualObject.GetState());
-                        var found = ObjectCollection.LastOrDefault(x =>
-                                                    x.GetThis() == _currentObj.GetThis() &&
-                                                    x.GetObjectType() == _currentObj.GetObjectType() &&
-                                                    x.LineNum < lineNumber &&
-                                                    x.GetState() == _currentObj.GetState() - 1);
-
-
-
-                        var itmState = visualObject.GetState();
-                        var prevItm = _currentObj.VisualObjectCollection.GetPrevtem(visualObject);
-                        
-                        var prevState = prevItm.GetState();
-                        if (lineNumber == 8) //(itmState > prevState + 1)
-                        {
-                            var newObj = visualObject.CreateObjectClone();
-                            var newVo = newObj.CreateVisualObject();                            
-                            var foundInterrupted = ObjectCollection.LastOrDefault(x =>
-                                x.GetThis() == newObj.GetThis() && x.LineNum < lineNumber);
-
-                            if (foundInterrupted != null)
-                            {
-                                for (int i = 0; i < foundInterrupted.VisualObjectCollection.Count; i++)
-                                    newObj.VisualObjectCollection.Add(null);                              
-                            }                                                        
-                            newObj.VisualObjectCollection.Add(newVo);
-
-                            ObjectCollection.Add(newObj);
-                            _currentObj.VisualObjectCollection.Remove(visualObject);
-
-                        }
-
-                    }
-                    else
-                    {
-                        var obj = _currentObj.CreateObjectClone();
-                        var visualObject = _currentObj.CreateVisualObject();                       
-                        _currentObj.VisualObjectCollection.Add(visualObject);
-                     }
-                }
-            }
-
-        }
-
-        private void CreateObjectOnThFly(int lineNumber, string line, XElement filter)
-        {
-            var filterPatterns = filter.XPathSelectElements("Patterns/Pattern");
-            foreach (var filterPattern in filterPatterns)
+            if (((string)_currentObj.GetDynPropertyValue("IsVisible")).ToBoolean())
             {
-                _sf.Parse(line, filterPattern.Value);
-                if (!IsParsingSuccessful(filterPattern))
-                    continue;
+                var objectState = ObjectState.Unknown;
+                var objStateStr = filter.Element("State") != null &&
+                                            !string.IsNullOrWhiteSpace(filter.Element("State").Value)
+                                            ? filter.Element("State").Value : null;
+                if (!string.IsNullOrWhiteSpace(objStateStr))
+                    objectState = Enum.IsDefined(typeof(ObjectState), objStateStr) ? objStateStr.ToEnum<ObjectState>() : ObjectState.Unknown;
 
-                foreach (var prop in filter.XPathSelectElements("Properties/Property"))
+                var visualObj = _currentObj.CreateVisualObject(objectState, lineNumber, line);
+
+                if (foundPrevStateObj != null)
                 {
-                    if (prop.Element("PatternIndex") == null || prop.Attribute("i") == null) continue;
-
-                    if (Int32.TryParse(prop.Element("PatternIndex").Value, out int patternIndex))
-                    {
-                        if (patternIndex < _sf.Results.Count)
-                        {
-                            DoActionNew(filter, prop, lineNumber, patternIndex, _sf.Results[patternIndex], line);
-                            break;
-                        }
-                    }
+                    for (int i = 0; i < foundPrevStateObj.VisualObjectCollection.Count; i++)
+                        _currentObj.VisualObjectCollection.Add(null);
                 }
+                _currentObj.VisualObjectCollection.Add(visualObj);
+                _currentObj.ObjectState = visualObj.ObjectState;
             }
-        }
+
+            if (!isExistingFound)
+                ObjectCollection.Add(_currentObj);
+
+            //if (_currentObj != null)
+            //{                
+            //    if (_currentObj.GetDynPropertyValue("IsVisible").ToString().ToBoolean()) 
+            //    {
+            //        //var prevObjectsFound = ObjectCollection.Where(x => (string)x.GetDynPropertyValue("this") == (string)_currentObj.GetDynPropertyValue("this").ToString());                    
+            //        if (true)
+            //        {
+            //            var visualObject = _currentObj.CreateVisualObject();                        
+
+            //            _currentObj.VisualObjectCollection.Add(visualObject);
+            //            //_currentObj.SetState(visualObject.GetState());
+            //            var found = ObjectCollection.LastOrDefault(x =>
+            //                                        x.GetThis() == _currentObj.GetThis() &&
+            //                                        x.ObjectType == _currentObj.ObjectType &&
+            //                                        x.LineNum < lineNumber &&
+            //                                        x.GetState() == _currentObj.GetState() - 1);
+
+
+
+            //            var prevItm = _currentObj.VisualObjectCollection.GetPrevtem(visualObject);
+
+            //            var prevState = prevItm.GetState();
+            //            if (lineNumber == 8) //(itmState > prevState + 1)
+            //            {
+            //                var newObj = visualObject.CreateObjectClone();
+            //                var newVo = newObj.CreateVisualObject();                            
+            //                var foundInterrupted = ObjectCollection.LastOrDefault(x =>
+            //                    x.GetThis() == newObj.GetThis() && x.LineNum < lineNumber);
+
+            //                if (foundInterrupted != null)
+            //                {
+            //                    for (int i = 0; i < foundInterrupted.VisualObjectCollection.Count; i++)
+            //                        newObj.VisualObjectCollection.Add(null);                              
+            //                }                                                        
+            //                newObj.VisualObjectCollection.Add(newVo);
+
+            //                ObjectCollection.Add(newObj);
+            //                _currentObj.VisualObjectCollection.Remove(visualObject);
+
+            //            }
+
+            //        }
+            //        else
+            //        {
+            //            var obj = _currentObj.CreateObjectClone();
+            //            var visualObject = _currentObj.CreateVisualObject();                       
+            //            _currentObj.VisualObjectCollection.Add(visualObject);
+            //        }
+            //    }
+            //}
+
+        }   
 
         private bool IsParsingSuccessful(XElement filterPattern)
         {
@@ -267,33 +281,30 @@ namespace LogParserApp
             return true;
         }
 
-        private void DoObjectAction(XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, XElement filter, string logLine, bool forceCreateNew = false)
+        private void DoObjectAction(XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectType, string thisValue)
         {
             if (profilePropDefinition.Element("Action") == null) return;
-            var action = profilePropDefinition.Element("Action").Value.ToEnum<PropertyAction>();
-
-            if (forceCreateNew)
-                action = PropertyAction.New;
+            var action = profilePropDefinition.Element("Action").Value.ToEnum<PropertyAction>();           
 
             switch (action)
             {
                 case PropertyAction.New:
-                    DoActionNew(filter, profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine);
+                    DoActionNew(profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine, objectType, thisValue);
                     break;
                 case PropertyAction.AssignToSelf:
-                    DoActionAssignToSelf(filter, profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine);
+                    DoActionAssignToSelf(profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine, objectType, thisValue);
                     break;
                 case PropertyAction.Locate:
-                    DoActionLocate(filter, profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine);
+                    DoActionLocate(profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine, objectType, thisValue);
                     break;
                 case PropertyAction.Assign:
-                    DoActionAssign(filter, profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine);
+                    DoActionAssign(profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine, objectType, thisValue);
                     break;
                 case PropertyAction.Drop:
-                    DoActionDrop(filter, profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine);
+                    DoActionDrop(profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine, objectType, thisValue);
                     break;
                 case PropertyAction.Delete:
-                    DoActionDelete(filter, profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine);
+                    DoActionDelete(profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine, objectType, thisValue);
                     break;
 
                 default:

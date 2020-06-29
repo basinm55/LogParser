@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms.VisualStyles;
 using System.Xml.Linq;
+using System.Xml.XPath;
 using Entities;
 using Helpers;
 using static Entities.Enums;
@@ -14,105 +15,67 @@ namespace LogParserApp
 {
     public partial class Parser
     {
-        private void DoActionNew(XElement filter, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine)
+        private void DoActionNew(XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectType, string thisValue)
         {
             if (!ValidateProfileDefinition(profilePropDefinition,
-                out string objectType,
+                out string name,
                 out PropertyDataType dataType,
                 out string format)) return;
-
-            _currentObj = new ParserObject(objectType) { LineNum = lineNumber };
-            
-
-            SetFilterProperties(filter);
-
-            SetPropertiesByProfile(profilePropDefinition,                               
+ 
+            SetPropertiesByProfile(profilePropDefinition,
                 patternIndex,
                 parsedValue,
                 objectType,
                 dataType,
-                format);
-
-            SetThis(profilePropDefinition, parsedValue);
-
-            var visualObject = _currentObj.CreateVisualObject();     
-            _currentObj.VisualObjectCollection.Add(visualObject);            
-
-            ObjectCollection.Add(_currentObj);
+                format);           
         }
 
-        private void DoActionAssignToSelf(XElement filter, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine)
+        private void DoActionAssignToSelf(XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectType, string thisValue)
         {
             if (_currentObj == null || !ValidateProfileDefinition(profilePropDefinition,
-                      out string objectType,
+                      out string name,
                       out PropertyDataType dataType,
                       out string format)) return;
 
-            SetFilterProperties(filter);
-
-
-            //CheckForCurrentObjectExists(filter, profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine);
-            
-            SetThis(profilePropDefinition, parsedValue);
-
-            _currentObj.SetDynProperty(objectType, parsedValue, dataType, format);
+            _currentObj.SetDynProperty(name, parsedValue, dataType, format);
+            //_currentObj.SetDynProperty(objectType, parsedValue, dataType, format);
         }
-        private void DoActionLocate(XElement filter, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine)
+        private void DoActionLocate(XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectType, string thisValue)
         {
-            if (_currentObj==null || !ValidateProfileDefinition(profilePropDefinition,
-                      out string objectType,
+            if (_currentObj == null || !ValidateProfileDefinition(profilePropDefinition,
+                      out string name,
                       out PropertyDataType dataType,
                       out string format)) return;
-
-            SetFilterProperties(filter);
-
-            //CheckForCurrentObjectExists(filter, profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine);
-
-            SetThis(profilePropDefinition, parsedValue);
 
             var searchValue = _currentObj.GetDynPropertyValue("this");
 
-            _locatedObj = ObjectCollection.FirstOrDefault(x => (string)x.GetDynPropertyValue("this") == (string)searchValue);            
+            _locatedObj = ObjectCollection.FirstOrDefault(x => (string)x.GetDynPropertyValue("this") == (string)searchValue);
         }
 
-        private void DoActionAssign(XElement filter, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine)
+        private void DoActionAssign(XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectType, string thisValue)
         {
             if (_locatedObj == null || !ValidateProfileDefinition(profilePropDefinition,
-                      out string objectType,
+                      out string name,
                       out PropertyDataType dataType,
                       out string format)) return;
-
-            SetFilterProperties(filter);
-            //CheckForCurrentObjectExists(filter, profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine);
-            SetThis(profilePropDefinition, parsedValue);
 
             _locatedObj.SetDynProperty(objectType, parsedValue, dataType, format);
             _locatedObj = null;
         }
-        private void DoActionDrop(XElement filter, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine)
+        private void DoActionDrop(XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectType, string thisValue)
         {
             if (_currentObj == null || !ValidateProfileDefinition(profilePropDefinition,
-                      out string objectType,
+                      out string name,
                       out PropertyDataType dataType,
-                      out string format)) return;
-
-            SetFilterProperties(filter);
-            //CheckForCurrentObjectExists(filter, profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine);
-            SetThis(profilePropDefinition, parsedValue);
+                      out string format)) return;         
         }
 
-        private void DoActionDelete(XElement filter, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine)
+        private void DoActionDelete(XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectType, string thisValue)
         {
             if (_currentObj == null || !ValidateProfileDefinition(profilePropDefinition,
-                     out string objectType,
+                     out string name,
                      out PropertyDataType dataType,
                      out string format)) return;
-
-            SetFilterProperties(filter);
-            //CheckForCurrentObjectExists(filter, profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine);
-            SetThis(profilePropDefinition, parsedValue);
-
-
         }
 
         private bool ValidateProfileDefinition(XElement profilePropDefinition, out string name, out PropertyDataType dataType, out string format)
@@ -127,7 +90,7 @@ namespace LogParserApp
             if (string.IsNullOrWhiteSpace(name)) return false;
 
             if (profilePropDefinition.Element("DataType") == null) return false;
-            dataType = profilePropDefinition.Element("DataType").Value.ToEnum<PropertyDataType>();            
+            dataType = profilePropDefinition.Element("DataType").Value.ToEnum<PropertyDataType>();
 
             format = dataType == PropertyDataType.Time ?
                 profilePropDefinition.Element("DataType").Attribute("Format").Value :
@@ -135,77 +98,123 @@ namespace LogParserApp
 
             return true;
         }
-
-
-
-        private void SetFilterProperties(XElement filter)
-        {
-            var filterKey = filter.Attribute("key").Value;
-
-            bool isVisible = true;
-            if (filter.Attribute("IsVisible") != null)
-                isVisible = filter.Attribute("IsVisible").Value.ToBoolean();
-
-            bool isFindable = true;
-            if (filter.Attribute("IsFindable") != null)
-                isFindable = filter.Attribute("IsFindable").Value.ToBoolean();
-
-            string state = filter.Element("State") != null &&
-                !string.IsNullOrWhiteSpace(filter.Element("State").Value)
-                ? filter.Element("State").Value : null;
-
-            string objectType = filter.Element("ObjectType") != null &&
-                !string.IsNullOrWhiteSpace(filter.Element("ObjectType").Value)
-                ? filter.Element("ObjectType").Value : null;
-
-            _currentObj.SetDynProperty("FilterKey", filterKey);
-            _currentObj.SetDynProperty("IsVisible", isVisible);
-            _currentObj.SetDynProperty("IsFindable", isFindable);
-            _currentObj.SetDynProperty("ObjectType", objectType);
-            _currentObj.SetDynProperty("State", state);
-
-        }
+        
 
         private void SetPropertiesByProfile(XElement profilePropDefinition, int patternIndex, object parsedValue, string name, PropertyDataType dataType, string format)
-        {           
-            _currentObj.SetDynProperty("Name", name);                       
+        {
+            _currentObj.SetDynProperty("Name", name);
             _currentObj.SetDynProperty("PatternIndex", patternIndex, PropertyDataType.Decimal);
-            _currentObj.SetDynProperty("DataType", dataType, PropertyDataType.Enum, format, typeof(PropertyDataType));      
+            _currentObj.SetDynProperty("DataType", dataType, PropertyDataType.Enum, format, typeof(PropertyDataType));
 
             if (string.Equals(name, "Timestamp", StringComparison.InvariantCultureIgnoreCase))
-                _currentObj.SetDynProperty("Timestamp", parsedValue, PropertyDataType.Time, format);                       
-        }
+                _currentObj.SetDynProperty("Timestamp", parsedValue, PropertyDataType.Time, format);
+        }      
 
-        private void SetThis(XElement profilePropDefinition, object parsedValue)
+        private bool FindOrCreateBaseObject(int lineNumber, XElement filter, List<object> parsedList, out string objectType, out string thisValue, out string objectState, out ParserObject foundPrevStateObject)
         {
-            var target = profilePropDefinition.Element("Target");
-            if (target != null && profilePropDefinition.Element("Target") != null &&
-                profilePropDefinition.Element("Target").Value.ToLower() == "this")
-                _currentObj.SetDynProperty("this", parsedValue);      
-        }
+            thisValue = null;
+            objectType = null;
+            objectState = null;
+            var objState = ObjectState.Unknown;
+            var objType = ObjectType.Unknown;
+            ParserObject obj, foundPrevStateObj = null;
+            bool isExistingFound = false;
 
-        private void CheckForCurrentObjectExists(XElement filter, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine)
-        {
-            bool isCreated = false;
-            var target = profilePropDefinition.Element("Target");
-            if (target != null && profilePropDefinition.Element("Target") != null &&
-                profilePropDefinition.Element("Target").Value.ToLower() == "this")
+            _currentObj = null;
+
+            foreach (var prop in filter.XPathSelectElements("Properties/Property"))
             {
-                var foundList = ObjectCollection.Where(x => x.GetThis() == (string)parsedValue).ToList();
-                if (foundList != null)
+                var target = prop.Element("Target");
+                if (target != null && prop.Element("Target") != null &&
+                        prop.Element("Target").Value.ToLower() == "this")
                 {
-                    foreach (var obj in foundList)
+
+                    if (prop.Element("PatternIndex") == null || prop.Attribute("i") == null) continue;
+
+                    if (int.TryParse(prop.Element("PatternIndex").Value, out int patternIndex))
                     {
-                        if (obj.VisualObjectCollection != null &&
-                            obj.VisualObjectCollection.FirstOrDefault(x => x.GetState() == ObjectState.Created) != null)
-                            isCreated = true;
-                            break;
-                    }
-                }                                                                   
+                        if (patternIndex < _sf.Results.Count)
+                        {                            
+                            thisValue = (string)parsedList[patternIndex];
+                            var thisVal = thisValue;
+
+                            objectState = filter.Element("State") != null &&
+                            !string.IsNullOrWhiteSpace(filter.Element("State").Value)
+                            ? filter.Element("State").Value : null;
+                            if  (!string.IsNullOrWhiteSpace(objectState))
+                                objState = Enum.IsDefined(typeof(ObjectState), objectState) ? objectState.ToEnum<ObjectState>() : ObjectState.Unknown;
+
+                            objectType = filter.Element("ObjectType") != null &&
+                            !string.IsNullOrWhiteSpace(filter.Element("ObjectType").Value)
+                            ? filter.Element("ObjectType").Value : null;
+                            if (!string.IsNullOrWhiteSpace(objectType))
+                                objType = Enum.IsDefined(typeof(ObjectType), objectType) ? objectType.ToEnum<ObjectType>() :  ObjectType.Unknown;                            
+
+                            var filterKey = filter.Attribute("key").Value;
+
+                            bool isVisible = true;
+                            if (filter.Attribute("IsVisible") != null)
+                                isVisible = filter.Attribute("IsVisible").Value.ToBoolean();
+
+                            bool isFindable = true;
+                            if (filter.Attribute("IsFindable") != null)
+                                isFindable = filter.Attribute("IsFindable").Value.ToBoolean();
+
+                            if (Enum.IsDefined(typeof(ObjectType), objType) &&
+                                !string.IsNullOrWhiteSpace(thisValue))
+                            {
+                                var foundExistingObject = ObjectCollection.LastOrDefault(x =>
+                                                    x.GetThis() == thisVal &&
+                                                    x.ObjectType == objType &&
+                                                    //x.ObjectState == ObjectState.Created &&
+                                                    x.LineNum < lineNumber);
+
+                                 foundPrevStateObj = ObjectCollection.LastOrDefault(x =>
+                                                    x.GetThis() == thisVal &&
+                                                    x.ObjectType == objType &&
+                                                    x.ObjectState == objState - 1 &&
+                                                    ObjectCollection.IndexOf(x) < ObjectCollection.Count - 1 &&
+                                                    x.LineNum < lineNumber);
+
+                                if (foundExistingObject == null)
+                                {                                   
+                                    obj = new ParserObject(objType) { LineNum = lineNumber };
+                                    obj.ObjectState = objState;
+                                    obj.SetDynProperty("this", thisValue);                                    
+                                    obj.SetDynProperty("FilterKey", filterKey);
+                                    obj.SetDynProperty("IsVisible", isVisible);
+                                    obj.SetDynProperty("IsFindable", isFindable);
+                                }
+                                else
+                                {
+                                    if (foundPrevStateObj != null)
+                                    {
+                                        obj = new ParserObject(objType) { LineNum = lineNumber };
+                                        obj.ObjectState = objState;
+                                        obj.SetDynProperty("Parent", foundExistingObject.GetDynPropertyValue("Parent"));
+                                        obj.SetDynProperty("this", thisValue);                                        
+                                        obj.SetDynProperty("FilterKey", filterKey);
+                                        obj.SetDynProperty("IsVisible", isVisible);
+                                        obj.SetDynProperty("IsFindable", isFindable);
+                                    }
+                                    else
+                                    {
+                                        obj = foundExistingObject;
+                                        isExistingFound = true;
+                                    }
+                                }
+                                _currentObj = obj;
+                            }
+
+                            foundPrevStateObject = foundPrevStateObj;
+                            return isExistingFound;
+                        }
+                    }                    
+                }
+
             }
-            
-            if (!isCreated)
-                DoActionNew(filter, profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine);
+            foundPrevStateObject = foundPrevStateObj;
+            return isExistingFound;
         }
     }
 }

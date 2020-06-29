@@ -5,18 +5,23 @@ using System.Globalization;
 using static Entities.Enums;
 using Helpers;
 using System.Linq;
+using System.Drawing;
 
 namespace Entities
 { 
     public class ParserObject
     {
-        public string ObjectClass { get; set; }
+        public ObjectType ObjectType { get; set; }
+
+        public ObjectState ObjectState { get; set; }
 
         public string LogLine { get; set; }
 
         public int LineNum { get; set; }
 
         public string VisualDescription { get; set; }
+
+        public Color ObjectColor { get; set; }
 
         public string Parent { get; set; }
         public dynamic DynObject { get; set; }
@@ -27,11 +32,11 @@ namespace Entities
 
 
         //C'tor
-        public ParserObject(string objectClass)
+        public ParserObject(ObjectType objectType)
         {
             DynObject = new ExpandoObject();
             DynObjectDictionary = (IDictionary<string, object>)DynObject;            
-            ObjectClass = objectClass;            
+            ObjectType = objectType;            
             VisualObjectCollection = new List<ParserObject>();
         }
 
@@ -154,20 +159,20 @@ namespace Entities
             return (string)item.GetDynPropertyValue("this");
         }
 
+        public static void SetThis(this ParserObject item, string thisValue)
+        {
+            item.SetDynPropertyValue("this", thisValue);
+        }
+
         public static ObjectState GetState(this ParserObject item)
         {
-            return ((string)item.GetDynPropertyValue("State")).ToEnum<ObjectState>();
+            return item.GetDynPropertyValue("State").ToString().ToEnum<ObjectState>();
         }
 
         public static void SetState(this ParserObject item, ObjectState state)
         {
             item.SetDynPropertyValue("State", state);
-        }
-
-        public static ObjectType GetObjectType(this ParserObject item)
-        {
-            return ((string)item.GetDynPropertyValue("ObjectType")).ToEnum<ObjectType>();
-        }
+        }      
 
         public static ParserObject GetLastVisualObject(this ParserObject item)
         {
@@ -179,28 +184,27 @@ namespace Entities
             return item.VisualObjectCollection.Count > 0 ? item.VisualObjectCollection.Skip(-1).LastOrDefault() : null;
         }
 
-        public static ParserObject CreateVisualObject(this ParserObject baseObject)
+        public static ParserObject CreateVisualObject(this ParserObject baseObject, ObjectState newState, int lineNumber, string line)
         {
-            var result = new ParserObject(baseObject.ObjectClass);
+            var result = new ParserObject(baseObject.ObjectType);
 
             result.DynObject = DeepClone(baseObject.DynObject);
             result.DynObjectDictionary = new Dictionary<string, object>((IDictionary<string, object>)baseObject.DynObject);
-            result.ObjectClass = baseObject.ObjectClass;
-            result.LogLine = baseObject.LogLine;
-            result.LineNum = baseObject.LineNum;
-
-            //_currentObj.VisualObjectCollection.Add(visualObject);
-            //_currentObj.SetState(visualObject.GetState());
+            result.ObjectType = baseObject.ObjectType;
+            result.LogLine = line;
+            result.LineNum = lineNumber;
+            result.ObjectState = newState;
+            
             return result;
         }
 
         public static ParserObject CreateObjectClone(this ParserObject original)
         {
-            var result = new ParserObject(original.ObjectClass);
+            var result = new ParserObject(original.ObjectType);
 
             result.DynObject = DeepClone(original.DynObject);
             result.DynObjectDictionary = (IDictionary<string, object>)result.DynObject;
-            result.ObjectClass = original.ObjectClass;
+            result.ObjectType = original.ObjectType;
             return result;
         }
 

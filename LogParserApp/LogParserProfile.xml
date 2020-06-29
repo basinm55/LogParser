@@ -90,20 +90,20 @@
 						<DataType Format ="MM/dd/yyyy-HH:mm:ss.FFF">Time</DataType>
 						<Action>AssignToSelf</Action>
 					</Property>					
-					<Property i="1">
+					<Property i="2">
 						<PatternIndex>2</PatternIndex>
 						<Name>Parent</Name>
 						<DataType>string</DataType>
 						<Action>AssignToSelf</Action>
 						<Target>Parent</Target>
 					</Property>					
-					<Property i="2">
+					<Property i="3">
 						<PatternIndex>1</PatternIndex>
 						<Name>Type</Name>
 						<DataType>string</DataType>
 						<Action>AssignToSelf</Action>						
 					</Property>	
-					<Property i="3"> <!--???????-->
+					<Property i="4"> <!--???????-->
 						<PatternIndex>3</PatternIndex>
 						<Name>ChildRequest</Name>
 						<DataType>object</DataType>

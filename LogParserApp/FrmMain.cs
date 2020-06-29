@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using System.Xml.Linq;
 using Entities;
 using Helpers;
+using static Entities.Enums;
 
 namespace LogParserApp
 {
@@ -153,11 +154,12 @@ namespace LogParserApp
                     foreach (var prop in relatedParserObject.DynObjectDictionary)
                         properties.AppendLine(prop.Key + " = " + prop.Value.ToString());
 
-                    properties.AppendLine("LineNum = " + relatedParserObject.LineNum.ToString());
+                    properties.AppendLine("State = " + relatedParserObject.ObjectState.ToString());
+                    properties.AppendLine("LineNum = " + relatedParserObject.LineNum.ToString());                   
 
                     FlexibleMessageBox.Show(properties.ToString(),
                         string.Format("Properties of {0}: {1}",
-                            relatedParserObject.ObjectClass,
+                            relatedParserObject.ObjectType.ToString(),
                             relatedParserObject.GetDynPropertyValue("this")),
                         MessageBoxButtons.OK);
                 }
@@ -221,7 +223,7 @@ namespace LogParserApp
         private void CreateComboDeviceDataSource()
         {
             var ds = _parser.ObjectCollection.
-                                Where(o => (string)o.GetDynPropertyValue("ObjectType") == "Device").Distinct().
+                                Where(o => o.ObjectType == ObjectType.Device).Distinct().
                                 ToList();
 
             var comboSource = new Dictionary<string, ParserObject>();
@@ -232,9 +234,12 @@ namespace LogParserApp
                     comboSource.Add((string)itm.GetDynPropertyValue("this"), itm);
             }
 
-            cmbShowDevice.DataSource = new BindingSource(comboSource, null);
-            cmbShowDevice.DisplayMember = "Key";
-            cmbShowDevice.ValueMember = "Value";
+            if (comboSource.Count > 0)
+            {
+                cmbShowDevice.DataSource = new BindingSource(comboSource, null);
+                cmbShowDevice.DisplayMember = "Key";
+                cmbShowDevice.ValueMember = "Value";
+            }
         }
 
         private void chkShowAll_CheckedChanged(object sender, EventArgs e)
@@ -272,8 +277,9 @@ namespace LogParserApp
         private void cmbShowDevice_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (cmbShowDevice.SelectedValue != null)
-            {           
-                UpdateDeviceDetails();
+            {
+                if (cmbShowDevice.SelectedItem.GetType() != typeof(KeyValuePair<string, ParserObject>)) return;
+                UpdateDeviceDetails();               
 
                 //Filter by selected device
                 var deviceFilter = ((KeyValuePair<string, ParserObject>)cmbShowDevice.SelectedItem).Key;
@@ -294,7 +300,9 @@ namespace LogParserApp
         }
 
         private void UpdateDeviceDetails()
-        {
+        {         
+            if (cmbShowDevice.SelectedItem.GetType() != typeof(KeyValuePair<string, ParserObject>)) return;
+
             var device = ((KeyValuePair<string, ParserObject>)cmbShowDevice.SelectedItem).Key;
             var obj = ((KeyValuePair<string, ParserObject>)cmbShowDevice.SelectedItem).Value;
             var timestamp = string.Format("{0:MM/dd/yyyy-HH:mm:ss.FFF}", obj.GetDynPropertyValue("Timestamp"));
