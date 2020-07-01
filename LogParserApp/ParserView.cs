@@ -58,44 +58,44 @@ namespace LogParserApp
 
             var rowIndex = dataGV.Rows.Add();
             var row = dataGV.Rows[rowIndex];
-
-            Color currentColor = Color.Transparent;
+            
             for (int i=0; i<dataGV.ColumnCount; i++)
             {  
   
                 if (i < parserRowCollection.Count)
-                    currentColor = CreateGridCell(parserRowCollection[i], row, i, currentColor);
+                    CreateGridCell(parserRowCollection[i], row, i);
                 else
                     CreateGridCell(row, i);
             }        
             
         }
 
-        private static Color CreateGridCell(ParserObject visualObj, DataGridViewRow row, int cellIndex, Color currentColor)
+        private static void CreateGridCell(ParserObject visualObj, DataGridViewRow row, int cellIndex)
         {                     
             var cell = new DataGridViewTextBoxCell();
             if (visualObj == null)
             {
                 row.Cells[cellIndex] = cell;
-                return Color.Transparent;
+                return;
             }
 
-            currentColor = currentColor == Color.Transparent ?                
-                ColorTranslator.FromHtml("#87cefa") ://Color.LightSkyBlue :
-                Utils.DarkerColor(currentColor, 10f);           
+            //currentColor = currentColor == Color.Transparent ?                
+            //    ColorTranslator.FromHtml("#87cefa") ://Color.LightSkyBlue :
+            //    Utils.DarkerColor(currentColor, 10f);
+
 
             cell.Style = new DataGridViewCellStyle
             {
-                BackColor = currentColor,
+                BackColor = visualObj.ObjectColor,
                 Alignment = DataGridViewContentAlignment.MiddleCenter,
-                Padding = new Padding(5, 5, 5, 5)
-
+                Padding = new Padding(5, 5, 5, 5),
+                SelectionBackColor = Color.DarkOrange
             };
 
             var visualDescription = new StringBuilder();
             visualDescription.AppendLine(visualObj.ObjectType.ToString());
             visualDescription.AppendLine((string)visualObj.GetDynPropertyValue("this"));
-            visualDescription.AppendLine((string)visualObj.GetDynPropertyValue("FilterKey"));      
+            //visualDescription.AppendLine((string)visualObj.GetDynPropertyValue("FilterKey"));      
             visualDescription.AppendLine(visualObj.ObjectState.ToString());
             visualObj.VisualDescription = visualDescription.ToString();
             if (visualObj == null || string.IsNullOrWhiteSpace(visualObj.VisualDescription))
@@ -103,9 +103,7 @@ namespace LogParserApp
             cell.Value = visualObj;
 
 
-            row.Cells[cellIndex] = cell;
-
-            return cell.Style.BackColor;
+            row.Cells[cellIndex] = cell; 
         }
 
         private static void CreateGridCell(DataGridViewRow row, int cellIndex)

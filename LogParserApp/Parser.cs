@@ -22,6 +22,8 @@ namespace LogParserApp
 
         private ScanFormatted _sf;
 
+        private ParserColorManager _colorMng;
+
         public int TotalLogLines { get; private set; }
         public int CompletedLogLines { get; private set; }
 
@@ -32,22 +34,10 @@ namespace LogParserApp
             else
             {
                 _logFileName = logFileName;
-                ObjectCollection = new List<ParserObject>();
+                _colorMng = new ParserColorManager();
+                ObjectCollection = new List<ParserObject>(); 
             }
 
-        }
-
-        public Parser(string logFileName, bool getDeviceNamesOnly)
-        {
-            _logFileName = logFileName;
-            ObjectCollection = new List<ParserObject>();
-        }
-
-
-        public List<string> GetAllDeviceNames()
-        {
-            List<string> result  = null;
-            return result;
         }
 
         public void Run(XElement profile, BackgroundWorker worker, DoWorkEventArgs e)
@@ -121,45 +111,6 @@ namespace LogParserApp
                         ApplyFilter(lineNumber, line, filter);
                 }
             }
-
-
-            //[0]44D8.44D0::05/31/2020-16:46:30.355
-            //format "%[*][width][modifiers]type"
-            //format example: "[%d]%d.%4s::%s %s %20c"
-            //datetime format "MM/dd/yyyy-HH:mm:ss.FFF"
-
-            //[6]0004.0230::05/31/2020-16:43:13.894 [jtucxip]CPort::BindUsbDevice port 4 CUsbDevice FFFFC30247334410
-
-            //Timestamp
-            //string parsingFormat = "[%*1d]%*4c.%*4c::%s";//TODO: Read it from profile            
-            //Device
-            //string parsingFormat = "%*s [%*7c]CUsbDevice::CUsbDevice: %s";
-
-
-            //string parsingFormat = "CUsbipRequest::CUsbipRequest: type %s";
-
-            //var sf = new ScanFormatted();                        
-            //var x = sf.Parse(line, parsingFormat/*profile["ParsingFormat"]*/);
-
-            //var regex = Regex.Match(line, "[0-9]{1}[0-9]{1}");
-
-            //var logEntry = new LogEntry();
-
-            //Convert time string to DateTime
-            //if (sf.Results.Count > 3) // Because the buffer contents problem TODO
-            //logEntry.Time = DateTime.ParseExact(sf.Results[3].ToString(), profile["DateTimeFormat"], null);
-
-            //if (sf.Results.Count > 4)
-            //logEntry.EntryType = sf.Results[4].ToString();
-
-
-            //if (_sf.Results.Count > 5)
-            //{
-            //    //var descriptionList = sf.Results.GetRange(5, sf.Results.Count - 5);                
-            //    //logEntry.Description = string.Join(" ", descriptionList); 
-            //}
-
-            //return logEntry;
         }
 
         private void ApplyFilter(int lineNumber, string line, XElement filter)
@@ -174,7 +125,7 @@ namespace LogParserApp
                     continue;         
 
                 isExistingFound = FindOrCreateBaseObject(lineNumber, filter, _sf.Results, out string objectType, out string thisValue, out string objectState, out ParserObject foundPrevStateObject);
-                foundPrevStateObj = foundPrevStateObject;
+                foundPrevStateObj = foundPrevStateObject;                
 
                 var properties = filter.XPathSelectElements("Properties/Property");
                 properties.OrderBy(e => e.Attribute("i").Value);
@@ -192,8 +143,9 @@ namespace LogParserApp
                     }
                 }
             }
-            if (((string)_currentObj.GetDynPropertyValue("IsVisible")).ToBoolean())
-            {
+            bool isVisible = (((string)_currentObj.GetDynPropertyValue("IsVisible")).ToBoolean());
+            if (isVisible)
+            {                
                 var objectState = ObjectState.Unknown;
                 var objStateStr = filter.Element("State") != null &&
                                             !string.IsNullOrWhiteSpace(filter.Element("State").Value)
@@ -202,69 +154,34 @@ namespace LogParserApp
                     objectState = Enum.IsDefined(typeof(ObjectState), objStateStr) ? objStateStr.ToEnum<ObjectState>() : ObjectState.Unknown;
 
                 var visualObj = _currentObj.CreateVisualObject(objectState, lineNumber, line);
+                visualObj.ObjectColor = _colorMng.GetColorByState(_currentObj.BaseColor, visualObj.ObjectState);
 
                 if (foundPrevStateObj != null)
                 {
                     for (int i = 0; i < foundPrevStateObj.VisualObjectCollection.Count; i++)
                         _currentObj.VisualObjectCollection.Add(null);
-                }
+
+                    visualObj.ObjectColor = _colorMng.GetColorByState(foundPrevStateObj.BaseColor, foundPrevStateObj.ObjectState);
+                }                
+
                 _currentObj.VisualObjectCollection.Add(visualObj);
-                _currentObj.ObjectState = visualObj.ObjectState;
+                _currentObj.ObjectState = visualObj.ObjectState;                
             }
 
             if (!isExistingFound)
+            {
+                if (isVisible && foundPrevStateObj == null)
+                {
+                    _currentObj.BaseColor = _colorMng.GetNextBaseColor();
+                    foreach (var vo in _currentObj.VisualObjectCollection)
+                    {
+                        if (vo != null)
+                            vo.ObjectColor = _colorMng.GetColorByState(_currentObj.BaseColor, vo.ObjectState);
+                    }
+                }
+
                 ObjectCollection.Add(_currentObj);
-
-            //if (_currentObj != null)
-            //{                
-            //    if (_currentObj.GetDynPropertyValue("IsVisible").ToString().ToBoolean()) 
-            //    {
-            //        //var prevObjectsFound = ObjectCollection.Where(x => (string)x.GetDynPropertyValue("this") == (string)_currentObj.GetDynPropertyValue("this").ToString());                    
-            //        if (true)
-            //        {
-            //            var visualObject = _currentObj.CreateVisualObject();                        
-
-            //            _currentObj.VisualObjectCollection.Add(visualObject);
-            //            //_currentObj.SetState(visualObject.GetState());
-            //            var found = ObjectCollection.LastOrDefault(x =>
-            //                                        x.GetThis() == _currentObj.GetThis() &&
-            //                                        x.ObjectType == _currentObj.ObjectType &&
-            //                                        x.LineNum < lineNumber &&
-            //                                        x.GetState() == _currentObj.GetState() - 1);
-
-
-
-            //            var prevItm = _currentObj.VisualObjectCollection.GetPrevtem(visualObject);
-
-            //            var prevState = prevItm.GetState();
-            //            if (lineNumber == 8) //(itmState > prevState + 1)
-            //            {
-            //                var newObj = visualObject.CreateObjectClone();
-            //                var newVo = newObj.CreateVisualObject();                            
-            //                var foundInterrupted = ObjectCollection.LastOrDefault(x =>
-            //                    x.GetThis() == newObj.GetThis() && x.LineNum < lineNumber);
-
-            //                if (foundInterrupted != null)
-            //                {
-            //                    for (int i = 0; i < foundInterrupted.VisualObjectCollection.Count; i++)
-            //                        newObj.VisualObjectCollection.Add(null);                              
-            //                }                                                        
-            //                newObj.VisualObjectCollection.Add(newVo);
-
-            //                ObjectCollection.Add(newObj);
-            //                _currentObj.VisualObjectCollection.Remove(visualObject);
-
-            //            }
-
-            //        }
-            //        else
-            //        {
-            //            var obj = _currentObj.CreateObjectClone();
-            //            var visualObject = _currentObj.CreateVisualObject();                       
-            //            _currentObj.VisualObjectCollection.Add(visualObject);
-            //        }
-            //    }
-            //}
+            }            
 
         }   
 

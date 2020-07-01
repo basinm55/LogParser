@@ -23,12 +23,14 @@ namespace Entities
 
         public Color ObjectColor { get; set; }
 
+        public Color BaseColor { get; set; }
+
         public string Parent { get; set; }
         public dynamic DynObject { get; set; }
 
         public IDictionary<string, object> DynObjectDictionary;
 
-        public List<ParserObject> VisualObjectCollection { get; private set; }
+        public List<ParserObject> VisualObjectCollection { get; set; }
 
 
         //C'tor
@@ -36,7 +38,9 @@ namespace Entities
         {
             DynObject = new ExpandoObject();
             DynObjectDictionary = (IDictionary<string, object>)DynObject;            
-            ObjectType = objectType;            
+            ObjectType = objectType;
+            BaseColor = Color.Transparent;
+            ObjectColor = Color.Transparent;
             VisualObjectCollection = new List<ParserObject>();
         }
 
@@ -194,7 +198,7 @@ namespace Entities
             result.LogLine = line;
             result.LineNum = lineNumber;
             result.ObjectState = newState;
-            
+            result.BaseColor = baseObject.BaseColor;            
             return result;
         }
 

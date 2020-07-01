@@ -26,12 +26,6 @@ namespace LogParserApp
 
             return CurrentProfile;
         }
-
-        public object[] GetProfileNames()
-        {          
-            return ProfileCollection.Descendants().Attributes()
-            .Where(attr => attr.Name.LocalName=="Name")
-            .Select(attr => attr.Value).ToArray();
-        }
+     
     }
 }

@@ -28,31 +28,7 @@ namespace Helpers
 
             //Return true for anything not false
             return true;
-        }
-
-        public static Color ToColor(this string colorcode)
-        {            
-            if (Int32.TryParse(colorcode.Replace("#", ""), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out int result))
-                return Color.FromArgb(result);
-            else
-                return Color.Transparent;
-        }
-
-        public static Color DarkerColor(Color color, float correctionfactor = 50f)
-        {
-            const float hundredpercent = 100f;
-            correctionfactor = hundredpercent - correctionfactor;
-            return Color.FromArgb((int)((color.R / hundredpercent) * correctionfactor),
-                (int)((color.G / hundredpercent) * correctionfactor), (int)((color.B / hundredpercent) * correctionfactor));
-        }
-
-        public static Color LighterColor(Color color, float correctionfactor = 50f)
-        {
-            correctionfactor = correctionfactor / 100f;
-            const float rgb255 = 255f;
-            return Color.FromArgb((int)(color.R + ((rgb255 - color.R) * correctionfactor)), (int)(color.G + ((rgb255 - color.G) * correctionfactor)), (int)(color.B + ((rgb255 - color.B) * correctionfactor))
-                );
-        }
+        }              
     }
 
     public static class Prompt

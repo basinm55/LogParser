@@ -39,19 +39,26 @@
             this.propertiesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.progressBar = new System.Windows.Forms.ToolStripProgressBar();
+            this.btnStopLoading = new System.Windows.Forms.ToolStripSplitButton();
             this.resultLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.calculateLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.btnStopLoading = new System.Windows.Forms.ToolStripSplitButton();
             this.bkgWorker = new System.ComponentModel.BackgroundWorker();
             this.lblHeader = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.cmbShowDevice = new System.Windows.Forms.ComboBox();
             this.chkShowAll = new System.Windows.Forms.CheckBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.gbFilter = new System.Windows.Forms.GroupBox();
+            this.btnClearFilter = new System.Windows.Forms.Button();
+            this.label3 = new System.Windows.Forms.Label();
+            this.cmbState = new System.Windows.Forms.ComboBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.cmbThis = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.dataGV)).BeginInit();
             this.gridCmStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
             this.groupBox1.SuspendLayout();
+            this.gbFilter.SuspendLayout();
             this.SuspendLayout();
             // 
             // dataGV
@@ -70,7 +77,6 @@
             this.dataGV.ColumnHeadersVisible = false;
             this.dataGV.GridColor = System.Drawing.SystemColors.Window;
             this.dataGV.Location = new System.Drawing.Point(3, 127);
-            this.dataGV.MultiSelect = false;
             this.dataGV.Name = "dataGV";
             this.dataGV.ReadOnly = true;
             this.dataGV.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
@@ -135,16 +141,6 @@
             this.progressBar.Name = "progressBar";
             this.progressBar.Size = new System.Drawing.Size(100, 16);
             // 
-            // resultLabel
-            // 
-            this.resultLabel.Name = "resultLabel";
-            this.resultLabel.Size = new System.Drawing.Size(0, 17);
-            // 
-            // calculateLabel
-            // 
-            this.calculateLabel.Name = "calculateLabel";
-            this.calculateLabel.Size = new System.Drawing.Size(0, 17);
-            // 
             // btnStopLoading
             // 
             this.btnStopLoading.DropDownButtonWidth = 1;
@@ -154,6 +150,16 @@
             this.btnStopLoading.Size = new System.Drawing.Size(105, 20);
             this.btnStopLoading.Text = "Stop loading...";
             this.btnStopLoading.ButtonClick += new System.EventHandler(this.btnStopLoading_ButtonClick);
+            // 
+            // resultLabel
+            // 
+            this.resultLabel.Name = "resultLabel";
+            this.resultLabel.Size = new System.Drawing.Size(0, 17);
+            // 
+            // calculateLabel
+            // 
+            this.calculateLabel.Name = "calculateLabel";
+            this.calculateLabel.Size = new System.Drawing.Size(0, 17);
             // 
             // bkgWorker
             // 
@@ -217,11 +223,74 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Device details:";
             // 
+            // gbFilter
+            // 
+            this.gbFilter.Controls.Add(this.btnClearFilter);
+            this.gbFilter.Controls.Add(this.label3);
+            this.gbFilter.Controls.Add(this.cmbState);
+            this.gbFilter.Controls.Add(this.label2);
+            this.gbFilter.Controls.Add(this.cmbThis);
+            this.gbFilter.Location = new System.Drawing.Point(368, 2);
+            this.gbFilter.Name = "gbFilter";
+            this.gbFilter.Size = new System.Drawing.Size(718, 77);
+            this.gbFilter.TabIndex = 12;
+            this.gbFilter.TabStop = false;
+            this.gbFilter.Text = "Filter";
+            // 
+            // btnClearFilter
+            // 
+            this.btnClearFilter.Location = new System.Drawing.Point(655, 24);
+            this.btnClearFilter.Name = "btnClearFilter";
+            this.btnClearFilter.Size = new System.Drawing.Size(50, 30);
+            this.btnClearFilter.TabIndex = 14;
+            this.btnClearFilter.Text = "Clear";
+            this.btnClearFilter.UseVisualStyleBackColor = true;
+            this.btnClearFilter.Click += new System.EventHandler(this.btnClearFilter_Click);
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(209, 33);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(35, 13);
+            this.label3.TabIndex = 12;
+            this.label3.Text = "State:";
+            // 
+            // cmbState
+            // 
+            this.cmbState.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbState.FormattingEnabled = true;
+            this.cmbState.Location = new System.Drawing.Point(245, 28);
+            this.cmbState.Name = "cmbState";
+            this.cmbState.Size = new System.Drawing.Size(114, 21);
+            this.cmbState.TabIndex = 11;
+            this.cmbState.SelectedIndexChanged += new System.EventHandler(this.cmbState_SelectedIndexChanged);
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(6, 31);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(30, 13);
+            this.label2.TabIndex = 10;
+            this.label2.Text = "This:";
+            // 
+            // cmbThis
+            // 
+            this.cmbThis.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbThis.FormattingEnabled = true;
+            this.cmbThis.Location = new System.Drawing.Point(42, 27);
+            this.cmbThis.Name = "cmbThis";
+            this.cmbThis.Size = new System.Drawing.Size(148, 21);
+            this.cmbThis.TabIndex = 9;
+            this.cmbThis.SelectedIndexChanged += new System.EventHandler(this.cmbThis_SelectedIndexChanged);
+            // 
             // FrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1098, 679);
+            this.Controls.Add(this.gbFilter);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.chkShowAll);
             this.Controls.Add(this.label1);
@@ -239,6 +308,8 @@
             this.statusStrip.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            this.gbFilter.ResumeLayout(false);
+            this.gbFilter.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -263,6 +334,12 @@
         private System.Windows.Forms.CheckBox chkShowAll;
         private System.Windows.Forms.ToolStripSplitButton btnStopLoading;
         private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.GroupBox gbFilter;
+        private System.Windows.Forms.Button btnClearFilter;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.ComboBox cmbState;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.ComboBox cmbThis;
     }
 }
 

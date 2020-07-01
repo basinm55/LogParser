@@ -165,9 +165,9 @@ namespace LogParserApp
                             {
                                 var foundExistingObject = ObjectCollection.LastOrDefault(x =>
                                                     x.GetThis() == thisVal &&
-                                                    x.ObjectType == objType &&
+                                                    x.ObjectType == objType);// &&
                                                     //x.ObjectState == ObjectState.Created &&
-                                                    x.LineNum < lineNumber);
+                                                    //x.LineNum < lineNumber);
 
                                  foundPrevStateObj = ObjectCollection.LastOrDefault(x =>
                                                     x.GetThis() == thisVal &&
@@ -176,7 +176,14 @@ namespace LogParserApp
                                                     ObjectCollection.IndexOf(x) < ObjectCollection.Count - 1 &&
                                                     x.LineNum < lineNumber);
 
-                                if (foundExistingObject == null)
+                                //if (foundPrevStateObj == null)
+
+                                //    foundPrevStateObj = ObjectCollection.LastOrDefault(x =>                                                    
+                                //                    x.VisualObjectCollection.Any(y => y != null && y.GetThis() == thisVal) &&
+                                //                    x.VisualObjectCollection.Any(y => y != null && y.ObjectType == objType) &&
+                                //                    x.VisualObjectCollection.Any(y => y != null && y.ObjectState == objState - 1));                                                                                                     
+
+                                if (foundExistingObject == null || objState == ObjectState.Created)
                                 {                                   
                                     obj = new ParserObject(objType) { LineNum = lineNumber };
                                     obj.ObjectState = objState;

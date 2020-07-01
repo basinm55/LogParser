@@ -6,6 +6,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using Entities;
@@ -17,8 +18,11 @@ namespace LogParserApp
     public partial class FrmMain : Form
     {
         private Parser _parser;
-        private ProfileManager _profileMng;
+        private ProfileManager _profileMng;        
         private XElement _selectedProfile;
+        private string _currentDevice = null;
+        private string _currentFilterThis = null;
+        private string _currentFilterState = null;
 
         public FrmMain()
         {           
@@ -29,7 +33,7 @@ namespace LogParserApp
 
         private void FrmMain_Load(object sender, EventArgs e)
         {            
-            _profileMng = new ProfileManager();
+            _profileMng = new ProfileManager();            
             _profileMng.LoadXmlFile("LogParserProfile.xml");
             _profileMng.GetProfileByName("Default");                                            
             _selectedProfile = _profileMng.CurrentProfile;
@@ -39,6 +43,8 @@ namespace LogParserApp
             cmbShowDevice.Enabled = false;
             chkShowAll.Checked = false;
             chkShowAll.Enabled = false;
+            gbFilter.Enabled = false;
+
             UpdateControlsState();            
         }
 
@@ -195,19 +201,17 @@ namespace LogParserApp
             calculateLabel.Text = string.Format("({0} of {1} log entries completed)", _parser.CompletedLogLines, _parser.TotalLogLines);
 
             if (e.Error == null && _parser.ObjectCollection != null && _parser.ObjectCollection.Count > 0)
-            {
-                //Fill devices                
-                //cmbShowDevice.DataSource = _parser.ObjectCollection.
-                //    Where(o => (string)o.GetDynPropertyValue("ObjectType") == "Device").
-                //    Select(o => o.GetDynPropertyValue("this")).ToArray();
-
+            {                
                 CreateComboDeviceDataSource();
+                CreateFilterThisComboDataSource();
+                CreateFilterStateComboDataSource();
 
                 if (cmbShowDevice.Items.Count > 0)
                     cmbShowDevice.SelectedIndex = 0;
                 cmbShowDevice.Enabled = true;
                 chkShowAll.Enabled = true;
-                btnLoadLog.Enabled = true; 
+                btnLoadLog.Enabled = true;
+                gbFilter.Enabled = true;
                 UpdateControlsState();
             }
             else
@@ -242,11 +246,33 @@ namespace LogParserApp
             }
         }
 
+        private void CreateFilterThisComboDataSource()
+        {
+            var ds = _parser.ObjectCollection.
+                                Select(o => o.GetThis()).Distinct().
+                                ToList();
+
+            ds.Insert(0, "All...");
+            cmbThis.DataSource = ds;                     
+        }
+
+        private void CreateFilterStateComboDataSource()
+        {
+            var ds = Enum.GetNames(typeof(ObjectState)).Where(x => x != "Unknown").ToList();
+
+            ds.Insert(0, "All...");
+            cmbState.DataSource = ds;
+        }
+
         private void chkShowAll_CheckedChanged(object sender, EventArgs e)
         {           
             cmbShowDevice.Enabled = !chkShowAll.Checked && cmbShowDevice.Items.Count > 0;
             if (chkShowAll.Checked)
+            {
                 lblHeader.Text = string.Empty;
+                _currentDevice = null;
+            }
+
             else
             {
                 cmbShowDevice.SelectedIndex = 0;
@@ -282,11 +308,11 @@ namespace LogParserApp
                 UpdateDeviceDetails();               
 
                 //Filter by selected device
-                var deviceFilter = ((KeyValuePair<string, ParserObject>)cmbShowDevice.SelectedItem).Key;
+                _currentDevice = ((KeyValuePair<string, ParserObject>)cmbShowDevice.SelectedItem).Key;
                 Cursor.Current = Cursors.WaitCursor;
                 try
                 {
-                    ParserView.CreateGridView(_parser.ObjectCollection, dataGV, deviceFilter);
+                    ParserView.CreateGridView(_parser.ObjectCollection, dataGV, _currentDevice);
                 }
                 catch
                 {
@@ -327,5 +353,61 @@ namespace LogParserApp
             }   
 
         }
+
+        private void btnClearFilter_Click(object sender, EventArgs e)
+        {
+            cmbThis.SelectedIndex = 0;
+            cmbState.SelectedIndex = 0;
+            _currentFilterThis = null;
+            _currentFilterState = null;
+            SetFilters();
+        }
+
+        private void cmbThis_SelectedIndexChanged(object sender, EventArgs e)
+        {    
+            SetFilters();
+        }
+
+        private void cmbState_SelectedIndexChanged(object sender, EventArgs e)
+        {            
+            SetFilters();
+        }
+
+        private void SetFilters()
+        {
+            _currentFilterThis = cmbThis.SelectedIndex > 0 ? (string)cmbThis.SelectedItem : null;
+            _currentFilterState = cmbState.SelectedIndex > 0 ? (string)cmbState.SelectedItem : null;
+            
+            var filteredCollection = _currentFilterThis != null ?
+                     _parser.ObjectCollection.Where(x => x.GetThis() == _currentFilterThis).ToList() :
+                    _parser.ObjectCollection;
+
+            //filteredCollection = _currentFilterState != null ?
+            //         filteredCollection.Where(x => x.ObjectState.ToString() == _currentFilterState).ToList() :
+            //        filteredCollection;
+
+            var newObjList = new List<ParserObject>();
+            if (_currentFilterState != null)
+            {
+
+                foreach (var obj in filteredCollection)
+                {
+                    var newObj = obj.CreateObjectClone();
+                    foreach (var vo in obj.VisualObjectCollection)
+                    {
+                        if (vo == null)
+                            newObj.VisualObjectCollection.Add(null);
+                        else if (vo.ObjectState.ToString() == _currentFilterState)
+                            newObj.VisualObjectCollection.Add(vo.CreateObjectClone());
+                    }
+                    newObjList.Add(newObj);
+                }
+            }
+            else
+                newObjList = filteredCollection;
+
+            ParserView.CreateGridView(newObjList, dataGV, _currentDevice);
+
+        }      
     }
 }
