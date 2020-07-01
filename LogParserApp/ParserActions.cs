@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Dynamic;
 using System.Linq;
 using System.Text;
@@ -110,14 +111,14 @@ namespace LogParserApp
                 _currentObj.SetDynProperty("Timestamp", parsedValue, PropertyDataType.Time, format);
         }      
 
-        private bool FindOrCreateBaseObject(int lineNumber, XElement filter, List<object> parsedList, out string objectType, out string thisValue, out string objectState, out ParserObject foundPrevStateObject)
+        private bool FindOrCreateBaseObject(int lineNumber, XElement filter, List<object> parsedList, out string objectType, out string thisValue, out string objectState)
         {
             thisValue = null;
             objectType = null;
             objectState = null;
             var objState = ObjectState.Unknown;
             var objType = ObjectType.Unknown;
-            ParserObject obj, foundPrevStateObj = null;
+            ParserObject obj = null;
             bool isExistingFound = false;
 
             _currentObj = null;
@@ -165,25 +166,37 @@ namespace LogParserApp
                             {
                                 var foundExistingObject = ObjectCollection.LastOrDefault(x =>
                                                     x.GetThis() == thisVal &&
-                                                    x.ObjectType == objType);// &&
-                                                    //x.ObjectState == ObjectState.Created &&
-                                                    //x.LineNum < lineNumber);
+                                                    x.ObjectType == objType);
 
-                                 foundPrevStateObj = ObjectCollection.LastOrDefault(x =>
-                                                    x.GetThis() == thisVal &&
-                                                    x.ObjectType == objType &&
-                                                    x.ObjectState == objState - 1 &&
-                                                    ObjectCollection.IndexOf(x) < ObjectCollection.Count - 1 &&
-                                                    x.LineNum < lineNumber);
+                                isExistingFound = foundExistingObject != null;
 
-                                //if (foundPrevStateObj == null)
+                                if (isExistingFound)
+                                {
+                                    var foundVoCollection = foundExistingObject.VisualObjectCollection;
+                                    if (foundVoCollection != null && foundVoCollection.Count > 0
+                                        && foundVoCollection[foundVoCollection.Count - 1].ObjectState == ObjectState.Completed)
 
-                                //    foundPrevStateObj = ObjectCollection.LastOrDefault(x =>                                                    
-                                //                    x.VisualObjectCollection.Any(y => y != null && y.GetThis() == thisVal) &&
-                                //                    x.VisualObjectCollection.Any(y => y != null && y.ObjectType == objType) &&
-                                //                    x.VisualObjectCollection.Any(y => y != null && y.ObjectState == objState - 1));                                                                                                     
+                                        isExistingFound = false;
+                                    else if (foundVoCollection != null && foundVoCollection.Count > 0
+                                        && foundVoCollection[foundVoCollection.Count - 1].ObjectState + 1 != objState)
+                                    {
+                                        int droppedStatesCount = objState - foundVoCollection[foundVoCollection.Count - 1].ObjectState;
+                                        for (int i=0; i< droppedStatesCount; i++)
+                                        {
+                                            var vo = new ParserObject(objType) { LineNum = lineNumber };
+                                            vo.ObjectState = ObjectState.Dropped;
+                                            vo.SetDynProperty("Parent", foundExistingObject.GetDynPropertyValue("Parent"));
+                                            vo.SetDynProperty("this", thisValue);
+                                            vo.SetDynProperty("FilterKey", filterKey);
+                                            vo.SetDynProperty("IsVisible", isVisible);
+                                            vo.SetDynProperty("IsFindable", isFindable);
+                                            foundVoCollection.Add(vo);
+                                            i++;
+                                        }
+                                    }
+                                }
 
-                                if (foundExistingObject == null || objState == ObjectState.Created)
+                                if (!isExistingFound)
                                 {                                   
                                     obj = new ParserObject(objType) { LineNum = lineNumber };
                                     obj.ObjectState = objState;
@@ -193,34 +206,18 @@ namespace LogParserApp
                                     obj.SetDynProperty("IsFindable", isFindable);
                                 }
                                 else
-                                {
-                                    if (foundPrevStateObj != null)
-                                    {
-                                        obj = new ParserObject(objType) { LineNum = lineNumber };
-                                        obj.ObjectState = objState;
-                                        obj.SetDynProperty("Parent", foundExistingObject.GetDynPropertyValue("Parent"));
-                                        obj.SetDynProperty("this", thisValue);                                        
-                                        obj.SetDynProperty("FilterKey", filterKey);
-                                        obj.SetDynProperty("IsVisible", isVisible);
-                                        obj.SetDynProperty("IsFindable", isFindable);
-                                    }
-                                    else
-                                    {
-                                        obj = foundExistingObject;
-                                        isExistingFound = true;
-                                    }
+                                {                               
+                                    obj = foundExistingObject;
+                                    isExistingFound = true;
                                 }
                                 _currentObj = obj;
-                            }
-
-                            foundPrevStateObject = foundPrevStateObj;
+                            }                            
                             return isExistingFound;
                         }
                     }                    
                 }
 
-            }
-            foundPrevStateObject = foundPrevStateObj;
+            }            
             return isExistingFound;
         }
     }

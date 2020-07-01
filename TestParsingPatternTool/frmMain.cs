@@ -32,7 +32,7 @@ namespace PatternValidator
             int i = 0;
             foreach (var res in sf.Results)
             {
-                ds.Add(new KeyValuePair<int, string>(i, (string)res));
+                ds.Add(new KeyValuePair<int, string>(i, res.ToString()));
                 i++;
             }
             if (!isSuccess)

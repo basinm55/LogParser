@@ -115,8 +115,7 @@ namespace LogParserApp
 
         private void ApplyFilter(int lineNumber, string line, XElement filter)
         {
-            bool isExistingFound = false;
-            ParserObject foundPrevStateObj = null;
+            bool isExistingFound = false;            
             var filterPatterns = filter.XPathSelectElements("Patterns/Pattern");
             foreach (var filterPattern in filterPatterns)
             {
@@ -124,8 +123,7 @@ namespace LogParserApp
                 if (!IsParsingSuccessful(filterPattern))
                     continue;         
 
-                isExistingFound = FindOrCreateBaseObject(lineNumber, filter, _sf.Results, out string objectType, out string thisValue, out string objectState, out ParserObject foundPrevStateObject);
-                foundPrevStateObj = foundPrevStateObject;                
+                isExistingFound = FindOrCreateBaseObject(lineNumber, filter, _sf.Results, out string objectType, out string thisValue, out string objectState);                                
 
                 var properties = filter.XPathSelectElements("Properties/Property");
                 properties.OrderBy(e => e.Attribute("i").Value);
@@ -154,15 +152,7 @@ namespace LogParserApp
                     objectState = Enum.IsDefined(typeof(ObjectState), objStateStr) ? objStateStr.ToEnum<ObjectState>() : ObjectState.Unknown;
 
                 var visualObj = _currentObj.CreateVisualObject(objectState, lineNumber, line);
-                visualObj.ObjectColor = _colorMng.GetColorByState(_currentObj.BaseColor, visualObj.ObjectState);
-
-                if (foundPrevStateObj != null)
-                {
-                    for (int i = 0; i < foundPrevStateObj.VisualObjectCollection.Count; i++)
-                        _currentObj.VisualObjectCollection.Add(null);
-
-                    visualObj.ObjectColor = _colorMng.GetColorByState(foundPrevStateObj.BaseColor, foundPrevStateObj.ObjectState);
-                }                
+                visualObj.ObjectColor = _colorMng.GetColorByState(_currentObj.BaseColor, visualObj.ObjectState);                             
 
                 _currentObj.VisualObjectCollection.Add(visualObj);
                 _currentObj.ObjectState = visualObj.ObjectState;                
@@ -170,7 +160,7 @@ namespace LogParserApp
 
             if (!isExistingFound)
             {
-                if (isVisible && foundPrevStateObj == null)
+                if (isVisible)
                 {
                     _currentObj.BaseColor = _colorMng.GetNextBaseColor();
                     foreach (var vo in _currentObj.VisualObjectCollection)

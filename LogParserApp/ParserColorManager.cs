@@ -23,8 +23,8 @@ namespace LogParserApp
                 "#F9524A", //red
                 "#37FB02", //green
                 "#FB00FF", //magenta
-                "#EDD2FA",
-                "#D2FAFA",
+                "#EDD2FA", //faux-pale lavende
+                "#D2FAFA", //cyan
             };
 
             _baseColor = ColorTranslator.FromHtml(_baseColorTable[0]);
@@ -47,13 +47,16 @@ namespace LogParserApp
         }
 
         public Color GetNextBaseColor()
-        {            
+        {
             if (_currentBaseColorIndex == _baseColorTable.Length - 1)
+            {
                 _baseColor = ColorTranslator.FromHtml(_baseColorTable[0]);
+                _currentBaseColorIndex = 0;
+            }
             else
             {
                 _baseColor = ColorTranslator.FromHtml(_baseColorTable[_currentBaseColorIndex]);
-                _currentBaseColorIndex++;             
+                _currentBaseColorIndex++;
             }
             return _baseColor;
         }    

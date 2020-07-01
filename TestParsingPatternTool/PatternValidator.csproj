@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{DA7021A5-29B4-401C-B052-FA8EEEB9E706}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>TestParsingPatternTool</RootNamespace>
-    <AssemblyName>TestParsingPatternTool</AssemblyName>
+    <RootNamespace>PatternValidator</RootNamespace>
+    <AssemblyName>PatternValidator</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -64,6 +64,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

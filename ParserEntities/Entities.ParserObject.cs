@@ -149,15 +149,7 @@ namespace Entities
     }
 
     public static class Extensions
-    {
-
-        public static ParserObject GetPrevtem(this List<ParserObject> list, ParserObject item)
-        {
-            var i = list.IndexOf(item);
-            var j = (i - 1) % list.Count;
-            return list[j];
-        }
-
+    {      
         public static string GetThis(this ParserObject item)
         {
             return (string)item.GetDynPropertyValue("this");
@@ -168,25 +160,11 @@ namespace Entities
             item.SetDynPropertyValue("this", thisValue);
         }
 
-        public static ObjectState GetState(this ParserObject item)
+        public static string GetParent(this ParserObject item)
         {
-            return item.GetDynPropertyValue("State").ToString().ToEnum<ObjectState>();
+            return (string)item.GetDynPropertyValue("Parent");
         }
-
-        public static void SetState(this ParserObject item, ObjectState state)
-        {
-            item.SetDynPropertyValue("State", state);
-        }      
-
-        public static ParserObject GetLastVisualObject(this ParserObject item)
-        {
-            return item.VisualObjectCollection.Count > 0 ? item.VisualObjectCollection.LastOrDefault() : null;
-        }
-
-        public static ParserObject GetBeforeLastVisualObject(this ParserObject item)
-        {
-            return item.VisualObjectCollection.Count > 0 ? item.VisualObjectCollection.Skip(-1).LastOrDefault() : null;
-        }
+          
 
         public static ParserObject CreateVisualObject(this ParserObject baseObject, ObjectState newState, int lineNumber, string line)
         {
@@ -211,16 +189,7 @@ namespace Entities
             result.ObjectType = original.ObjectType;
             return result;
         }
-
-
-        //public static ParserObject FindLastVisualObjectByLineNumber(this ParserObject obj, int lineNum)
-        //{
-        //    ParserObject result = null;
-        //    if (obj != null && lineNum >= 0)
-        //        result = obj.VisualObjectCollection.Count > 0 ? obj.VisualObjectCollection.LastOrDefault(x => x.LineNum == lineNum) : null;               
-            
-        //    return result;
-        //}
+ 
 
         private static ExpandoObject DeepClone(ExpandoObject original)
         {

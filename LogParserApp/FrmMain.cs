@@ -38,14 +38,14 @@ namespace LogParserApp
             _profileMng.GetProfileByName("Default");                                            
             _selectedProfile = _profileMng.CurrentProfile;
            
-            btnStopLoading.Visible = false;                       
-            cmbShowDevice.SelectedIndex = -1;
-            cmbShowDevice.Enabled = false;
-            chkShowAll.Checked = false;
-            chkShowAll.Enabled = false;
-            gbFilter.Enabled = false;
+            //btnStopLoading.Visible = false;                       
+            //cmbShowDevice.SelectedIndex = -1;
+            //cmbShowDevice.Enabled = false;
+            //chkShowAll.Checked = false;
+            //chkShowAll.Enabled = false;
+            //gbFilter.Enabled = false;
 
-            UpdateControlsState();            
+            //UpdateControlsState();            
         }
 
         public string loadedLogFileName;   
@@ -126,6 +126,9 @@ namespace LogParserApp
                     var relativeMousePosition = dataGV.PointToClient(Cursor.Position);
 
                     // Show the context menu
+                    showRelatedLogEntryToolStripMenuItem.Enabled =
+                        (clickedCell.Value as ParserObject).ObjectState >= 0;
+
                     gridCmStrip.Show(dataGV, relativeMousePosition);
                 }
             }
@@ -215,7 +218,7 @@ namespace LogParserApp
                 UpdateControlsState();
             }
             else
-                MessageBox.Show(string.Format("There is no parsing results for the file: '{0}'", loadedLogFileName));
+                MessageBox.Show(e.Error.ToString());
 
             btnStopLoading.Visible = false;
             closePending = false;
@@ -248,7 +251,7 @@ namespace LogParserApp
 
         private void CreateFilterThisComboDataSource()
         {
-            var ds = _parser.ObjectCollection.
+            var ds = _parser.ObjectCollection.Where(o => o.GetParent() != null).
                                 Select(o => o.GetThis()).Distinct().
                                 ToList();
 
@@ -382,32 +385,38 @@ namespace LogParserApp
                      _parser.ObjectCollection.Where(x => x.GetThis() == _currentFilterThis).ToList() :
                     _parser.ObjectCollection;
 
-            //filteredCollection = _currentFilterState != null ?
-            //         filteredCollection.Where(x => x.ObjectState.ToString() == _currentFilterState).ToList() :
-            //        filteredCollection;
+            filteredCollection = _currentFilterState != null ?
+                     filteredCollection.Where(x => x.VisualObjectCollection.Any(y => y.ObjectState.ToString() == _currentFilterState)).ToList() :
+                    filteredCollection;
 
-            var newObjList = new List<ParserObject>();
-            if (_currentFilterState != null)
+
+            Cursor.Current = Cursors.WaitCursor;
+            try
             {
-
-                foreach (var obj in filteredCollection)
-                {
-                    var newObj = obj.CreateObjectClone();
-                    foreach (var vo in obj.VisualObjectCollection)
-                    {
-                        if (vo == null)
-                            newObj.VisualObjectCollection.Add(null);
-                        else if (vo.ObjectState.ToString() == _currentFilterState)
-                            newObj.VisualObjectCollection.Add(vo.CreateObjectClone());
-                    }
-                    newObjList.Add(newObj);
-                }
+                ParserView.CreateGridView(filteredCollection, dataGV, _currentDevice);
             }
-            else
-                newObjList = filteredCollection;
+            finally
+            {
+                Cursor.Current = Cursors.Default;
+            }
 
-            ParserView.CreateGridView(newObjList, dataGV, _currentDevice);
+        }
 
-        }      
+        private void FrmMain_Activated(object sender, EventArgs e)
+        {
+
+        }
+
+        private void FrmMain_Shown(object sender, EventArgs e)
+        {
+            btnStopLoading.Visible = false;
+            cmbShowDevice.SelectedIndex = -1;
+            cmbShowDevice.Enabled = false;
+            chkShowAll.Checked = false;
+            chkShowAll.Enabled = false;
+            gbFilter.Enabled = false;
+
+            UpdateControlsState();
+        }
     }
 }
