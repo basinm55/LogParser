@@ -183,13 +183,13 @@ namespace LogParserApp
                                         int droppedStatesCount = objState - foundVoCollection[foundVoCollection.Count - 1].ObjectState;
                                         for (int i=0; i< droppedStatesCount; i++)
                                         {
-                                            var vo = new ParserObject(objType) { LineNum = lineNumber };
+                                            var vo = new ParserObject(objType){ LineNum = -1 };
                                             vo.ObjectState = ObjectState.Dropped;
                                             vo.SetDynProperty("Parent", foundExistingObject.GetDynPropertyValue("Parent"));
                                             vo.SetDynProperty("this", thisValue);
-                                            vo.SetDynProperty("FilterKey", filterKey);
-                                            vo.SetDynProperty("IsVisible", isVisible);
-                                            vo.SetDynProperty("IsFindable", isFindable);
+                                            //vo.SetDynProperty("FilterKey", filterKey);
+                                            //vo.SetDynProperty("IsVisible", isVisible);
+                                            //vo.SetDynProperty("IsFindable", isFindable);
                                             foundVoCollection.Add(vo);
                                             i++;
                                         }

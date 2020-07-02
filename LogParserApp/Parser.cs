@@ -11,6 +11,7 @@ using static Entities.Enums;
 using static Entities.ParserObject;
 using System.Drawing;
 using System.ComponentModel;
+using System.Configuration;
 
 namespace LogParserApp
 {
@@ -42,7 +43,8 @@ namespace LogParserApp
 
         public void Run(XElement profile, BackgroundWorker worker, DoWorkEventArgs e)
         {
-            const int maxLines = 100000;
+            int maxLoadLines = (int)Utils.GetConfigValue<int>("MaxLoadLines");
+            maxLoadLines = maxLoadLines == 0 ? 50000 : maxLoadLines;
 
             _sf = new ScanFormatted();
 
@@ -61,7 +63,7 @@ namespace LogParserApp
                 else
                 {
                     // Perform a time consuming operation and report progress.                    
-                    int percentComplete = (int)(CompletedLogLines / (float)TotalLogLines * 100);
+                    int percentComplete = (int)(CompletedLogLines / (float)Math.Min(TotalLogLines, maxLoadLines) * 100);
 
                     worker.ReportProgress(percentComplete);
                 }
@@ -69,7 +71,7 @@ namespace LogParserApp
 
                 CompletedLogLines++;
 
-                if (CompletedLogLines >= maxLines) break;
+                if (CompletedLogLines >= maxLoadLines) break;
 
                 try
                 {

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,6 +21,12 @@ namespace LogParserApp
 
             dataGV.AutoGenerateColumns = false;            
             dataGV.Columns.Clear();
+
+            foreach (var o in data)
+            {
+                var voCollection = o.VisualObjectCollection;
+                voCollection.RemoveAll((x) => x == null);
+            }
             
             var columnsCount = data.Count > 0 ? data.Max(x => x.VisualObjectCollection.Count()*2 - 1): 0;           
 
@@ -50,7 +58,7 @@ namespace LogParserApp
             if (obj == null) return;
             List<ParserObject> parserRowCollection;
             if (device != null)
-                parserRowCollection = obj.VisualObjectCollection.Where(o => o==null ||(string)o.GetDynPropertyValue("Parent") == device).ToList();
+                parserRowCollection = obj.VisualObjectCollection.Where(o => o == null || (string)o.GetDynPropertyValue("Parent") == device).ToList();
             else
                 parserRowCollection = obj.VisualObjectCollection;
 
@@ -59,7 +67,7 @@ namespace LogParserApp
             //Insert places for ForwardArrow images
             var parserRowCollectionCount = parserRowCollection.Count * 2 - 1;
             for (int i=0; i<parserRowCollectionCount; i++)
-            {                
+            {                  
                 parserRowCollection.Insert(i+1, null);
                 i++;
             }
@@ -149,6 +157,6 @@ namespace LogParserApp
                 ((DataGridViewRow)r).DividerHeight = 20;
             }
 
-        }
+        }        
     }
 }

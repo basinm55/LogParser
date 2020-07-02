@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -12,22 +13,33 @@ namespace LogParserApp
     public class ParserColorManager
     {
         private string[] _baseColorTable;
+        private float _colorCorrectionFactorPercent = 0;
         private int _currentBaseColorIndex = 0;
         public Color _baseColor { get; private set; }
 
         public ParserColorManager()
-        {            
-            _baseColorTable = new string[]
+        {
+            var colors = ConfigurationManager.AppSettings["Colors"];
+            if (colors != null)
+                _baseColorTable = colors.Split(',');
+            else
             {
+
+                _baseColorTable = new string[]
+                {
                 "#87cefa", //blue
                 "#F9524A", //red
                 "#37FB02", //green
                 "#FB00FF", //magenta
                 "#EDD2FA", //faux-pale lavende
                 "#D2FAFA", //cyan
-            };
+                };
+            }
 
             _baseColor = ColorTranslator.FromHtml(_baseColorTable[0]);
+            _colorCorrectionFactorPercent = (float)Utils.GetConfigValue<float>("ColorCorrectionFactorPercent");
+            if (_colorCorrectionFactorPercent == 0)
+                _colorCorrectionFactorPercent = 10;
         }
 
         private static Color DarkerColor(Color color, float correctionfactor = 10f)
@@ -61,14 +73,14 @@ namespace LogParserApp
             return _baseColor;
         }    
 
-        public Color GetColorByState(Color baseColor, ObjectState state, float correctionfactor = 10f)
+        public Color GetColorByState(Color baseColor, ObjectState state)
         {
             Color result = baseColor;            
             if (result == Color.Transparent)
                  result = _baseColor;              
 
             if (state > 0)
-                result = DarkerColor(baseColor, correctionfactor * (int)state);
+                result = DarkerColor(baseColor, _colorCorrectionFactorPercent * (int)state);
 
             return result;
         }

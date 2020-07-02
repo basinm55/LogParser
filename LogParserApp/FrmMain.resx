@@ -130,19 +130,22 @@
   <data name="btnStopLoading.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAG/SURBVDhPrZK9S0JhGMWfLop68+OGRoIoEUH1BwSuGTlE
-        g1Ft0daSIdHUWEtDUWvQHERj0WJFQzUV1D9Q9iVRNBhYkQQ+Ped9700uNnbgwHvP+Z0Xrl76V5lEa3Gi
-        PTn6deKSPyEdGPvZLS/R8mYsxvuhEMeIihIFdKMUkIsPjqXbEAasnWsZRAurllW/m5vj23yet4NBtogO
-        pcIlAbnwcFcydGBWhMVGjUX+QaKv0sQEPxYKyndTU7zV2sptREfwjpyROT1YbLDVVxBNzkci3w/j41wW
-        EL4fHeVt01TG2cnBgMVGTxsamzXNWjmb5adcTrk8NKT8+ywdGLB60qzhaZ/v8ymd5udMxmVk6MBo9G8F
-        O4guz+WdX/v7Xb6QDB0YjTYrJP/z6YnXy5Xubq709bkt2al0YMDqSUOhTqKzK4+Hq4kEv6dSym/xuLLz
-        jA4MWGz0VOQjWr82DK5Fo1xrb1euWhaPtLS8wDg7OZgbYbGx5+prWSzKzXX50urhMH/IX5clKkvVC+OM
-        DB0YsLJZUmNH8nkubhlGvSrvOUBUkqhLN0pdyNCBAWvnbsnnOdOjf+mkTlxKogNjP/+HiH4Amdv1OI2N
-        kNAAAAAASUVORK5CYII=
+        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAG/SURBVDhPrZK/S0JRHMW/PRT1qfVCJUGKiKD8AwTXAh1q
+        UcotWtoMxLGxlqih1qAxgmgsWspoyKaC+gf6YSVRNBhYkQR++5573yseNXbgC/ee8zkX7nuX/lUm0Uqc
+        aFeWfu245E9IBsbeu+UlWlyPRnkvHOYo0b5YAZ0oBeTggyPJ1oQBa/taBtHcsmW1a+Uy38zO8lYoxBZR
+        RSIcEpADKzviIQOzJCw6qizyjxB9XBcKfF8qqalNT/NmMMjdRIeYbVnDc3Kw6KCrjyCaKnd1fd5NTnJd
+        QMxtPs9bpqkGa8cHAxYdXf3RRNE0W/Vslh9yOTX1TEbN914yMGB15bfGZny+94d0mh9HR10DDxkYjf6t
+        UA/R+anc+TmVcs2ZeMjAaPS3wvKfq8deLzcGB7mRTLpHvKpkYMDqyo/C/UQnFx4PNxMJfu3rU/MSj6tx
+        9sjAgEVHV0U+otVLw+BWJMKtWExN07J4vKPjCYO144O5EhYdu65ey/y+nNyWl9bu7OQ3+XVZorpEwxis
+        4SEDA1Y6C6rsSJ7n/IZhtJtyT3kk12IN6ERpAB4yMGBt3y15nsUh/aV7teNSLzIw9v4/RPQFX4/1HhJj
+        +j8AAAAASUVORK5CYII=
 </value>
   </data>
-  <metadata name="bkgWorker.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+  <metadata name="bkgWorkerLoad.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>359, 16</value>
+  </metadata>
+  <metadata name="bkgWorkerBuildGrid.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>523, 16</value>
   </metadata>
   <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>32</value>

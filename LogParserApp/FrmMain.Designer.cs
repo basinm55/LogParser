@@ -42,7 +42,7 @@
             this.btnStopLoading = new System.Windows.Forms.ToolStripSplitButton();
             this.resultLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.calculateLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.bkgWorker = new System.ComponentModel.BackgroundWorker();
+            this.bkgWorkerLoad = new System.ComponentModel.BackgroundWorker();
             this.lblHeader = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.cmbShowDevice = new System.Windows.Forms.ComboBox();
@@ -54,6 +54,7 @@
             this.cmbState = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
             this.cmbThis = new System.Windows.Forms.ComboBox();
+            this.btnViewLog = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGV)).BeginInit();
             this.gridCmStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
@@ -93,9 +94,9 @@
             // 
             // btnLoadLog
             // 
-            this.btnLoadLog.Location = new System.Drawing.Point(12, 9);
+            this.btnLoadLog.Location = new System.Drawing.Point(12, 13);
             this.btnLoadLog.Name = "btnLoadLog";
-            this.btnLoadLog.Size = new System.Drawing.Size(131, 41);
+            this.btnLoadLog.Size = new System.Drawing.Size(131, 43);
             this.btnLoadLog.TabIndex = 1;
             this.btnLoadLog.Text = "Load LOG File";
             this.btnLoadLog.UseVisualStyleBackColor = true;
@@ -161,13 +162,13 @@
             this.calculateLabel.Name = "calculateLabel";
             this.calculateLabel.Size = new System.Drawing.Size(0, 17);
             // 
-            // bkgWorker
+            // bkgWorkerLoad
             // 
-            this.bkgWorker.WorkerReportsProgress = true;
-            this.bkgWorker.WorkerSupportsCancellation = true;
-            this.bkgWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bkgWorker_DoWork);
-            this.bkgWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bkgWorker_ProgressChanged);
-            this.bkgWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bkgWorker_RunWorkerCompleted);
+            this.bkgWorkerLoad.WorkerReportsProgress = true;
+            this.bkgWorkerLoad.WorkerSupportsCancellation = true;
+            this.bkgWorkerLoad.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bkgWorkerLoad_DoWork);
+            this.bkgWorkerLoad.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bkgWorkerLoad_ProgressChanged);
+            this.bkgWorkerLoad.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bkgWorkerLoad_RunWorkerCompleted);
             // 
             // lblHeader
             // 
@@ -183,7 +184,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(159, 12);
+            this.label1.Location = new System.Drawing.Point(159, 16);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(44, 13);
             this.label1.TabIndex = 8;
@@ -193,7 +194,7 @@
             // 
             this.cmbShowDevice.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbShowDevice.FormattingEnabled = true;
-            this.cmbShowDevice.Location = new System.Drawing.Point(205, 9);
+            this.cmbShowDevice.Location = new System.Drawing.Point(205, 13);
             this.cmbShowDevice.Name = "cmbShowDevice";
             this.cmbShowDevice.Size = new System.Drawing.Size(148, 21);
             this.cmbShowDevice.TabIndex = 7;
@@ -202,7 +203,7 @@
             // chkShowAll
             // 
             this.chkShowAll.AutoSize = true;
-            this.chkShowAll.Location = new System.Drawing.Point(162, 39);
+            this.chkShowAll.Location = new System.Drawing.Point(162, 43);
             this.chkShowAll.Name = "chkShowAll";
             this.chkShowAll.Size = new System.Drawing.Size(106, 17);
             this.chkShowAll.TabIndex = 9;
@@ -232,25 +233,25 @@
             this.gbFilter.Controls.Add(this.cmbThis);
             this.gbFilter.Location = new System.Drawing.Point(368, 2);
             this.gbFilter.Name = "gbFilter";
-            this.gbFilter.Size = new System.Drawing.Size(718, 77);
+            this.gbFilter.Size = new System.Drawing.Size(620, 77);
             this.gbFilter.TabIndex = 12;
             this.gbFilter.TabStop = false;
             this.gbFilter.Text = "Filter";
             // 
             // btnClearFilter
             // 
-            this.btnClearFilter.Location = new System.Drawing.Point(655, 24);
+            this.btnClearFilter.Location = new System.Drawing.Point(533, 28);
             this.btnClearFilter.Name = "btnClearFilter";
-            this.btnClearFilter.Size = new System.Drawing.Size(50, 30);
+            this.btnClearFilter.Size = new System.Drawing.Size(81, 30);
             this.btnClearFilter.TabIndex = 14;
-            this.btnClearFilter.Text = "Clear";
+            this.btnClearFilter.Text = "Clear filter";
             this.btnClearFilter.UseVisualStyleBackColor = true;
             this.btnClearFilter.Click += new System.EventHandler(this.btnClearFilter_Click);
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(209, 33);
+            this.label3.Location = new System.Drawing.Point(209, 38);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(35, 13);
             this.label3.TabIndex = 12;
@@ -260,7 +261,7 @@
             // 
             this.cmbState.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbState.FormattingEnabled = true;
-            this.cmbState.Location = new System.Drawing.Point(245, 28);
+            this.cmbState.Location = new System.Drawing.Point(245, 33);
             this.cmbState.Name = "cmbState";
             this.cmbState.Size = new System.Drawing.Size(114, 21);
             this.cmbState.TabIndex = 11;
@@ -269,7 +270,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(6, 31);
+            this.label2.Location = new System.Drawing.Point(6, 36);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(30, 13);
             this.label2.TabIndex = 10;
@@ -279,17 +280,28 @@
             // 
             this.cmbThis.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbThis.FormattingEnabled = true;
-            this.cmbThis.Location = new System.Drawing.Point(42, 27);
+            this.cmbThis.Location = new System.Drawing.Point(42, 32);
             this.cmbThis.Name = "cmbThis";
             this.cmbThis.Size = new System.Drawing.Size(148, 21);
             this.cmbThis.TabIndex = 9;
             this.cmbThis.SelectedIndexChanged += new System.EventHandler(this.cmbThis_SelectedIndexChanged);
+            // 
+            // btnViewLog
+            // 
+            this.btnViewLog.Location = new System.Drawing.Point(1008, 30);
+            this.btnViewLog.Name = "btnViewLog";
+            this.btnViewLog.Size = new System.Drawing.Size(78, 30);
+            this.btnViewLog.TabIndex = 15;
+            this.btnViewLog.Text = "View log";
+            this.btnViewLog.UseVisualStyleBackColor = true;
+            this.btnViewLog.Click += new System.EventHandler(this.btnViewLog_Click);
             // 
             // FrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1098, 679);
+            this.Controls.Add(this.btnViewLog);
             this.Controls.Add(this.gbFilter);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.chkShowAll);
@@ -327,7 +339,7 @@
         private System.Windows.Forms.ToolStripMenuItem propertiesToolStripMenuItem;
         private System.Windows.Forms.StatusStrip statusStrip;
         private System.Windows.Forms.ToolStripStatusLabel resultLabel;
-        public System.ComponentModel.BackgroundWorker bkgWorker;
+        public System.ComponentModel.BackgroundWorker bkgWorkerLoad;
         private System.Windows.Forms.ToolStripProgressBar progressBar;
         private System.Windows.Forms.ToolStripStatusLabel calculateLabel;
         private System.Windows.Forms.Label lblHeader;
@@ -342,6 +354,7 @@
         private System.Windows.Forms.ComboBox cmbState;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.ComboBox cmbThis;
+        private System.Windows.Forms.Button btnViewLog;
     }
 }
 

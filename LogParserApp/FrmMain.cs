@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -23,12 +24,13 @@ namespace LogParserApp
         private string _currentDevice = null;
         private string _currentFilterThis = null;
         private string _currentFilterState = null;
+        private Process _notepadProcess = null;
 
         public FrmMain()
         {           
             InitializeComponent();
-            bkgWorker.WorkerReportsProgress = true;
-            bkgWorker.WorkerSupportsCancellation = true;
+            bkgWorkerLoad.WorkerReportsProgress = true;
+            bkgWorkerLoad.WorkerSupportsCancellation = true;
         }
 
         private void FrmMain_Load(object sender, EventArgs e)
@@ -37,15 +39,7 @@ namespace LogParserApp
             _profileMng.LoadXmlFile("LogParserProfile.xml");
             _profileMng.GetProfileByName("Default");                                            
             _selectedProfile = _profileMng.CurrentProfile;
-           
-            //btnStopLoading.Visible = false;                       
-            //cmbShowDevice.SelectedIndex = -1;
-            //cmbShowDevice.Enabled = false;
-            //chkShowAll.Checked = false;
-            //chkShowAll.Enabled = false;
-            //gbFilter.Enabled = false;
-
-            //UpdateControlsState();            
+            btnViewLog.Enabled = false;                      
         }
 
         public string loadedLogFileName;   
@@ -58,7 +52,7 @@ namespace LogParserApp
             {  
                 loadedLogFileName = dlgLoadLog.FileName;
                 _parser = new Parser(loadedLogFileName);                               
-                if (!bkgWorker.IsBusy)
+                if (!bkgWorkerLoad.IsBusy)
                 {
                     lblHeader.Text = string.Empty;
                     dataGV.DataSource = null;
@@ -73,7 +67,7 @@ namespace LogParserApp
                     chkShowAll.Checked = false;
                     chkShowAll.Enabled = false;
                     cmbShowDevice.SelectedIndex = -1;
-                    bkgWorker.RunWorkerAsync();
+                    bkgWorkerLoad.RunWorkerAsync();
                 }               
             }
 
@@ -159,12 +153,21 @@ namespace LogParserApp
                 var relatedParserObject = (ParserObject)dataGV.CurrentCell.Value;
                 if (relatedParserObject != null)
                 {
-                    var properties = new StringBuilder();                    
+                    var properties = new StringBuilder();
                     foreach (var prop in relatedParserObject.DynObjectDictionary)
-                        properties.AppendLine(prop.Key + " = " + prop.Value.ToString());
+                    {  
+                        if (prop.Value is DateTime)
+                        {
+                            var dateValue = (DateTime)prop.Value;
+                            properties.AppendLine(prop.Key + " = " + dateValue.ToString("dd/MM/yy HH:mm:ss.fff"));
+                        }
+                        else
+                            properties.AppendLine(prop.Key + " = " + prop.Value);
+                    }
 
                     properties.AppendLine("State = " + relatedParserObject.ObjectState.ToString());
-                    properties.AppendLine("LineNum = " + relatedParserObject.LineNum.ToString());                   
+                    if (relatedParserObject.LineNum >= 0)
+                        properties.AppendLine("LineNum = " + relatedParserObject.LineNum.ToString());                   
 
                     FlexibleMessageBox.Show(properties.ToString(),
                         string.Format("Properties of {0}: {1}",
@@ -180,19 +183,19 @@ namespace LogParserApp
 
         private bool closePending;
 
-        private void bkgWorker_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+        private void bkgWorkerLoad_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {            
             _parser.Run(_selectedProfile, sender as BackgroundWorker, e);       
         }
 
-        private void bkgWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        private void bkgWorkerLoad_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             resultLabel.Text = (e.ProgressPercentage.ToString() + "%");
             if (!closePending)
                 progressBar.Value = e.ProgressPercentage;
         }
 
-        private void bkgWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        private void bkgWorkerLoad_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {  
             if (e.Error != null)
                 resultLabel.Text = "Load Error: " + e.Error.Message;
@@ -204,18 +207,46 @@ namespace LogParserApp
             calculateLabel.Text = string.Format("({0} of {1} log entries completed)", _parser.CompletedLogLines, _parser.TotalLogLines);
 
             if (e.Error == null && _parser.ObjectCollection != null && _parser.ObjectCollection.Count > 0)
-            {                
-                CreateComboDeviceDataSource();
-                CreateFilterThisComboDataSource();
-                CreateFilterStateComboDataSource();
+            {
+                btnStopLoading.Visible = false;
+                resultLabel.Text = "Prepare...";
+                closePending = true;
+                Cursor.Current = Cursors.WaitCursor;
+                try
+                {
+                    progressBar.Value = 20;
+                    CreateComboDeviceDataSource();
+                    Application.DoEvents();
 
-                if (cmbShowDevice.Items.Count > 0)
-                    cmbShowDevice.SelectedIndex = 0;
-                cmbShowDevice.Enabled = true;
-                chkShowAll.Enabled = true;
-                btnLoadLog.Enabled = true;
-                gbFilter.Enabled = true;
-                UpdateControlsState();
+                    progressBar.Value = 40;
+                    CreateFilterThisComboDataSource();
+                    Application.DoEvents();
+
+                    progressBar.Value = 60;
+                    CreateFilterStateComboDataSource();
+                    Application.DoEvents();
+
+                    if (cmbShowDevice.Items.Count > 0)
+                        cmbShowDevice.SelectedIndex = 0;
+                    cmbShowDevice.Enabled = true;
+                    chkShowAll.Enabled = true;
+                    btnLoadLog.Enabled = true;
+                    btnViewLog.Enabled = true;
+                    gbFilter.Enabled = true;
+                    UpdateControlsState();
+
+                    progressBar.Value = 80;                    
+                    Application.DoEvents();
+                    
+                }
+                finally
+                {
+                    Thread.Sleep(500);
+                    resultLabel.Text = ("Ready");
+                    progressBar.Value = 100;
+                    Application.DoEvents();
+                    Cursor.Current = Cursors.Default;
+                }
             }
             else
                 MessageBox.Show(e.Error.ToString());
@@ -282,7 +313,7 @@ namespace LogParserApp
                 UpdateDeviceDetails();
             }
 
-            Cursor.Current = Cursors.WaitCursor;
+            Cursor.Current = Cursors.WaitCursor;            
             try
             {
                 ParserView.CreateGridView(_parser.ObjectCollection, dataGV, null);
@@ -299,8 +330,8 @@ namespace LogParserApp
 
         private void btnStopLoading_ButtonClick(object sender, EventArgs e)
         {
-            if (bkgWorker.WorkerSupportsCancellation == true)
-                bkgWorker.CancelAsync();
+            if (bkgWorkerLoad.WorkerSupportsCancellation == true)
+                bkgWorkerLoad.CancelAsync();
         }
 
         private void cmbShowDevice_SelectedIndexChanged(object sender, EventArgs e)
@@ -312,7 +343,8 @@ namespace LogParserApp
 
                 //Filter by selected device
                 _currentDevice = ((KeyValuePair<string, ParserObject>)cmbShowDevice.SelectedItem).Key;
-                Cursor.Current = Cursors.WaitCursor;
+                Cursor.Current = Cursors.WaitCursor;               
+                Application.DoEvents();
                 try
                 {
                     ParserView.CreateGridView(_parser.ObjectCollection, dataGV, _currentDevice);
@@ -342,12 +374,12 @@ namespace LogParserApp
 
         private void FrmMain_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (bkgWorker.IsBusy)
+            if (bkgWorkerLoad.IsBusy)
             {
                 if (MessageBox.Show("Do you want to cancel loading?", "Log Loading in progress...", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
                 {
                     closePending = true;
-                    bkgWorker.CancelAsync();
+                    bkgWorkerLoad.CancelAsync();
                 }
                 else                
                     e.Cancel = true;
@@ -386,11 +418,12 @@ namespace LogParserApp
                     _parser.ObjectCollection;
 
             filteredCollection = _currentFilterState != null ?
-                     filteredCollection.Where(x => x.VisualObjectCollection.Any(y => y.ObjectState.ToString() == _currentFilterState)).ToList() :
+                     filteredCollection.Where(x => x != null && x.VisualObjectCollection.Any(y => y.ObjectState.ToString() == _currentFilterState)).ToList() :
                     filteredCollection;
 
 
-            Cursor.Current = Cursors.WaitCursor;
+            Cursor.Current = Cursors.WaitCursor;            
+            Application.DoEvents();
             try
             {
                 ParserView.CreateGridView(filteredCollection, dataGV, _currentDevice);
@@ -417,6 +450,14 @@ namespace LogParserApp
             gbFilter.Enabled = false;
 
             UpdateControlsState();
+        }
+
+        private void btnViewLog_Click(object sender, EventArgs e)
+        {
+            if (_notepadProcess == null || _notepadProcess.HasExited)
+                _notepadProcess = WindowHelper.ViewFileInNotepad(loadedLogFileName);
+            else
+                WindowHelper.BringProcessToFront(_notepadProcess);
         }
     }
 }
