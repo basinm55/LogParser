@@ -1,6 +1,6 @@
 ﻿namespace PatternValidator
 {
-    partial class frmMain
+    partial class frmPatternValidator
     {
         /// <summary>
         /// Required designer variable.
@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmPatternValidator));
             this.txtBoxLogEntry = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -110,7 +111,7 @@
             this.dGVResults.Size = new System.Drawing.Size(878, 137);
             this.dGVResults.TabIndex = 5;
             // 
-            // frmMain
+            // frmPatternValidator
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -122,7 +123,8 @@
             this.Controls.Add(this.txtBoxPattern);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.txtBoxLogEntry);
-            this.Name = "frmMain";
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Name = "frmPatternValidator";
             this.Text = "Pattern Validator";
             ((System.ComponentModel.ISupportInitialize)(this.dGVResults)).EndInit();
             this.ResumeLayout(false);

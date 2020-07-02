@@ -105,6 +105,10 @@
       <Project>{c4473b26-1f46-4b88-9fcd-4ccd9dc544b1}</Project>
       <Name>ParserUtils</Name>
     </ProjectReference>
+    <ProjectReference Include="..\PatternValidator\PatternValidator.csproj">
+      <Project>{da7021a5-29b4-401c-b052-fa8eeeb9e706}</Project>
+      <Name>PatternValidator</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

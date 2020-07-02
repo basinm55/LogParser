@@ -11,9 +11,9 @@ using Helpers;
 
 namespace PatternValidator
 {
-    public partial class frmMain : Form
+    public partial class frmPatternValidator : Form
     {
-        public frmMain()
+        public frmPatternValidator()
         {
             InitializeComponent();
             //txtBoxLogEntry.Text = "[7]0000.0000::05/31/2020-16:43:13.927 [jtucxip]CUsbipRequest::CUsbipRequest: type R dev FFFFC30247334410 -> FFFFC3023C1F74F0";

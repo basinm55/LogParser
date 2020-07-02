@@ -12,6 +12,7 @@ using System.Windows.Forms;
 using System.Xml.Linq;
 using Entities;
 using Helpers;
+using PatternValidator;
 using static Entities.Enums;
 
 namespace LogParserApp
@@ -39,40 +40,13 @@ namespace LogParserApp
             _profileMng.LoadXmlFile("LogParserProfile.xml");
             _profileMng.GetProfileByName("Default");                                            
             _selectedProfile = _profileMng.CurrentProfile;
-            btnViewLog.Enabled = false;                      
+            btnViewLog.Enabled = false;
+            progressBar.Visible = false;
         }
 
         public string loadedLogFileName;   
 
-        private void btnLoadLog_Click(object sender, EventArgs e)
-        {   
-            dlgLoadLog.Filter = "Log files (*.log)|*.log|All files (*.*)|*.*";
-            dlgLoadLog.DefaultExt = "*.log";
-            if (dlgLoadLog.ShowDialog() != DialogResult.Cancel)
-            {  
-                loadedLogFileName = dlgLoadLog.FileName;
-                _parser = new Parser(loadedLogFileName);                               
-                if (!bkgWorkerLoad.IsBusy)
-                {
-                    lblHeader.Text = string.Empty;
-                    dataGV.DataSource = null;
-                    dataGV.Rows.Clear();
-                    dataGV.Refresh();
-
-                    // Start the asynchronous operation.
-                    btnLoadLog.Enabled = false;
-                    btnStopLoading.Visible = true;
-                    calculateLabel.Text = string.Empty;
-                    gridLabel.Text = string.Empty;
-                    cmbShowDevice.Enabled = false;
-                    chkShowAll.Checked = false;
-                    chkShowAll.Enabled = false;
-                    cmbShowDevice.SelectedIndex = -1;
-                    bkgWorkerLoad.RunWorkerAsync();
-                }               
-            }
-
-        }     
+       
 
         private void UpdateControlsState()
         {
@@ -85,14 +59,7 @@ namespace LogParserApp
             { 
                 Text = "LogParser";
             }
-        }
-
-
-
-        private void btnSearch_Click(object sender, EventArgs e)
-        {
-            ///TODO
-        }
+        }       
       
 
         private void dataGV_CellStateChanged(object sender, DataGridViewCellStateChangedEventArgs e)
@@ -185,12 +152,13 @@ namespace LogParserApp
         private bool closePending;
 
         private void bkgWorkerLoad_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
-        {            
+        {           
             _parser.Run(_selectedProfile, sender as BackgroundWorker, e);       
         }
 
         private void bkgWorkerLoad_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
+            progressBar.Visible = true;
             resultLabel.Text = (e.ProgressPercentage.ToString() + "%");
             if (!closePending)
                 progressBar.Value = e.ProgressPercentage;
@@ -231,7 +199,7 @@ namespace LogParserApp
                         cmbShowDevice.SelectedIndex = 0;
                     cmbShowDevice.Enabled = true;
                     chkShowAll.Enabled = true;
-                    btnLoadLog.Enabled = true;
+                    mnuItemLoad.Enabled = true;
                     btnViewLog.Enabled = true;
                     gbFilter.Enabled = true;
                     UpdateControlsState();
@@ -245,6 +213,7 @@ namespace LogParserApp
                     Thread.Sleep(500);
                     resultLabel.Text = ("Ready");
                     progressBar.Value = 100;
+                    progressBar.Visible = false;
                     Application.DoEvents();
                     Cursor.Current = Cursors.Default;
                 }
@@ -438,11 +407,7 @@ namespace LogParserApp
             }
 
         }
-
-        private void FrmMain_Activated(object sender, EventArgs e)
-        {
-
-        }
+       
 
         private void FrmMain_Shown(object sender, EventArgs e)
         {
@@ -463,5 +428,56 @@ namespace LogParserApp
             else
                 WindowHelper.BringProcessToFront(_notepadProcess);
         }
+
+        #region TopMenu
+
+        private void mnuItemLoad_Click(object sender, EventArgs e)
+        {
+            dlgLoadLog.Filter = "Log files (*.log)|*.log|All files (*.*)|*.*";
+            dlgLoadLog.DefaultExt = "*.log";
+            if (dlgLoadLog.ShowDialog() != DialogResult.Cancel)
+            {
+                loadedLogFileName = dlgLoadLog.FileName;
+                _parser = new Parser(loadedLogFileName);
+                if (!bkgWorkerLoad.IsBusy)
+                {
+                    lblHeader.Text = string.Empty;
+                    dataGV.DataSource = null;
+                    dataGV.Rows.Clear();
+                    dataGV.Refresh();
+
+                    // Start the asynchronous operation.
+                    mnuItemLoad.Enabled = false;
+                    btnStopLoading.Visible = true;
+                    calculateLabel.Text = string.Empty;
+                    gridLabel.Text = string.Empty;
+                    cmbShowDevice.Enabled = false;
+                    chkShowAll.Checked = false;
+                    chkShowAll.Enabled = false;
+                    cmbShowDevice.SelectedIndex = -1;
+                    bkgWorkerLoad.RunWorkerAsync();
+                }
+            }
+        }
+
+        private void mnuItemExit_Click(object sender, EventArgs e)
+        {
+            Close();
+        }    
+
+        private void mnuItemPatternValidator_Click(object sender, EventArgs e)
+        {
+            var patternValidatorForm = Application.OpenForms["frmPatternValidator"];
+            if (patternValidatorForm == null)
+                patternValidatorForm = new frmPatternValidator();
+            else
+            {
+                patternValidatorForm.WindowState = FormWindowState.Normal;
+                patternValidatorForm.BringToFront();
+            }
+            patternValidatorForm.Show();
+        }
+
+        #endregion TopMenu
     }
 }
