@@ -63,6 +63,7 @@ namespace LogParserApp
                     btnLoadLog.Enabled = false;
                     btnStopLoading.Visible = true;
                     calculateLabel.Text = string.Empty;
+                    gridLabel.Text = string.Empty;
                     cmbShowDevice.Enabled = false;
                     chkShowAll.Checked = false;
                     chkShowAll.Enabled = false;
@@ -204,12 +205,12 @@ namespace LogParserApp
             else
                 resultLabel.Text = "Load Done";
 
-            calculateLabel.Text = string.Format("({0} of {1} log entries completed)", _parser.CompletedLogLines, _parser.TotalLogLines);
+            calculateLabel.Text = string.Format("({0} of {1} log entries loaded)", _parser.CompletedLogLines, _parser.TotalLogLines);
 
             if (e.Error == null && _parser.ObjectCollection != null && _parser.ObjectCollection.Count > 0)
             {
                 btnStopLoading.Visible = false;
-                resultLabel.Text = "Prepare...";
+                resultLabel.Text = "Prepare data for view...";
                 closePending = true;
                 Cursor.Current = Cursors.WaitCursor;
                 try
@@ -325,6 +326,7 @@ namespace LogParserApp
             finally
             {
                 Cursor.Current = Cursors.Default;
+                gridLabel.Text = string.Format("  Total view rows: {0}", dataGV.Rows.Count.ToString());
             }
         }    
 
@@ -356,6 +358,7 @@ namespace LogParserApp
                 finally
                 {
                     Cursor.Current = Cursors.Default;
+                    gridLabel.Text = string.Format("  Total view rows: {0}", dataGV.Rows.Count.ToString());
                 }
             }                       
         }
@@ -431,6 +434,7 @@ namespace LogParserApp
             finally
             {
                 Cursor.Current = Cursors.Default;
+                gridLabel.Text = string.Format("  Total view rows: {0}", dataGV.Rows.Count.ToString());
             }
 
         }

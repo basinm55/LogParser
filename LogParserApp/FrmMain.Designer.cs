@@ -55,6 +55,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.cmbThis = new System.Windows.Forms.ComboBox();
             this.btnViewLog = new System.Windows.Forms.Button();
+            this.gridLabel = new System.Windows.Forms.ToolStripStatusLabel();
             ((System.ComponentModel.ISupportInitialize)(this.dataGV)).BeginInit();
             this.gridCmStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
@@ -131,7 +132,8 @@
             this.progressBar,
             this.btnStopLoading,
             this.resultLabel,
-            this.calculateLabel});
+            this.calculateLabel,
+            this.gridLabel});
             this.statusStrip.Location = new System.Drawing.Point(0, 657);
             this.statusStrip.Name = "statusStrip";
             this.statusStrip.Size = new System.Drawing.Size(1098, 22);
@@ -140,25 +142,28 @@
             // progressBar
             // 
             this.progressBar.Name = "progressBar";
-            this.progressBar.Size = new System.Drawing.Size(100, 16);
+            this.progressBar.Size = new System.Drawing.Size(300, 16);
             // 
             // btnStopLoading
             // 
             this.btnStopLoading.DropDownButtonWidth = 1;
+            this.btnStopLoading.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.btnStopLoading.Image = ((System.Drawing.Image)(resources.GetObject("btnStopLoading.Image")));
             this.btnStopLoading.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.btnStopLoading.Name = "btnStopLoading";
-            this.btnStopLoading.Size = new System.Drawing.Size(105, 20);
+            this.btnStopLoading.Size = new System.Drawing.Size(107, 20);
             this.btnStopLoading.Text = "Stop loading...";
             this.btnStopLoading.ButtonClick += new System.EventHandler(this.btnStopLoading_ButtonClick);
             // 
             // resultLabel
             // 
+            this.resultLabel.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.resultLabel.Name = "resultLabel";
             this.resultLabel.Size = new System.Drawing.Size(0, 17);
             // 
             // calculateLabel
             // 
+            this.calculateLabel.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.calculateLabel.Name = "calculateLabel";
             this.calculateLabel.Size = new System.Drawing.Size(0, 17);
             // 
@@ -296,6 +301,12 @@
             this.btnViewLog.UseVisualStyleBackColor = true;
             this.btnViewLog.Click += new System.EventHandler(this.btnViewLog_Click);
             // 
+            // gridLabel
+            // 
+            this.gridLabel.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.gridLabel.Name = "gridLabel";
+            this.gridLabel.Size = new System.Drawing.Size(0, 17);
+            // 
             // FrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -310,6 +321,7 @@
             this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.btnLoadLog);
             this.Controls.Add(this.dataGV);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "FrmMain";
             this.Text = "LogParser";
             this.Activated += new System.EventHandler(this.FrmMain_Activated);
@@ -355,6 +367,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.ComboBox cmbThis;
         private System.Windows.Forms.Button btnViewLog;
+        private System.Windows.Forms.ToolStripStatusLabel gridLabel;
     }
 }
 
