@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmMain));
             this.dataGV = new System.Windows.Forms.DataGridView();
             this.dlgLoadLog = new System.Windows.Forms.OpenFileDialog();
@@ -89,11 +89,11 @@
             this.dataGV.ReadOnly = true;
             this.dataGV.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             this.dataGV.RowHeadersVisible = false;
-            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.dataGV.RowsDefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.dataGV.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dataGV.RowTemplate.Height = 66;
             this.dataGV.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
-            this.dataGV.Size = new System.Drawing.Size(1095, 512);
+            this.dataGV.Size = new System.Drawing.Size(1128, 512);
             this.dataGV.TabIndex = 0;
             this.dataGV.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dataGV_CellFormatting);
             this.dataGV.CellMouseDown += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataGV_CellMouseDown);
@@ -132,7 +132,7 @@
             this.gridLabel});
             this.statusStrip.Location = new System.Drawing.Point(0, 657);
             this.statusStrip.Name = "statusStrip";
-            this.statusStrip.Size = new System.Drawing.Size(1098, 22);
+            this.statusStrip.Size = new System.Drawing.Size(1131, 22);
             this.statusStrip.TabIndex = 4;
             // 
             // progressBar
@@ -226,7 +226,7 @@
             this.groupBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBox1.Location = new System.Drawing.Point(12, 99);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(1074, 36);
+            this.groupBox1.Size = new System.Drawing.Size(1107, 36);
             this.groupBox1.TabIndex = 11;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Device details:";
@@ -247,7 +247,7 @@
             // 
             // btnClearFilter
             // 
-            this.btnClearFilter.Location = new System.Drawing.Point(671, 20);
+            this.btnClearFilter.Location = new System.Drawing.Point(671, 19);
             this.btnClearFilter.Name = "btnClearFilter";
             this.btnClearFilter.Size = new System.Drawing.Size(81, 30);
             this.btnClearFilter.TabIndex = 14;
@@ -295,7 +295,8 @@
             // 
             // btnViewLog
             // 
-            this.btnViewLog.Location = new System.Drawing.Point(1008, 41);
+            this.btnViewLog.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnViewLog.Location = new System.Drawing.Point(1041, 41);
             this.btnViewLog.Name = "btnViewLog";
             this.btnViewLog.Size = new System.Drawing.Size(78, 30);
             this.btnViewLog.TabIndex = 15;
@@ -310,7 +311,7 @@
             this.mnuItemTools});
             this.mnuStripMain.Location = new System.Drawing.Point(0, 0);
             this.mnuStripMain.Name = "mnuStripMain";
-            this.mnuStripMain.Size = new System.Drawing.Size(1098, 24);
+            this.mnuStripMain.Size = new System.Drawing.Size(1131, 24);
             this.mnuStripMain.TabIndex = 16;
             this.mnuStripMain.Text = "menuStrip1";
             // 
@@ -356,7 +357,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1098, 679);
+            this.ClientSize = new System.Drawing.Size(1131, 679);
             this.Controls.Add(this.btnViewLog);
             this.Controls.Add(this.gbFilter);
             this.Controls.Add(this.groupBox1);

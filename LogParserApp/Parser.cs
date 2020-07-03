@@ -132,13 +132,14 @@ namespace LogParserApp
 
                 foreach (var prop in properties)
                 {
-                    if (prop.Element("PatternIndex") == null || prop.Attribute("i") == null) continue;
+                    if (prop.Element("PatternIndex") == null || prop.Attribute("i") == null) continue;                    
 
                     if (int.TryParse(prop.Element("PatternIndex").Value, out int patternIndex))
                     {
                         if (patternIndex < _sf.Results.Count)
                         {                           
                             DoObjectAction(prop, lineNumber, patternIndex, _sf.Results[patternIndex], line, objectType, thisValue);
+                            SetObjectDescription(prop, _sf.Results[patternIndex]);
                         }
                     }
                 }
@@ -157,7 +158,8 @@ namespace LogParserApp
                 visualObj.ObjectColor = _colorMng.GetColorByState(_currentObj.BaseColor, visualObj.ObjectState);                             
 
                 _currentObj.VisualObjectCollection.Add(visualObj);
-                _currentObj.ObjectState = visualObj.ObjectState;                
+                _currentObj.ObjectState = visualObj.ObjectState;
+                _currentObj.ObjectDescription.Clear();
             }
 
             if (!isExistingFound)

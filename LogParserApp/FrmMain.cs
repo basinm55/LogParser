@@ -278,15 +278,16 @@ namespace LogParserApp
             }
 
             else
-            {
-                cmbShowDevice.SelectedIndex = 0;
+            {               
                 UpdateDeviceDetails();
+                if (cmbShowDevice.SelectedIndex >= 0 && cmbShowDevice.SelectedItem != null)
+                    _currentDevice = ((KeyValuePair<string, ParserObject>)cmbShowDevice.SelectedItem).Key;
             }
 
             Cursor.Current = Cursors.WaitCursor;            
             try
             {
-                ParserView.CreateGridView(_parser.ObjectCollection, dataGV, null);
+                ParserView.CreateGridView(_parser.ObjectCollection, dataGV, _currentDevice);
             }
             catch
             {
@@ -390,7 +391,7 @@ namespace LogParserApp
                     _parser.ObjectCollection;
 
             filteredCollection = _currentFilterState != null ?
-                     filteredCollection.Where(x => x != null && x.VisualObjectCollection.Any(y => y.ObjectState.ToString() == _currentFilterState)).ToList() :
+                     filteredCollection.Where(x => x != null && x.VisualObjectCollection.Any(y => y != null && y.ObjectState.ToString() == _currentFilterState)).ToList() :
                     filteredCollection;
 
 

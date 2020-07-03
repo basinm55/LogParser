@@ -14,10 +14,12 @@ using Helpers;
 namespace LogParserApp
 {
     public partial class ParserView
-    {
+    {        
         public static void CreateGridView(List<ParserObject> data, DataGridView dataGV, string deviceFilter)
         {
             //if (data.Count == 0) return;
+            int maxDescLength = (int)Utils.GetConfigValue<int>("MaxVisualDescriptionLength");
+            maxDescLength = maxDescLength == 0 ? 30 : maxDescLength;
 
             dataGV.AutoGenerateColumns = false;            
             dataGV.Columns.Clear();
@@ -45,7 +47,7 @@ namespace LogParserApp
             {
                 foreach (var row in data)
                 {
-                    CreateGridRow(row, dataGV, deviceFilter);
+                    CreateGridRow(row, dataGV, deviceFilter, maxDescLength);
                 }
 
                 SetGridParameters(dataGV);
@@ -53,7 +55,7 @@ namespace LogParserApp
             dataGV.ClearSelection();       
         }
 
-        private static void CreateGridRow(ParserObject obj, DataGridView dataGV, string device)
+        private static void CreateGridRow(ParserObject obj, DataGridView dataGV, string device, int maxDescLength)
         {
             if (obj == null) return;
             List<ParserObject> parserRowCollection;
@@ -81,7 +83,7 @@ namespace LogParserApp
                 if (i < parserRowCollectionCount)
                 {
                     if (i % 2 == 0 || parserRowCollection[i] != null)
-                        CreateGridCell(parserRowCollection[i], row, i);                   
+                        CreateGridCell(parserRowCollection[i], row, i, maxDescLength);                   
                     else
                         CreateForwardImadeCell(row, i);
 
@@ -99,7 +101,7 @@ namespace LogParserApp
             row.Cells[cellIndex] = cell;
         }
 
-        private static void CreateGridCell(ParserObject visualObj, DataGridViewRow row, int cellIndex)
+        private static void CreateGridCell(ParserObject visualObj, DataGridViewRow row, int cellIndex, int maxDescLength)
         {                     
             var cell = new DataGridViewTextBoxCell();
             var cellForwardImg = new DataGridViewImageCell();
@@ -120,16 +122,31 @@ namespace LogParserApp
                 Padding = new Padding(5, 5, 5, 5),
                 SelectionBackColor = Color.DarkOrange
             };
+
             
             var visualDescription = new StringBuilder();
-            visualDescription.AppendLine(visualObj.ObjectType.ToString());
-            visualDescription.AppendLine((string)visualObj.GetDynPropertyValue("this"));
-            //visualDescription.AppendLine((string)visualObj.GetDynPropertyValue("FilterKey"));      
             visualDescription.AppendLine(visualObj.ObjectState.ToString());
+            if (visualObj.ObjectDescription != null)
+            {
+                foreach (var desc in visualObj.ObjectDescription)
+                {
+                    var description = desc.Value;
+                    if (description.Length > maxDescLength)
+                        description = StringExt.Wrap(desc.Value, maxDescLength);
+
+                    if ((desc.Key + ": " + description).Length > maxDescLength)
+                        visualDescription.AppendLine(description);
+                    else
+                        visualDescription.AppendLine(desc.Key + ": " + description);
+
+                }
+            }
+                 
             visualObj.VisualDescription = visualDescription.ToString();
             if (visualObj == null || string.IsNullOrWhiteSpace(visualObj.VisualDescription))
                 visualObj.VisualDescription = null;
             cell.Value = visualObj;
+
 
 
             row.Cells[cellIndex] = cell;            

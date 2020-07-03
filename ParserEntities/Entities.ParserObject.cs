@@ -6,6 +6,7 @@ using static Entities.Enums;
 using Helpers;
 using System.Linq;
 using System.Drawing;
+using System.Text;
 
 namespace Entities
 { 
@@ -32,6 +33,8 @@ namespace Entities
 
         public List<ParserObject> VisualObjectCollection { get; set; }
 
+        public IDictionary<string, string> ObjectDescription { get; set; }
+
 
         //C'tor
         public ParserObject(ObjectType objectType)
@@ -42,6 +45,7 @@ namespace Entities
             BaseColor = Color.Transparent;
             ObjectColor = Color.Transparent;
             VisualObjectCollection = new List<ParserObject>();
+            ObjectDescription = new Dictionary<string, string>();
         }
 
 
@@ -172,6 +176,7 @@ namespace Entities
 
             result.DynObject = DeepClone(baseObject.DynObject);
             result.DynObjectDictionary = new Dictionary<string, object>((IDictionary<string, object>)baseObject.DynObject);
+            result.ObjectDescription = new Dictionary<string, string>(baseObject.ObjectDescription);            
             result.ObjectType = baseObject.ObjectType;
             result.LogLine = line;
             result.LineNum = lineNumber;
@@ -186,6 +191,7 @@ namespace Entities
 
             result.DynObject = DeepClone(original.DynObject);
             result.DynObjectDictionary = (IDictionary<string, object>)result.DynObject;
+            result.ObjectDescription = new Dictionary<string, string>(original.ObjectDescription);
             result.ObjectType = original.ObjectType;
             return result;
         }

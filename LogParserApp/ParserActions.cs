@@ -220,5 +220,15 @@ namespace LogParserApp
             }            
             return isExistingFound;
         }
+
+        private void SetObjectDescription(XElement prop, object parsedValue)
+        {
+            XElement displayMember = prop.Element("DisplayMember");
+            if (displayMember == null || displayMember.Value == null || !displayMember.Value.ToBoolean()) return;
+
+            var key = prop.Element("Name").Value.ToString();
+            if (!_currentObj.ObjectDescription.ContainsKey(key))
+                _currentObj.ObjectDescription.Add(new KeyValuePair<string, string>(key, parsedValue.ToString()));
+        }
     }
 }

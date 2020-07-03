@@ -83,12 +83,14 @@
 						<DataType>string</DataType>
 						<Action>New</Action>
 						<Target>this</Target>
+						<DisplayMember>1</DisplayMember>
 					</Property>
 					<Property i="1">
 						<PatternIndex>0</PatternIndex>
 						<Name>Timestamp</Name>
 						<DataType Format ="MM/dd/yyyy-HH:mm:ss.FFF">Time</DataType>
 						<Action>AssignToSelf</Action>
+						<DisplayMember>1</DisplayMember>
 					</Property>					
 					<Property i="2">
 						<PatternIndex>2</PatternIndex>
@@ -101,7 +103,8 @@
 						<PatternIndex>1</PatternIndex>
 						<Name>Type</Name>
 						<DataType>string</DataType>
-						<Action>AssignToSelf</Action>						
+						<Action>AssignToSelf</Action>
+						<DisplayMember>1</DisplayMember>
 					</Property>	
 					<Property i="4"> <!--???????-->
 						<PatternIndex>3</PatternIndex>
@@ -125,12 +128,14 @@
 						<DataType>string</DataType>						
 						<Action>Locate</Action>
 						<Target>this</Target>
+						<DisplayMember>1</DisplayMember>
 					</Property>						
 					<Property i="1">
 						<PatternIndex>0</PatternIndex>						
 						<Name>Address</Name>
 						<DataType>string</DataType>
 						<Action>Assign</Action>
+						<DisplayMember>1</DisplayMember>
 					</Property>
 					<Property i="2">
 						<PatternIndex>2</PatternIndex>
@@ -143,6 +148,7 @@
 						<Name>Type</Name>
 						<DataType>string</DataType>
 						<Action>Assign</Action>
+						<DisplayMember>1</DisplayMember>
 					</Property>			
 				</Properties>
 			</Filter>
@@ -159,18 +165,21 @@
 						<DataType>string</DataType>
 						<Action>Locate</Action>
 						<Target>this</Target>
+						<DisplayMember>1</DisplayMember>
 					</Property>
 					<Property i="1">
 						<PatternIndex>0</PatternIndex>
 						<Name>Timestamp</Name>
 						<DataType Format ="MM/dd/yyyy-HH:mm:ss.FFF">Time</DataType>
 						<Action>AssignToSelf</Action>
+						<DisplayMember>1</DisplayMember>
 					</Property>					
 					<Property i="2">
 						<PatternIndex>2</PatternIndex>
 						<Name>Serial</Name>
 						<DataType>string</DataType>
 						<Action>Assign</Action>
+						<DisplayMember>1</DisplayMember>
 					</Property>
 					<Property i="3">
 						<PatternIndex>5</PatternIndex>
@@ -183,6 +192,7 @@
 						<Name>Len</Name>
 						<DataType>decimal</DataType>
 						<Action>Assign</Action>
+						<DisplayMember>1</DisplayMember>
 					</Property>					
 				</Properties>
 			</Filter>
@@ -199,12 +209,14 @@
 						<DataType>string</DataType>
 						<Action>Locate</Action>
 						<Target>this</Target>
+						<DisplayMember>1</DisplayMember>
 					</Property>
 					<Property i="1">
 						<PatternIndex>0</PatternIndex>
 						<Name>Timestamp</Name>
 						<DataType Format ="MM/dd/yyyy-HH:mm:ss.FFF">Time</DataType>
 						<Action>AssignToSelf</Action>
+						<DisplayMember>1</DisplayMember>
 					</Property>
 					<Property i="2">
 						<PatternIndex>2</PatternIndex>
@@ -217,6 +229,7 @@
 						<Name>Status</Name>
 						<DataType>string</DataType>
 						<Action>Assign</Action>
+						<DisplayMember>1</DisplayMember>
 					</Property>				
 				</Properties>
 			</Filter>
@@ -233,18 +246,21 @@
 						<DataType>string</DataType>
 						<Action>Locate</Action>
 						<Target>this</Target>
+						<DisplayMember>1</DisplayMember>
 					</Property>
 					<Property i="1">
 						<PatternIndex>0</PatternIndex>
 						<Name>Timestamp</Name>
 						<DataType Format ="MM/dd/yyyy-HH:mm:ss.FFF">Time</DataType>
 						<Action>AssignToSelf</Action>
+						<DisplayMember>1</DisplayMember>
 					</Property>					
 					<Property i="2">
 						<PatternIndex>4</PatternIndex>
 						<Name>TimeToComplete</Name>
 						<DataType>decimal</DataType>
 						<Action>Assign</Action>
+						<DisplayMember>1</DisplayMember>
 					</Property>
 					<Property i="3">
 						<PatternIndex>5</PatternIndex>
