@@ -339,9 +339,9 @@ namespace LogParserApp
 
             var device = ((KeyValuePair<string, ParserObject>)cmbShowDevice.SelectedItem).Key;
             var obj = ((KeyValuePair<string, ParserObject>)cmbShowDevice.SelectedItem).Value;
-            var timestamp = string.Format("{0:MM/dd/yyyy-HH:mm:ss.FFF}", obj.GetDynPropertyValue("Timestamp"));
+            var time = string.Format("{0:MM/dd/yyyy-HH:mm:ss.FFF}", obj.GetDynPropertyValue("Time"));
 
-            lblHeader.Text = string.Format("{0}   Time: {1}", device, timestamp);
+            lblHeader.Text = string.Format("{0}   Time: {1}", device, time);
         }
             
 

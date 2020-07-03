@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -123,7 +124,20 @@ namespace LogParserApp
                 SelectionBackColor = Color.DarkOrange
             };
 
-            
+
+            var visualDescription = CreateVisualDescription(visualObj, maxDescLength);                           
+            visualObj.VisualDescription = visualDescription.ToString();
+            if (visualObj == null || string.IsNullOrWhiteSpace(visualObj.VisualDescription))
+                visualObj.VisualDescription = null;
+            cell.Value = visualObj;
+
+
+
+            row.Cells[cellIndex] = cell;            
+        }
+
+        private static StringBuilder CreateVisualDescription(ParserObject visualObj, int maxDescLength)
+        {
             var visualDescription = new StringBuilder();
             visualDescription.AppendLine(visualObj.ObjectState.ToString());
             if (visualObj.ObjectDescription != null)
@@ -136,20 +150,14 @@ namespace LogParserApp
 
                     if ((desc.Key + ": " + description).Length > maxDescLength)
                         visualDescription.AppendLine(description);
+                    else if (desc.Key.ToLower() == "request")
+                        visualDescription.AppendLine(description);
                     else
                         visualDescription.AppendLine(desc.Key + ": " + description);
 
                 }
             }
-                 
-            visualObj.VisualDescription = visualDescription.ToString();
-            if (visualObj == null || string.IsNullOrWhiteSpace(visualObj.VisualDescription))
-                visualObj.VisualDescription = null;
-            cell.Value = visualObj;
-
-
-
-            row.Cells[cellIndex] = cell;            
+            return visualDescription;
         }
 
         private static void CreateGridCell(DataGridViewRow row, int cellIndex)

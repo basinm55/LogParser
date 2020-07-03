@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Dynamic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,7 +16,7 @@ using static Entities.Enums;
 namespace LogParserApp
 {
     public partial class Parser
-    {
+    {        
         private void DoActionNew(XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectType, string thisValue)
         {
             if (!ValidateProfileDefinition(profilePropDefinition,
@@ -107,8 +108,8 @@ namespace LogParserApp
             _currentObj.SetDynProperty("PatternIndex", patternIndex, PropertyDataType.Decimal);
             _currentObj.SetDynProperty("DataType", dataType, PropertyDataType.Enum, format, typeof(PropertyDataType));
 
-            if (string.Equals(name, "Timestamp", StringComparison.InvariantCultureIgnoreCase))
-                _currentObj.SetDynProperty("Timestamp", parsedValue, PropertyDataType.Time, format);
+            if (string.Equals(name, "Time", StringComparison.InvariantCultureIgnoreCase))
+                _currentObj.SetDynProperty("Time", parsedValue, PropertyDataType.Time, format);
         }      
 
         private bool FindOrCreateBaseObject(int lineNumber, XElement filter, List<object> parsedList, out string objectType, out string thisValue, out string objectState)
@@ -226,6 +227,12 @@ namespace LogParserApp
             XElement displayMember = prop.Element("DisplayMember");
             if (displayMember == null || displayMember.Value == null || !displayMember.Value.ToBoolean()) return;
 
+            if (prop.Element("DataType").Value.ToLower() == "time" && prop.Element("DataType").Attribute("Format") != null)
+            {                          
+                if (DateTime.TryParseExact((string)parsedValue, prop.Element("DataType").Attribute("Format").Value, new CultureInfo("en-US"), DateTimeStyles.None, out DateTime dt))
+                    parsedValue = dt.ToString(_visualDateTimeFormat);
+            }             
+         
             var key = prop.Element("Name").Value.ToString();
             if (!_currentObj.ObjectDescription.ContainsKey(key))
                 _currentObj.ObjectDescription.Add(new KeyValuePair<string, string>(key, parsedValue.ToString()));

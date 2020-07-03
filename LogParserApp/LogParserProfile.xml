@@ -18,7 +18,7 @@
 					</Property>
 					<Property i="1">
 						<PatternIndex>0</PatternIndex>
-						<Name>Timestamp</Name>
+						<Name>Time</Name>
 						<DataType Format ="MM/dd/yyyy-HH:mm:ss.FFF">Time</DataType>
 						<Action>AssignToSelf</Action>	
 					</Property>					
@@ -87,7 +87,7 @@
 					</Property>
 					<Property i="1">
 						<PatternIndex>0</PatternIndex>
-						<Name>Timestamp</Name>
+						<Name>Time</Name>
 						<DataType Format ="MM/dd/yyyy-HH:mm:ss.FFF">Time</DataType>
 						<Action>AssignToSelf</Action>
 						<DisplayMember>1</DisplayMember>
@@ -169,7 +169,7 @@
 					</Property>
 					<Property i="1">
 						<PatternIndex>0</PatternIndex>
-						<Name>Timestamp</Name>
+						<Name>Time</Name>
 						<DataType Format ="MM/dd/yyyy-HH:mm:ss.FFF">Time</DataType>
 						<Action>AssignToSelf</Action>
 						<DisplayMember>1</DisplayMember>
@@ -213,7 +213,7 @@
 					</Property>
 					<Property i="1">
 						<PatternIndex>0</PatternIndex>
-						<Name>Timestamp</Name>
+						<Name>Time</Name>
 						<DataType Format ="MM/dd/yyyy-HH:mm:ss.FFF">Time</DataType>
 						<Action>AssignToSelf</Action>
 						<DisplayMember>1</DisplayMember>
@@ -250,7 +250,7 @@
 					</Property>
 					<Property i="1">
 						<PatternIndex>0</PatternIndex>
-						<Name>Timestamp</Name>
+						<Name>Time</Name>
 						<DataType Format ="MM/dd/yyyy-HH:mm:ss.FFF">Time</DataType>
 						<Action>AssignToSelf</Action>
 						<DisplayMember>1</DisplayMember>

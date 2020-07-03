@@ -25,6 +25,8 @@ namespace LogParserApp
 
         private ParserColorManager _colorMng;
 
+        private string _visualDateTimeFormat;
+
         public int TotalLogLines { get; private set; }
         public int CompletedLogLines { get; private set; }
 
@@ -45,6 +47,8 @@ namespace LogParserApp
         {
             int maxLoadLines = (int)Utils.GetConfigValue<int>("MaxLoadLines");
             maxLoadLines = maxLoadLines == 0 ? 50000 : maxLoadLines;
+            _visualDateTimeFormat = (string)Utils.GetConfigValue<string>("VisualDateTimeFormat");
+            _visualDateTimeFormat = string.IsNullOrWhiteSpace(_visualDateTimeFormat) ? "HH:mm:ss.FFF" : _visualDateTimeFormat;
 
             _sf = new ScanFormatted();
 
