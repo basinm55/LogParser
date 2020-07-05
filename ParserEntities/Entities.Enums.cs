@@ -16,8 +16,9 @@ namespace Entities
             AssignToSelf = 2,
             Locate = 3,
             Assign = 4,
-            Drop = 5,
-            Delete = 6
+            AssignData = 5,
+            Drop = 6,
+            Delete = 7
         }
 
         public enum Shape
@@ -59,7 +60,8 @@ namespace Entities
         {
             Unknown = -1,
             Device = 0,
-            Request = 1
+            Request = 1,
+            Data = 2
         }
     }
 }

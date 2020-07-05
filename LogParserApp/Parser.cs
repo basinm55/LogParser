@@ -12,6 +12,7 @@ using static Entities.ParserObject;
 using System.Drawing;
 using System.ComponentModel;
 using System.Configuration;
+using System.Text;
 
 namespace LogParserApp
 {
@@ -79,7 +80,7 @@ namespace LogParserApp
 
                 try
                 {
-                    ParseLogLine(lineNumber, line, profile);
+                    ParseLogLine(list, lineNumber, line, profile);
                 }
                 catch (Exception ex)
                 {
@@ -103,7 +104,7 @@ namespace LogParserApp
             return File.ReadLines(_logFileName).ToList();
         }
 
-        private void ParseLogLine(int lineNumber, string line, XElement profile)
+        private void ParseLogLine(List<string> list, int lineNumber, string line, XElement profile)
         {
             if (string.IsNullOrWhiteSpace(line)) return;
 
@@ -114,21 +115,25 @@ namespace LogParserApp
                 if (filterKey != null)
                 {
                     if (string.IsNullOrWhiteSpace(filterKey.Value) || line.ContainsCaseInsensitive(filterKey.Value))
-                        ApplyFilter(lineNumber, line, filter);
+                        ApplyFilter(list, lineNumber, line, filter);
                 }
             }
         }
 
-        private void ApplyFilter(int lineNumber, string line, XElement filter)
+        private void ApplyFilter(List<string> list, int lineNumber, string line, XElement filter)
         {
-            bool isExistingFound = false;            
+            bool isExistingFound = false;
+            StringBuilder bufferContainer = null;
+            var lastCurrentObj = _currentObj;
             var filterPatterns = filter.XPathSelectElements("Patterns/Pattern");
             foreach (var filterPattern in filterPatterns)
-            {
+            {               
+
                 _sf.Parse(line, filterPattern.Value);
                 if (!IsParsingSuccessful(filterPattern))
-                    continue;         
-
+                    continue;
+                
+                    
                 isExistingFound = FindOrCreateBaseObject(lineNumber, filter, _sf.Results, out string objectType, out string thisValue, out string objectState);                                
 
                 var properties = filter.XPathSelectElements("Properties/Property");
@@ -142,13 +147,17 @@ namespace LogParserApp
                     {
                         if (patternIndex < _sf.Results.Count)
                         {                           
-                            DoObjectAction(prop, lineNumber, patternIndex, _sf.Results[patternIndex], line, objectType, thisValue);
+                            DoObjectAction(filter, prop, lineNumber, patternIndex, _sf.Results[patternIndex], line, objectType, thisValue);
+                            var key = prop.Element("Name").Value.ToString();
+
+                            SetDataBuffer(key, patternIndex, bufferContainer, list, lineNumber, lastCurrentObj);
+
                             SetObjectDescription(prop, _sf.Results[patternIndex]);
                         }
                     }
                 }
             }
-            bool isVisible = (((string)_currentObj.GetDynPropertyValue("IsVisible")).ToBoolean());
+            bool isVisible = _currentObj != null && ((string)_currentObj.GetDynPropertyValue("IsVisible")).ToBoolean();
             if (isVisible)
             {                
                 var objectState = ObjectState.Unknown;
@@ -159,11 +168,18 @@ namespace LogParserApp
                     objectState = Enum.IsDefined(typeof(ObjectState), objStateStr) ? objStateStr.ToEnum<ObjectState>() : ObjectState.Unknown;
 
                 var visualObj = _currentObj.CreateVisualObject(objectState, lineNumber, line);
-                visualObj.ObjectColor = _colorMng.GetColorByState(_currentObj.BaseColor, visualObj.ObjectState);                             
+                if (lastCurrentObj != null)
+                {
+                    visualObj.SetDynProperty("DataBuffer", lastCurrentObj.GetDynPropertyValue("DataBuffer"));
+                    lastCurrentObj = null;
+                }
+
+                 visualObj.ObjectColor = _colorMng.GetColorByState(_currentObj.BaseColor, visualObj.ObjectState);                             
 
                 _currentObj.VisualObjectCollection.Add(visualObj);
                 _currentObj.ObjectState = visualObj.ObjectState;
                 _currentObj.ObjectDescription.Clear();
+                _currentObj.SetDynProperty("DataBuffer", null);
             }
 
             if (!isExistingFound)
@@ -181,7 +197,28 @@ namespace LogParserApp
                 ObjectCollection.Add(_currentObj);
             }            
 
-        }   
+        } 
+        
+        private void SetDataBuffer(string key, int patternIndex, StringBuilder bufferContainer, List<string> list, int lineNumber, ParserObject lastCurrentObj)
+        {
+            if (key == "BufferSize")
+            {
+                if (int.TryParse(_sf.Results[patternIndex].ToString(), out int bufferLength))
+                {
+                    var readBufferLinesNum = bufferLength / 8 + 1;
+                    bufferContainer = new StringBuilder();
+                    for (int i = lineNumber; i < lineNumber + readBufferLinesNum; i++)
+                    {
+                        bufferContainer.AppendLine(list[i]);
+                    }
+                    lineNumber = lineNumber + readBufferLinesNum;
+                    if (lastCurrentObj != null && bufferContainer != null && !string.IsNullOrEmpty(bufferContainer.ToString()))
+                        lastCurrentObj.SetDynProperty("DataBuffer", bufferContainer.ToString());
+                }
+            }
+            else if (lastCurrentObj != null)
+                lastCurrentObj.SetDynProperty("DataBuffer", null);
+        }
 
         private bool IsParsingSuccessful(XElement filterPattern)
         {
@@ -196,7 +233,7 @@ namespace LogParserApp
             return true;
         }
 
-        private void DoObjectAction(XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectType, string thisValue)
+        private void DoObjectAction(XElement filter, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectType, string thisValue)
         {
             if (profilePropDefinition.Element("Action") == null) return;
             var action = profilePropDefinition.Element("Action").Value.ToEnum<PropertyAction>();           
@@ -214,7 +251,7 @@ namespace LogParserApp
                     break;
                 case PropertyAction.Assign:
                     DoActionAssign(profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine, objectType, thisValue);
-                    break;
+                    break; 
                 case PropertyAction.Drop:
                     DoActionDrop(profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine, objectType, thisValue);
                     break;

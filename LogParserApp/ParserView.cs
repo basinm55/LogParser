@@ -27,11 +27,12 @@ namespace LogParserApp
 
             foreach (var o in data)
             {
+                if (o == null) continue;
                 var voCollection = o.VisualObjectCollection;
                 voCollection.RemoveAll((x) => x == null);
             }
             
-            var columnsCount = data.Count > 0 ? data.Max(x => x.VisualObjectCollection.Count()*2 - 1): 0;           
+            var columnsCount = data.Count > 0 ? data.Where(x => x != null).Max(x => x.VisualObjectCollection.Count()*2 - 1): 0;           
 
             for (int i = 0; i < columnsCount; i++)
             {

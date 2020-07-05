@@ -27,6 +27,7 @@ namespace Entities
         public Color BaseColor { get; set; }
 
         public string Parent { get; set; }
+
         public dynamic DynObject { get; set; }
 
         public IDictionary<string, object> DynObjectDictionary;
@@ -156,17 +157,18 @@ namespace Entities
     {      
         public static string GetThis(this ParserObject item)
         {
-            return (string)item.GetDynPropertyValue("this");
+            return item != null ? (string)item.GetDynPropertyValue("this") : null;
         }
 
         public static void SetThis(this ParserObject item, string thisValue)
         {
-            item.SetDynPropertyValue("this", thisValue);
+            if (item != null)
+                item.SetDynPropertyValue("this", thisValue);
         }
 
         public static string GetParent(this ParserObject item)
         {
-            return (string)item.GetDynPropertyValue("Parent");
+            return item != null ? (string)item.GetDynPropertyValue("Parent") : null;
         }
           
 

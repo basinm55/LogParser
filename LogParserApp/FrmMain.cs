@@ -25,6 +25,7 @@ namespace LogParserApp
         private string _currentDevice = null;
         private string _currentFilterThis = null;
         private string _currentFilterState = null;
+        private bool _currentFilterHasDataBuffer = false;
         private Process _notepadProcess = null;
 
         public FrmMain()
@@ -91,6 +92,9 @@ namespace LogParserApp
                     showRelatedLogEntryToolStripMenuItem.Enabled =
                         (clickedCell.Value as ParserObject).ObjectState >= 0;
 
+                    dataBufferToolStripMenuItem.Enabled =
+                        (clickedCell.Value as ParserObject).GetDynPropertyValue("DataBuffer") != null;
+
                     gridCmStrip.Show(dataGV, relativeMousePosition);
                 }
             }
@@ -129,7 +133,7 @@ namespace LogParserApp
                             var dateValue = (DateTime)prop.Value;
                             properties.AppendLine(prop.Key + " = " + dateValue.ToString("dd/MM/yy HH:mm:ss.fff"));
                         }
-                        else
+                        else if (prop.Key != "DataBuffer" || prop.Value != null)
                             properties.AppendLine(prop.Key + " = " + prop.Value);
                     }
 
@@ -200,8 +204,7 @@ namespace LogParserApp
                     cmbShowDevice.Enabled = true;
                     chkShowAll.Enabled = true;
                     mnuItemLoad.Enabled = true;
-                    btnViewLog.Enabled = true;
-                    gbFilter.Enabled = true;
+                    btnViewLog.Enabled = true;                    
                     UpdateControlsState();
 
                     progressBar.Value = 80;                    
@@ -216,6 +219,7 @@ namespace LogParserApp
                     progressBar.Visible = false;
                     Application.DoEvents();
                     Cursor.Current = Cursors.Default;
+                    gbFilter.Enabled = true;
                 }
             }
             else
@@ -231,7 +235,7 @@ namespace LogParserApp
         private void CreateComboDeviceDataSource()
         {
             var ds = _parser.ObjectCollection.
-                                Where(o => o.ObjectType == ObjectType.Device).Distinct().
+                                Where( o => o != null && o.ObjectType == ObjectType.Device).Distinct().
                                 ToList();
 
             var comboSource = new Dictionary<string, ParserObject>();
@@ -284,7 +288,9 @@ namespace LogParserApp
                     _currentDevice = ((KeyValuePair<string, ParserObject>)cmbShowDevice.SelectedItem).Key;
             }
 
-            Cursor.Current = Cursors.WaitCursor;            
+            Cursor.Current = Cursors.WaitCursor;
+            gbFilter.Enabled = false;
+            Application.DoEvents();
             try
             {
                 ParserView.CreateGridView(_parser.ObjectCollection, dataGV, _currentDevice);
@@ -297,6 +303,7 @@ namespace LogParserApp
             {
                 Cursor.Current = Cursors.Default;
                 gridLabel.Text = string.Format("  Total view rows: {0}", dataGV.Rows.Count.ToString());
+                gbFilter.Enabled = true;
             }
         }    
 
@@ -315,6 +322,7 @@ namespace LogParserApp
 
                 //Filter by selected device
                 _currentDevice = ((KeyValuePair<string, ParserObject>)cmbShowDevice.SelectedItem).Key;
+                gbFilter.Enabled = false;
                 Cursor.Current = Cursors.WaitCursor;               
                 Application.DoEvents();
                 try
@@ -329,6 +337,7 @@ namespace LogParserApp
                 {
                     Cursor.Current = Cursors.Default;
                     gridLabel.Text = string.Format("  Total view rows: {0}", dataGV.Rows.Count.ToString());
+                    gbFilter.Enabled = true;
                 }
             }                       
         }
@@ -366,8 +375,10 @@ namespace LogParserApp
         {
             cmbThis.SelectedIndex = 0;
             cmbState.SelectedIndex = 0;
+            chkHasDataBuffer.Checked = false;
             _currentFilterThis = null;
             _currentFilterState = null;
+            _currentFilterHasDataBuffer = false;
             SetFilters();
         }
 
@@ -383,8 +394,10 @@ namespace LogParserApp
 
         private void SetFilters()
         {
+            gbFilter.Enabled = false;
             _currentFilterThis = cmbThis.SelectedIndex > 0 ? (string)cmbThis.SelectedItem : null;
             _currentFilterState = cmbState.SelectedIndex > 0 ? (string)cmbState.SelectedItem : null;
+            _currentFilterHasDataBuffer = chkHasDataBuffer.Checked;
             
             var filteredCollection = _currentFilterThis != null ?
                      _parser.ObjectCollection.Where(x => x.GetThis() == _currentFilterThis).ToList() :
@@ -394,9 +407,14 @@ namespace LogParserApp
                      filteredCollection.Where(x => x != null && x.VisualObjectCollection.Any(y => y != null && y.ObjectState.ToString() == _currentFilterState)).ToList() :
                     filteredCollection;
 
+            filteredCollection = _currentFilterHasDataBuffer == true ?
+                    filteredCollection.Where(x => x != null && x.VisualObjectCollection.Any(y => y != null && !string.IsNullOrWhiteSpace((string)y.GetDynPropertyValue("DataBuffer")))).ToList() :
+                   filteredCollection;
+
 
             Cursor.Current = Cursors.WaitCursor;            
             Application.DoEvents();
+            gbFilter.Enabled = false;
             try
             {
                 ParserView.CreateGridView(filteredCollection, dataGV, _currentDevice);
@@ -405,6 +423,7 @@ namespace LogParserApp
             {
                 Cursor.Current = Cursors.Default;
                 gridLabel.Text = string.Format("  Total view rows: {0}", dataGV.Rows.Count.ToString());
+                gbFilter.Enabled = true;
             }
 
         }
@@ -480,5 +499,36 @@ namespace LogParserApp
         }
 
         #endregion TopMenu
+
+        private void chkHasDataBuffer_CheckedChanged(object sender, EventArgs e)
+        {
+            _currentFilterHasDataBuffer = chkHasDataBuffer.Checked;
+            SetFilters();
+        }
+
+        private void dataBufferToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (dataGV.CurrentCell != null && dataGV.CurrentCell.Value != null && dataGV.CurrentCell.Value is ParserObject)
+            {
+                var relatedParserObject = (ParserObject)dataGV.CurrentCell.Value;
+                if (relatedParserObject != null)
+                {
+                    var properties = new StringBuilder();
+                    foreach (var prop in relatedParserObject.DynObjectDictionary)
+                    {    
+                        if (prop.Key == "DataBuffer" && prop.Value != null)
+                        {
+                            FlexibleMessageBox.Show(prop.Value.ToString(),
+                                    string.Format("Data Buffer of {0}: {1}",
+                                        relatedParserObject.ObjectType.ToString(),
+                                        relatedParserObject.GetDynPropertyValue("this")),
+                                    MessageBoxButtons.OK);
+                            return;
+
+                        }
+                    }               
+                }
+            }
+        }
     }
 }

@@ -285,6 +285,56 @@
 						<Target>this</Target>
 					</Property>						
 				</Properties>
+			</Filter>
+			<Filter key="Out:: buffer" IsVisible ="0" IsFindable = "0">
+				<ObjectType>Data</ObjectType>
+				<State/>
+				<Patterns>
+					<Pattern>%s buffer of %d</Pattern>										
+				</Patterns>
+				<Properties>
+					<Property i="0">
+						<PatternIndex>0</PatternIndex>
+						<Name>BufferType</Name>
+						<DataType>string</DataType>
+						<Action>AssignData</Action>
+						<Target>data</Target>
+						<DisplayMember>1</DisplayMember>
+					</Property>
+					<Property i="1">
+						<PatternIndex>1</PatternIndex>
+						<Name>BufferSize</Name>
+						<DataType>decimal</DataType>
+						<Action>AssignData</Action>
+						<Target>data</Target>
+						<DisplayMember>1</DisplayMember>
+					</Property>					
+				</Properties>
+			</Filter>
+			<Filter key="In:: buffer" IsVisible ="0" IsFindable = "0">
+				<ObjectType>Data</ObjectType>
+				<State/>
+				<Patterns>
+					<Pattern>%s buffer of %d</Pattern>
+				</Patterns>
+				<Properties>
+					<Property i="0">
+						<PatternIndex>0</PatternIndex>
+						<Name>BufferType</Name>
+						<DataType>string</DataType>
+						<Action>AssignData</Action>
+						<Target>data</Target>
+						<DisplayMember>1</DisplayMember>
+					</Property>
+					<Property i="1">
+						<PatternIndex>1</PatternIndex>
+						<Name>BufferSize</Name>
+						<DataType>decimal</DataType>
+						<Action>AssignData</Action>
+						<Target>data</Target>
+						<DisplayMember>1</DisplayMember>
+					</Property>
+				</Properties>
 			</Filter>			
 		</Filters>			
 	</Profile>			

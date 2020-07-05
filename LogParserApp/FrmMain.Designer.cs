@@ -49,6 +49,7 @@
             this.chkShowAll = new System.Windows.Forms.CheckBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.gbFilter = new System.Windows.Forms.GroupBox();
+            this.chkHasDataBuffer = new System.Windows.Forms.CheckBox();
             this.btnClearFilter = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.cmbState = new System.Windows.Forms.ComboBox();
@@ -61,6 +62,7 @@
             this.mnuItemExit = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuItemTools = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuItemPatternValidator = new System.Windows.Forms.ToolStripMenuItem();
+            this.dataBufferToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.dataGV)).BeginInit();
             this.gridCmStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
@@ -103,9 +105,10 @@
             // 
             this.gridCmStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.showRelatedLogEntryToolStripMenuItem,
+            this.dataBufferToolStripMenuItem,
             this.propertiesToolStripMenuItem});
             this.gridCmStrip.Name = "gridCmStrip";
-            this.gridCmStrip.Size = new System.Drawing.Size(196, 48);
+            this.gridCmStrip.Size = new System.Drawing.Size(196, 92);
             // 
             // showRelatedLogEntryToolStripMenuItem
             // 
@@ -233,6 +236,7 @@
             // 
             // gbFilter
             // 
+            this.gbFilter.Controls.Add(this.chkHasDataBuffer);
             this.gbFilter.Controls.Add(this.btnClearFilter);
             this.gbFilter.Controls.Add(this.label3);
             this.gbFilter.Controls.Add(this.cmbState);
@@ -244,6 +248,17 @@
             this.gbFilter.TabIndex = 12;
             this.gbFilter.TabStop = false;
             this.gbFilter.Text = "Filter";
+            // 
+            // chkHasDataBuffer
+            // 
+            this.chkHasDataBuffer.AutoSize = true;
+            this.chkHasDataBuffer.Location = new System.Drawing.Point(385, 26);
+            this.chkHasDataBuffer.Name = "chkHasDataBuffer";
+            this.chkHasDataBuffer.Size = new System.Drawing.Size(102, 17);
+            this.chkHasDataBuffer.TabIndex = 15;
+            this.chkHasDataBuffer.Text = "Has Data Buffer";
+            this.chkHasDataBuffer.UseVisualStyleBackColor = true;
+            this.chkHasDataBuffer.CheckedChanged += new System.EventHandler(this.chkHasDataBuffer_CheckedChanged);
             // 
             // btnClearFilter
             // 
@@ -353,6 +368,13 @@
             this.mnuItemPatternValidator.Text = "Pattern Validator Tool";
             this.mnuItemPatternValidator.Click += new System.EventHandler(this.mnuItemPatternValidator_Click);
             // 
+            // dataBufferToolStripMenuItem
+            // 
+            this.dataBufferToolStripMenuItem.Name = "dataBufferToolStripMenuItem";
+            this.dataBufferToolStripMenuItem.Size = new System.Drawing.Size(195, 22);
+            this.dataBufferToolStripMenuItem.Text = "Data Buffer";
+            this.dataBufferToolStripMenuItem.Click += new System.EventHandler(this.dataBufferToolStripMenuItem_Click);
+            // 
             // FrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -421,6 +443,8 @@
         private System.Windows.Forms.ToolStripMenuItem mnuItemExit;
         private System.Windows.Forms.ToolStripMenuItem mnuItemTools;
         private System.Windows.Forms.ToolStripMenuItem mnuItemPatternValidator;
+        private System.Windows.Forms.CheckBox chkHasDataBuffer;
+        private System.Windows.Forms.ToolStripMenuItem dataBufferToolStripMenuItem;
     }
 }
 
