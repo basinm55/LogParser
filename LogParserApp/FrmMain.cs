@@ -133,7 +133,7 @@ namespace LogParserApp
                             var dateValue = (DateTime)prop.Value;
                             properties.AppendLine(prop.Key + " = " + dateValue.ToString("dd/MM/yy HH:mm:ss.fff"));
                         }
-                        else if (prop.Key != "DataBuffer" || prop.Value != null)
+                        else if (prop.Key != "DataBuffer")
                             properties.AppendLine(prop.Key + " = " + prop.Value);
                     }
 

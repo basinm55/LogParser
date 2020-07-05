@@ -16,7 +16,7 @@ namespace Entities
             AssignToSelf = 2,
             Locate = 3,
             Assign = 4,
-            AssignData = 5,
+            AssignDataBuffer = 5,
             Drop = 6,
             Delete = 7
         }

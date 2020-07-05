@@ -297,7 +297,7 @@
 						<PatternIndex>0</PatternIndex>
 						<Name>BufferType</Name>
 						<DataType>string</DataType>
-						<Action>AssignData</Action>
+						<Action>AssignDataBuffer</Action>
 						<Target>data</Target>
 						<DisplayMember>1</DisplayMember>
 					</Property>
@@ -305,7 +305,7 @@
 						<PatternIndex>1</PatternIndex>
 						<Name>BufferSize</Name>
 						<DataType>decimal</DataType>
-						<Action>AssignData</Action>
+						<Action>AssignDataBuffer</Action>
 						<Target>data</Target>
 						<DisplayMember>1</DisplayMember>
 					</Property>					
@@ -322,7 +322,7 @@
 						<PatternIndex>0</PatternIndex>
 						<Name>BufferType</Name>
 						<DataType>string</DataType>
-						<Action>AssignData</Action>
+						<Action>AssignDataBuffer</Action>
 						<Target>data</Target>
 						<DisplayMember>1</DisplayMember>
 					</Property>
@@ -330,7 +330,7 @@
 						<PatternIndex>1</PatternIndex>
 						<Name>BufferSize</Name>
 						<DataType>decimal</DataType>
-						<Action>AssignData</Action>
+						<Action>AssignDataBuffer</Action>
 						<Target>data</Target>
 						<DisplayMember>1</DisplayMember>
 					</Property>

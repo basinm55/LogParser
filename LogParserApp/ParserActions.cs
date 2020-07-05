@@ -65,7 +65,7 @@ namespace LogParserApp
             _locatedObj = null;
         }
 
-        private void DoActionAssignData(List<string> list, ParserObject lastVisualObj, XElement filter, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectType, string thisValue)
+        private void DoActionAssignDataBuffer(List<string> list, ParserObject lastVisualObj, XElement filter, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectType, string thisValue)
         {
             if (!ValidateProfileDefinition(profilePropDefinition,
                 out string name,
