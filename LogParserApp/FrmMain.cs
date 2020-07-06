@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Configuration;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -22,11 +23,14 @@ namespace LogParserApp
         private Parser _parser;
         private ProfileManager _profileMng;        
         private XElement _selectedProfile;
+        private string _externalEditorExecutablePath;
         private string _currentDevice = null;
         private string _currentFilterThis = null;
         private string _currentFilterState = null;
+        private string _loadedLogFileName = null;
+        private string _selectedProfileFileName = null;
         private bool _currentFilterHasDataBuffer = false;
-        private Process _notepadProcess = null;
+        private Process _externalEditorProcess = null;
 
         public FrmMain()
         {           
@@ -37,24 +41,44 @@ namespace LogParserApp
 
         private void FrmMain_Load(object sender, EventArgs e)
         {            
-            _profileMng = new ProfileManager();            
-            _profileMng.LoadXmlFile("LogParserProfile.xml");
-            _profileMng.GetProfileByName("Default");                                            
-            _selectedProfile = _profileMng.CurrentProfile;
-            btnViewLog.Enabled = false;
+            _profileMng = new ProfileManager();                                                                              
+            _externalEditorExecutablePath = ConfigurationManager.AppSettings["ExternalEditorExecutablePath"].ToString();
+            if (string.IsNullOrWhiteSpace(_externalEditorExecutablePath))
+                _externalEditorExecutablePath = "notepad.exe";
+
+            TryImportProfile();
+            
+            mnuItemLoad.Enabled = !string.IsNullOrEmpty(_selectedProfileFileName);
+
+            btnViewLoadedLog.Enabled = false;
+            btnViewAppLog.Enabled = false;
+            btnViewAppLog.Enabled = false;
             progressBar.Visible = false;
         }
+  
 
-        public string loadedLogFileName;   
-
-       
-
-        private void UpdateControlsState()
+        private void TryImportProfile()
         {
-            if (!string.IsNullOrWhiteSpace(loadedLogFileName) && File.Exists(loadedLogFileName))
+            if (ConfigurationManager.AppSettings["LastUsedProfile"] != null)
+                _selectedProfileFileName = ConfigurationManager.AppSettings["LastUsedProfile"].ToString();
+            if (string.IsNullOrEmpty(_selectedProfileFileName) || !File.Exists(_selectedProfileFileName))
+                _selectedProfileFileName = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "DefaultProfile.xml");
+            if (!string.IsNullOrEmpty(_selectedProfileFileName))
             {
-                var shortLogFileName = Path.GetFileName(loadedLogFileName); 
-                Text = string.Format("LogParser [{0}]", shortLogFileName);
+                _profileMng.ProfilePath = _selectedProfileFileName;
+                _profileMng.LoadXmlFile(_selectedProfileFileName);
+                _selectedProfile = _profileMng.CurrentProfile;
+            }
+        }
+
+        private void UpdateFormTitle()
+        {
+            if (!string.IsNullOrWhiteSpace(_selectedProfileFileName))
+            {                                              
+                Text = string.Format("LogParser - Profile: [{0}]", Path.GetFileName(_selectedProfileFileName));
+                if (!string.IsNullOrWhiteSpace(_loadedLogFileName))                  
+                    Text = Text + "   " +string.Format("Log File: [{0}]", Path.GetFileName(_loadedLogFileName));
+                
             }
             else
             { 
@@ -90,7 +114,7 @@ namespace LogParserApp
 
                     // Show the context menu
                     showRelatedLogEntryToolStripMenuItem.Enabled =
-                        (clickedCell.Value as ParserObject).ObjectState >= 0;
+                        (clickedCell.Value as StateObject).State >= 0;
 
                     dataBufferToolStripMenuItem.Enabled =
                         (clickedCell.Value as ParserObject).GetDynPropertyValue("DataBuffer") != null;
@@ -103,18 +127,18 @@ namespace LogParserApp
         private void dataGV_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {          
             if (e.Value != null && e.Value is ParserObject)
-                e.Value = ((ParserObject)e.Value).VisualDescription;
+                e.Value = ((StateObject)e.Value).VisualDescription;
         }
 
 
         private void showRelatedLogEntryToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (dataGV.CurrentCell != null && dataGV.CurrentCell.Value != null && dataGV.CurrentCell.Value is ParserObject)
-            {
-                var relatedParserObject = (ParserObject)dataGV.CurrentCell.Value;
-                if (relatedParserObject != null)
-                    FlexibleMessageBox.Show(relatedParserObject.LogLine, "Related Log Entry", MessageBoxButtons.OK);
-            }
+            //if (dataGV.CurrentCell != null && dataGV.CurrentCell.Value != null && dataGV.CurrentCell.Value is ParserObject)
+            //{
+            //    var relatedParserObject = (ParserObject)dataGV.CurrentCell.Value;
+            //    if (relatedParserObject != null)
+            //        FlexibleMessageBox.Show(relatedParserObject.LogLine, "Related Log Entry", MessageBoxButtons.OK);
+            //}
 
         }
 
@@ -137,15 +161,15 @@ namespace LogParserApp
                             properties.AppendLine(prop.Key + " = " + prop.Value);
                     }
 
-                    properties.AppendLine("State = " + relatedParserObject.ObjectState.ToString());
-                    if (relatedParserObject.LineNum >= 0)
-                        properties.AppendLine("LineNum = " + relatedParserObject.LineNum.ToString());                   
+                    //properties.AppendLine("State = " + relatedParserObject.ObjectState.ToString());
+                    //if (relatedParserObject.LineNum >= 0)
+                    //    properties.AppendLine("LineNum = " + relatedParserObject.LineNum.ToString());                   
 
-                    FlexibleMessageBox.Show(properties.ToString(),
-                        string.Format("Properties of {0}: {1}",
-                            relatedParserObject.ObjectType.ToString(),
-                            relatedParserObject.GetDynPropertyValue("this")),
-                        MessageBoxButtons.OK);
+                    //FlexibleMessageBox.Show(properties.ToString(),
+                    //    string.Format("Properties of {0}: {1}",
+                    //        relatedParserObject.ObjectType.ToString(),
+                    //        relatedParserObject.GetDynPropertyValue("this")),
+                    //    MessageBoxButtons.OK);
                 }
             }
         }
@@ -203,9 +227,12 @@ namespace LogParserApp
                         cmbShowDevice.SelectedIndex = 0;
                     cmbShowDevice.Enabled = true;
                     chkShowAll.Enabled = true;
-                    mnuItemLoad.Enabled = true;
-                    btnViewLog.Enabled = true;                    
-                    UpdateControlsState();
+                    mnuItemProfile.Enabled = true;
+                    mnuItemLoad.Enabled = !string.IsNullOrEmpty(_selectedProfileFileName);
+
+                    btnViewLoadedLog.Enabled = true;
+                    btnViewAppLog.Enabled = true;
+                    UpdateFormTitle();
 
                     progressBar.Value = 80;                    
                     Application.DoEvents();
@@ -235,7 +262,7 @@ namespace LogParserApp
         private void CreateComboDeviceDataSource()
         {
             var ds = _parser.ObjectCollection.
-                                Where( o => o != null && o.ObjectType == ObjectType.Device).Distinct().
+                                Where( o => o != null && o.Type == ObjectType.Device).Distinct().
                                 ToList();
 
             var comboSource = new Dictionary<string, ParserObject>();
@@ -266,7 +293,7 @@ namespace LogParserApp
 
         private void CreateFilterStateComboDataSource()
         {
-            var ds = Enum.GetNames(typeof(ObjectState)).Where(x => x != "Unknown").ToList();
+            var ds = Enum.GetNames(typeof(State)).Where(x => x != "Unknown").ToList();
 
             ds.Insert(0, "All...");
             cmbState.DataSource = ds;
@@ -404,11 +431,11 @@ namespace LogParserApp
                     _parser.ObjectCollection;
 
             filteredCollection = _currentFilterState != null ?
-                     filteredCollection.Where(x => x != null && x.VisualObjectCollection.Any(y => y != null && y.ObjectState.ToString() == _currentFilterState)).ToList() :
+                     filteredCollection.Where(x => x != null && x.StateCollection.Any(y => y != null && y.State.ToString() == _currentFilterState)).ToList() :
                     filteredCollection;
 
             filteredCollection = _currentFilterHasDataBuffer == true ?
-                    filteredCollection.Where(x => x != null && x.VisualObjectCollection.Any(y => y != null && !string.IsNullOrWhiteSpace((string)y.GetDynPropertyValue("DataBuffer")))).ToList() :
+                    filteredCollection.Where(x => x != null && x.StateCollection.Any(y => y != null && !string.IsNullOrWhiteSpace(y.DataBuffer.ToString()))).ToList() :
                    filteredCollection;
 
 
@@ -438,18 +465,48 @@ namespace LogParserApp
             chkShowAll.Enabled = false;
             gbFilter.Enabled = false;
 
-            UpdateControlsState();
+            UpdateFormTitle();
         }
 
-        private void btnViewLog_Click(object sender, EventArgs e)
+        private void btnViewLoadedLog_Click(object sender, EventArgs e)
         {
-            if (_notepadProcess == null || _notepadProcess.HasExited)
-                _notepadProcess = WindowHelper.ViewFileInNotepad(loadedLogFileName);
+            if (_externalEditorProcess == null || _externalEditorProcess.HasExited)
+            {
+                try
+                {
+                    _externalEditorProcess = WindowHelper.ViewFileInExternalEditor(_externalEditorExecutablePath, _loadedLogFileName);
+                }
+                catch
+                {
+                    MessageBox.Show("Cannot launch the external editor " + _externalEditorExecutablePath);
+                    _externalEditorProcess = WindowHelper.ViewFileInExternalEditor("notepad.exe", _loadedLogFileName);
+                }
+            }
             else
-                WindowHelper.BringProcessToFront(_notepadProcess);
+                WindowHelper.BringProcessToFront(_externalEditorProcess);
+        }
+
+        private void btnViewAppLog_Click(object sender, EventArgs e)
+        {
+            if (_externalEditorProcess == null || _externalEditorProcess.HasExited)
+            {
+                try
+                {
+                    _externalEditorProcess = WindowHelper.ViewFileInExternalEditor(_externalEditorExecutablePath, _parser.AppLogger.TargetPath);
+                }
+                catch
+                {
+                    MessageBox.Show("Cannot launch the external editor " + _externalEditorExecutablePath);
+                    _externalEditorProcess = WindowHelper.ViewFileInExternalEditor("notepad.exe", _parser.AppLogger.TargetPath);
+
+                }
+            }
+            else
+                WindowHelper.BringProcessToFront(_externalEditorProcess);
         }
 
         #region TopMenu
+     
 
         private void mnuItemLoad_Click(object sender, EventArgs e)
         {
@@ -457,8 +514,8 @@ namespace LogParserApp
             dlgLoadLog.DefaultExt = "*.log";
             if (dlgLoadLog.ShowDialog() != DialogResult.Cancel)
             {
-                loadedLogFileName = dlgLoadLog.FileName;
-                _parser = new Parser(loadedLogFileName);
+                _loadedLogFileName = dlgLoadLog.FileName;
+                _parser = new Parser(_loadedLogFileName);
                 if (!bkgWorkerLoad.IsBusy)
                 {
                     lblHeader.Text = string.Empty;
@@ -468,6 +525,7 @@ namespace LogParserApp
 
                     // Start the asynchronous operation.
                     mnuItemLoad.Enabled = false;
+                    mnuItemProfile.Enabled = false;
                     btnStopLoading.Visible = true;
                     calculateLabel.Text = string.Empty;
                     gridLabel.Text = string.Empty;
@@ -483,8 +541,32 @@ namespace LogParserApp
         private void mnuItemExit_Click(object sender, EventArgs e)
         {
             Close();
-        }    
+        }
 
+
+        private void mnuItemProfile_Click(object sender, EventArgs e)
+        {
+            dlgProfile.Filter = "Xml files (*.xml)|*.xml";
+            dlgProfile.DefaultExt = "*.xml";
+            if (dlgProfile.ShowDialog() != DialogResult.Cancel)
+            {
+                _selectedProfileFileName = dlgProfile.FileName;
+                mnuItemLoad.Enabled = !string.IsNullOrEmpty(_selectedProfileFileName);
+                _profileMng.ProfilePath = _selectedProfileFileName;
+                _profileMng.LoadXmlFile(_selectedProfileFileName);
+                _selectedProfile = _profileMng.CurrentProfile;
+                if (!bkgWorkerLoad.IsBusy)
+                {
+                    lblHeader.Text = string.Empty;
+                    dataGV.DataSource = null;
+                    dataGV.Rows.Clear();
+                    dataGV.Refresh();
+                    UpdateFormTitle();
+                    Utils.UpdateConfig("LastUsedProfile", _selectedProfileFileName);
+                }
+            }
+            mnuItemLoad.Enabled = !string.IsNullOrEmpty(_selectedProfileFileName);
+        }
         private void mnuItemPatternValidator_Click(object sender, EventArgs e)
         {
             var patternValidatorForm = Application.OpenForms["frmPatternValidator"];
@@ -520,7 +602,7 @@ namespace LogParserApp
                         {
                             FlexibleMessageBox.Show(prop.Value.ToString(),
                                     string.Format("Data Buffer of {0}: {1}",
-                                        relatedParserObject.ObjectType.ToString(),
+                                        relatedParserObject.Type.ToString(),
                                         relatedParserObject.GetDynPropertyValue("this")),
                                     MessageBoxButtons.OK);
                             return;
@@ -529,6 +611,6 @@ namespace LogParserApp
                     }               
                 }
             }
-        }
+        }      
     }
 }

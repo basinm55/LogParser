@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <LogParser>
-	<Profile Name ="Default">
+	<Profile>
 		<Filters>			
-			<Filter key="CUsbDevice::CUsbDevice" IsVisible ="0" IsFindable = "1">
+			<Filter key="CUsbDevice::CUsbDevice" IsVisible ="0">
 				<ObjectType>Device</ObjectType>
 				<State>Created</State>				
 				<Patterns>
@@ -24,7 +24,7 @@
 					</Property>					
 				</Properties>
 			</Filter>
-			<Filter key="CPort::BindUsbDevice" IsVisible ="0" IsFindable = "1">
+			<Filter key="CPort::BindUsbDevice" IsVisible ="0">
 				<ObjectType>Device</ObjectType>
 				<State />				
 				<Patterns>
@@ -47,7 +47,7 @@
 					</Property>									
 				</Properties>
 			</Filter>
-			<Filter key="CUsbDevice::ReportDeviceDecriptor" IsVisible ="0" IsFindable = "1">
+			<Filter key="CUsbDevice::ReportDeviceDecriptor" IsVisible ="0">
 				<ObjectType>Device</ObjectType>
 				<State />
 				<Patterns>
@@ -70,7 +70,7 @@
 					</Property>
 				</Properties>
 			</Filter>
-			<Filter key="CUsbipRequest::CUsbipRequest" IsVisible ="1" IsFindable = "1">
+			<Filter key="CUsbipRequest::CUsbipRequest" IsVisible ="1">
 				<ObjectType>Request</ObjectType>
 				<State>Created</State>
 				<Patterns>
@@ -114,7 +114,7 @@
 					</Property>
 				</Properties>
 			</Filter>
-			<Filter key="CUsbipRequest::Prepare" IsVisible ="1" IsFindable = "1">
+			<Filter key="CUsbipRequest::Prepare" IsVisible ="1">
 				<ObjectType>Request</ObjectType>
 				<State>Queued</State>
 				<Patterns>
@@ -152,7 +152,7 @@
 					</Property>			
 				</Properties>
 			</Filter>
-			<Filter key="CUsbipRequest::FeedRead" IsVisible ="1" IsFindable = "1">
+			<Filter key="CUsbipRequest::FeedRead" IsVisible ="1">
 				<ObjectType>Request</ObjectType>
 				<State>Sent</State>
 				<Patterns>
@@ -196,7 +196,7 @@
 					</Property>					
 				</Properties>
 			</Filter>
-			<Filter key="CUsbipRequest::FeedWrite" IsVisible ="1" IsFindable = "1">
+			<Filter key="CUsbipRequest::FeedWrite" IsVisible ="1">
 				<ObjectType>Request</ObjectType>
 				<State>Responded</State>
 				<Patterns>
@@ -233,7 +233,7 @@
 					</Property>				
 				</Properties>
 			</Filter>
-			<Filter key="CUsbipRequest::Complete" IsVisible ="1" IsFindable = "1">
+			<Filter key="CUsbipRequest::Complete" IsVisible ="1">
 				<ObjectType>Request</ObjectType>
 				<State>Completed</State>
 				<Patterns>
@@ -270,7 +270,7 @@
 					</Property>			
 				</Properties>
 			</Filter>
-			<Filter key="CUsbDevice::~CUsbDevice" IsVisible ="0" IsFindable = "0">
+			<Filter key="CUsbDevice::~CUsbDevice" IsVisible ="0">
 				<ObjectType>Device</ObjectType>
 				<State>Destroyed</State>
 				<Patterns>
@@ -286,7 +286,7 @@
 					</Property>						
 				</Properties>
 			</Filter>
-			<Filter key="Out:: buffer" IsVisible ="0" IsFindable = "0">
+			<Filter key="Out:: buffer" IsVisible ="0">
 				<ObjectType>Data</ObjectType>
 				<State/>
 				<Patterns>
@@ -311,7 +311,7 @@
 					</Property>					
 				</Properties>
 			</Filter>
-			<Filter key="In:: buffer" IsVisible ="0" IsFindable = "0">
+			<Filter key="In:: buffer" IsVisible ="0">
 				<ObjectType>Data</ObjectType>
 				<State/>
 				<Patterns>

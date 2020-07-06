@@ -65,7 +65,7 @@ namespace LogParserApp
             _locatedObj = null;
         }
 
-        private void DoActionAssignDataBuffer(List<string> list, ParserObject lastVisualObj, XElement filter, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectType, string thisValue)
+        private void DoActionAssignDataBuffer(List<string> list, StateObject lastStatelObj, XElement filter, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectType, string thisValue)
         {
             if (!ValidateProfileDefinition(profilePropDefinition,
                 out string name,
@@ -83,8 +83,8 @@ namespace LogParserApp
             if (displayMember == null || displayMember.Value == null || !displayMember.Value.ToBoolean()) return;
           
             var key = profilePropDefinition.Element("Name").Value.ToString();
-            if (!lastVisualObj.ObjectDescription.ContainsKey(key))
-                lastVisualObj.ObjectDescription.Add(new KeyValuePair<string, string>(key, parsedValue.ToString()));  
+            if (!lastStatelObj.VisualDescription.ContainsKey(key))
+                lastStatelObj.VisualDescription.Add(new KeyValuePair<string, string>(key, parsedValue.ToString()));  
                 
         }
 
@@ -138,12 +138,12 @@ namespace LogParserApp
                 _currentObj.SetDynProperty("Time", parsedValue, PropertyDataType.Time, format);
         }      
 
-        private bool FindOrCreateBaseObject(int lineNumber, XElement filter, List<object> parsedList, out string objectType, out string thisValue, out string objectState)
+        private bool FindOrCreateParserObject(int lineNumber, XElement filter, List<object> parsedList, out string objectType, out string thisValue, out string objectState)
         {
             thisValue = null;
             objectType = null;
             objectState = null;
-            var objState = ObjectState.Unknown;
+            var objState = State.Unknown;
             var objType = ObjectType.Unknown;
             ParserObject obj = null;
             bool isExistingFound = false;
@@ -170,7 +170,7 @@ namespace LogParserApp
                             !string.IsNullOrWhiteSpace(filter.Element("State").Value)
                             ? filter.Element("State").Value : null;
                             if  (!string.IsNullOrWhiteSpace(objectState))
-                                objState = Enum.IsDefined(typeof(ObjectState), objectState) ? objectState.ToEnum<ObjectState>() : ObjectState.Unknown;
+                                objState = Enum.IsDefined(typeof(State), objectState) ? objectState.ToEnum<State>() : State.Unknown;
 
                             objectType = filter.Element("ObjectType") != null &&
                             !string.IsNullOrWhiteSpace(filter.Element("ObjectType").Value)
@@ -182,55 +182,49 @@ namespace LogParserApp
 
                             bool isVisible = true;
                             if (filter.Attribute("IsVisible") != null)
-                                isVisible = filter.Attribute("IsVisible").Value.ToBoolean();
-
-                            bool isFindable = true;
-                            if (filter.Attribute("IsFindable") != null)
-                                isFindable = filter.Attribute("IsFindable").Value.ToBoolean();
+                                isVisible = filter.Attribute("IsVisible").Value.ToBoolean();                           
 
                             if (Enum.IsDefined(typeof(ObjectType), objType) &&
                                 !string.IsNullOrWhiteSpace(thisValue))
                             {
                                 var foundExistingObject = ObjectCollection.LastOrDefault(x =>
                                                     x.GetThis() == thisVal &&
-                                                    x.ObjectType == objType);
+                                                    x.Type == objType &&
+                                                    x.IsFindable == true);
 
                                 isExistingFound = foundExistingObject != null;
 
                                 if (isExistingFound)
                                 {
-                                    var foundVoCollection = foundExistingObject.VisualObjectCollection;
-                                    if (foundVoCollection != null && foundVoCollection.Count > 0
-                                        && foundVoCollection[foundVoCollection.Count - 1].ObjectState == ObjectState.Completed)
+                                    var foundStateCollection = foundExistingObject.StateCollection;
+                                    if (foundStateCollection != null && foundStateCollection.Count > 0
+                                        && foundStateCollection[foundStateCollection.Count - 1].State == State.Completed)
 
                                         isExistingFound = false;
-                                    else if (foundVoCollection != null && foundVoCollection.Count > 0
-                                        && foundVoCollection[foundVoCollection.Count - 1].ObjectState + 1 != objState)
+                                    else if (foundStateCollection != null && foundStateCollection.Count > 0
+                                        && foundStateCollection[foundStateCollection.Count - 1].State + 1 != objState)
                                     {
-                                        int droppedStatesCount = objState - foundVoCollection[foundVoCollection.Count - 1].ObjectState;
-                                        for (int i=0; i< droppedStatesCount; i++)
-                                        {
-                                            var vo = new ParserObject(objType){ LineNum = -1 };
-                                            vo.ObjectState = ObjectState.Dropped;
-                                            vo.SetDynProperty("Parent", foundExistingObject.GetDynPropertyValue("Parent"));
-                                            vo.SetDynProperty("this", thisValue);
-                                            //vo.SetDynProperty("FilterKey", filterKey);
-                                            //vo.SetDynProperty("IsVisible", isVisible);
-                                            //vo.SetDynProperty("IsFindable", isFindable);
-                                            foundVoCollection.Add(vo);
-                                            i++;
-                                        }
+                                        //int droppedStatesCount = objState - foundVoCollection[foundVoCollection.Count - 1].ObjectState;
+                                        //for (int i = 0; i < droppedStatesCount; i++)
+                                        //{
+                                        //    var vo = new ParserObject(objType) { LineNum = -1 };
+                                        //    vo.ObjectState = ObjectState.Dropped;
+                                        //    vo.SetDynProperty("Parent", foundExistingObject.GetDynPropertyValue("Parent"));
+                                        //    vo.SetDynProperty("this", thisValue);
+                                        //    //vo.SetDynProperty("FilterKey", filterKey);
+                                        //    //vo.SetDynProperty("IsVisible", isVisible);                                            
+                                        //    foundVoCollection.Add(vo);
+                                        //    i++;
+                                        //}
                                     }
                                 }
 
                                 if (!isExistingFound)
                                 {                                   
-                                    obj = new ParserObject(objType) { LineNum = lineNumber };
-                                    obj.ObjectState = objState;
+                                    obj = new ParserObject(objType);                                   
                                     obj.SetDynProperty("this", thisValue);                                    
                                     obj.SetDynProperty("FilterKey", filterKey);
-                                    obj.SetDynProperty("IsVisible", isVisible);
-                                    obj.SetDynProperty("IsFindable", isFindable);
+                                    obj.SetDynProperty("IsVisible", isVisible);                                    
                                 }
                                 else
                                 {                               
@@ -259,9 +253,9 @@ namespace LogParserApp
                     parsedValue = dt.ToString(_visualDateTimeFormat);
             }             
          
-            var key = prop.Element("Name").Value.ToString();               
-            if (_currentObj != null && !_currentObj.ObjectDescription.ContainsKey(key))
-                _currentObj.ObjectDescription.Add(new KeyValuePair<string, string>(key, parsedValue.ToString()));          
+            //var key = prop.Element("Name").Value.ToString();               
+            //if (_currentObj != null && !_currentObj.ObjectDescription.ContainsKey(key))
+            //    _currentObj.ObjectDescription.Add(new KeyValuePair<string, string>(key, parsedValue.ToString()));          
         }     
     }
 }

@@ -1,0 +1,43 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using static Entities.Enums;
+
+namespace Entities
+{
+    public class StateObject : IDisposable
+    {
+        public State State { get; set; }
+
+        public string Description { get; set; }
+
+        public IDictionary<string, string> VisualDescription { get; set; }
+
+        public string Line { get; set; }
+
+        public int LineNum { get; set; }
+
+        public Color Color { get; set; }
+
+        public ParserObject Parent { get; private set; }
+
+        public StringBuilder DataBuffer { get; private set; }
+
+        //C'tor
+        public StateObject(ParserObject parent)
+        {
+            Parent = parent;
+            VisualDescription = new Dictionary<string, string>();
+            DataBuffer = new StringBuilder();
+        }        
+
+        public void Dispose()
+        {
+            VisualDescription.Clear();
+            DataBuffer.Clear();
+        }
+    }
+}

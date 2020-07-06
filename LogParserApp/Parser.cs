@@ -18,7 +18,8 @@ namespace LogParserApp
 {
     public partial class Parser : IDisposable
     {
-        string _logFileName;
+        string _logFileName;       
+
         public List<ParserObject> ObjectCollection { get; private set; }
         ParserObject _currentObj, _locatedObj;
 
@@ -31,6 +32,8 @@ namespace LogParserApp
         public int TotalLogLines { get; private set; }
         public int CompletedLogLines { get; private set; }
 
+        public ParserLogger AppLogger;
+
         public Parser(string logFileName)
         {
             if (string.IsNullOrWhiteSpace(logFileName) || !File.Exists(logFileName))
@@ -39,13 +42,16 @@ namespace LogParserApp
             {
                 _logFileName = logFileName;
                 _colorMng = new ParserColorManager();
-                ObjectCollection = new List<ParserObject>(); 
+                ObjectCollection = new List<ParserObject>();
+                InitLogger();              
             }
 
         }
 
         public void Run(XElement profile, BackgroundWorker worker, DoWorkEventArgs e)
         {
+            AppLogger.LogStartLoadingStarted();
+
             int maxLoadLines = (int)Utils.GetConfigValue<int>("MaxLoadLines");
             maxLoadLines = maxLoadLines == 0 ? 50000 : maxLoadLines;
             _visualDateTimeFormat = (string)Utils.GetConfigValue<string>("VisualDateTimeFormat");
@@ -57,7 +63,7 @@ namespace LogParserApp
             var list = ReadLogFileToList();
             TotalLogLines = list.Count;
             CompletedLogLines = 0;
-            int lineNumber = 0;
+            int lineNumber = 1;
             foreach (var line in list)
             {
                 if (worker.CancellationPending == true)
@@ -97,6 +103,8 @@ namespace LogParserApp
             }
             if (!e.Cancel)
                 worker.ReportProgress(100);
+
+            AppLogger.LogLoadingCompleted();
         }
 
         private List<string> ReadLogFileToList()
@@ -106,9 +114,13 @@ namespace LogParserApp
 
         private void ParseLogLine(List<string> list, int lineNumber, string line, XElement profile)
         {
-            if (string.IsNullOrWhiteSpace(line)) return;
+            if (string.IsNullOrWhiteSpace(line))
+            {
+                AppLogger.LogLine("Line is empty", lineNumber);
+                return;
+            }
 
-            var filters = profile.XPathSelectElements("Filters/Filter");
+            var filters = profile.XPathSelectElements("Profile/Filters/Filter");
             foreach (var filter in filters)
             {
                 var filterKey = filter.Attribute("key");
@@ -134,7 +146,7 @@ namespace LogParserApp
                     continue;
                 
                     
-                isExistingFound = FindOrCreateBaseObject(lineNumber, filter, _sf.Results, out string objectType, out string thisValue, out string objectState);                                
+                isExistingFound = FindOrCreateParserObject(lineNumber, filter, _sf.Results, out string objectType, out string thisValue, out string objectState);                                
 
                 var properties = filter.XPathSelectElements("Properties/Property");
                 properties.OrderBy(e => e.Attribute("i").Value);
@@ -160,26 +172,23 @@ namespace LogParserApp
             bool isVisible = _currentObj != null && ((string)_currentObj.GetDynPropertyValue("IsVisible")).ToBoolean();
             if (isVisible)
             {                
-                var objectState = ObjectState.Unknown;
+                var objectState = State.Unknown;
                 var objStateStr = filter.Element("State") != null &&
                                             !string.IsNullOrWhiteSpace(filter.Element("State").Value)
                                             ? filter.Element("State").Value : null;
                 if (!string.IsNullOrWhiteSpace(objStateStr))
-                    objectState = Enum.IsDefined(typeof(ObjectState), objStateStr) ? objStateStr.ToEnum<ObjectState>() : ObjectState.Unknown;
+                    objectState = Enum.IsDefined(typeof(State), objStateStr) ? objStateStr.ToEnum<State>() : State.Unknown;
 
-                var visualObj = _currentObj.CreateVisualObject(objectState, lineNumber, line);
+                var stateObj = _currentObj.CreateStateObject(objectState, lineNumber, line);
                 if (lastCurrentObj != null)
                 {
-                    visualObj.SetDynProperty("DataBuffer", lastCurrentObj.GetDynPropertyValue("DataBuffer"));
+                    //stateObj.DataBuffer = lastCurrentObj.GetDynPropertyValue("DataBuffer"));
                     lastCurrentObj = null;
                 }
 
-                 visualObj.ObjectColor = _colorMng.GetColorByState(_currentObj.BaseColor, visualObj.ObjectState);                             
+                stateObj.Color = _colorMng.GetColorByState(_currentObj.BaseColor, stateObj.State);                             
 
-                _currentObj.VisualObjectCollection.Add(visualObj);
-                _currentObj.ObjectState = visualObj.ObjectState;
-                _currentObj.ObjectDescription.Clear();
-                _currentObj.SetDynProperty("DataBuffer", null);
+                _currentObj.StateCollection.Add(stateObj);                     
             }
 
             if (!isExistingFound)
@@ -187,10 +196,10 @@ namespace LogParserApp
                 if (isVisible)
                 {
                     _currentObj.BaseColor = _colorMng.GetNextBaseColor();
-                    foreach (var vo in _currentObj.VisualObjectCollection)
+                    foreach (var stateObj in _currentObj.StateCollection)
                     {
-                        if (vo != null)
-                            vo.ObjectColor = _colorMng.GetColorByState(_currentObj.BaseColor, vo.ObjectState);
+                        if (stateObj != null)
+                            stateObj.Color = _colorMng.GetColorByState(_currentObj.BaseColor, stateObj.State);
                     }
                 }
 
@@ -205,13 +214,13 @@ namespace LogParserApp
             {
                 if (int.TryParse(_sf.Results[patternIndex].ToString(), out int bufferLength))
                 {
-                    var readBufferLinesNum = bufferLength / 8 + 1;
+                    var readBufferLinesCount = bufferLength / 8 + 1;
                     bufferContainer = new StringBuilder();
-                    for (int i = lineNumber; i < lineNumber + readBufferLinesNum; i++)
+                    for (int i = lineNumber - 1; i < lineNumber + readBufferLinesCount - 1; i++)
                     {
                         bufferContainer.AppendLine(list[i]);
                     }
-                    lineNumber = lineNumber + readBufferLinesNum;
+                    lineNumber = lineNumber + readBufferLinesCount - 1;
                     if (lastCurrentObj != null && bufferContainer != null && !string.IsNullOrEmpty(bufferContainer.ToString()))
                         lastCurrentObj.SetDynProperty("DataBuffer", bufferContainer.ToString());
                 }
@@ -262,6 +271,21 @@ namespace LogParserApp
                 default:
                     break;
             }
+        }
+
+
+        private void InitLogger()
+        {         
+            AppLogger = new ParserLogger();
+            var appLogFile = ConfigurationManager.AppSettings["ApplicationLog"].ToString();
+            appLogFile = string.IsNullOrEmpty(Path.GetDirectoryName(appLogFile)) ?
+                appLogFile = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), appLogFile) :
+                appLogFile;
+
+            if (File.Exists(appLogFile)) File.Delete(appLogFile);
+
+            AppLogger.TargetPath = appLogFile;
+            AppLogger.LodingFilePath = _logFileName;
         }
 
         public void Dispose()

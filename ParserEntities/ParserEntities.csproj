@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="Entities.Enums.cs" />
     <Compile Include="Entities.ParserObject.cs" />
+    <Compile Include="Entities.StateObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

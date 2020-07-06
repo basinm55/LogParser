@@ -73,7 +73,7 @@ namespace LogParserApp
             return _baseColor;
         }    
 
-        public Color GetColorByState(Color baseColor, ObjectState state)
+        public Color GetColorByState(Color baseColor, State state)
         {
             Color result = baseColor;            
             if (result == Color.Transparent)

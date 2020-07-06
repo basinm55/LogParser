@@ -57,13 +57,27 @@ namespace Helpers
                 }
             }
             return null;
-        }       
+        }
+        
+        public static void UpdateConfig(string key, string value)
+        {
+            var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            
+            if (config.AppSettings.Settings[key] != null)
+                config.AppSettings.Settings[key].Value = value;
+            else
+                config.AppSettings.Settings.Add(key, value);
+
+            config.Save(ConfigurationSaveMode.Modified);
+
+            ConfigurationManager.RefreshSection("appSettings");
+        }
     }
 
 
     public static class WindowHelper
     {
-        public static Process ViewFileInNotepad(string fileToOpen, bool isModal = false)
+        public static Process ViewFileInExternalEditor(string externalEditorExecutablePath, string fileToOpen, bool isModal = false)
         {
             if (!File.Exists(fileToOpen)) return null;
 
@@ -71,7 +85,7 @@ namespace Helpers
             process.StartInfo = new ProcessStartInfo()
             {
                 UseShellExecute = true,
-                FileName = "notepad.exe",
+                FileName = externalEditorExecutablePath,
                 Arguments = fileToOpen
             };
 

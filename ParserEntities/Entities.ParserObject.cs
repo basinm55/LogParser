@@ -10,43 +10,31 @@ using System.Text;
 
 namespace Entities
 { 
-    public class ParserObject
-    {
-        public ObjectType ObjectType { get; set; }
-
-        public ObjectState ObjectState { get; set; }
-
-        public string LogLine { get; set; }
-
-        public int LineNum { get; set; }
-
-        public string VisualDescription { get; set; }
-
-        public Color ObjectColor { get; set; }
-
-        public Color BaseColor { get; set; }
-
-        public string Parent { get; set; }
+    public class ParserObject : IDisposable
+    {                           
+        public Color BaseColor { get; set; }     
 
         public dynamic DynObject { get; set; }
 
         public IDictionary<string, object> DynObjectDictionary;
 
-        public List<ParserObject> VisualObjectCollection { get; set; }
+        public List<StateObject> StateCollection { get; set; }
+       
 
-        public IDictionary<string, string> ObjectDescription { get; set; }
+        public ObjectType Type { get; private set; }
+
+        public bool IsFindable { get; set; }
 
 
         //C'tor
-        public ParserObject(ObjectType objectType)
+        public ParserObject(ObjectType objType)
         {
             DynObject = new ExpandoObject();
-            DynObjectDictionary = (IDictionary<string, object>)DynObject;            
-            ObjectType = objectType;
+            DynObjectDictionary = (IDictionary<string, object>)DynObject;
+            Type = objType;
+            IsFindable = true;
             BaseColor = Color.Transparent;
-            ObjectColor = Color.Transparent;
-            VisualObjectCollection = new List<ParserObject>();
-            ObjectDescription = new Dictionary<string, string>();
+            StateCollection = new List<StateObject>();        
         }
 
 
@@ -150,7 +138,12 @@ namespace Entities
 
             DynObjectDictionary[propertyName] = CovertValueToRequiredDataType(propertyValue.ToString(), propertyDataType, enumType, dateTimeFormat);
         }
-        
+
+        public void Dispose()
+        {
+            DynObjectDictionary.Clear();
+            StateCollection.Clear();
+        }
     }
 
     public static class Extensions
@@ -172,31 +165,15 @@ namespace Entities
         }
           
 
-        public static ParserObject CreateVisualObject(this ParserObject baseObject, ObjectState newState, int lineNumber, string line)
+        public static StateObject CreateStateObject(this ParserObject baseObject, State state, int lineNumber, string line)
         {
-            var result = new ParserObject(baseObject.ObjectType);
-
-            result.DynObject = DeepClone(baseObject.DynObject);
-            result.DynObjectDictionary = new Dictionary<string, object>((IDictionary<string, object>)baseObject.DynObject);
-            result.ObjectDescription = new Dictionary<string, string>(baseObject.ObjectDescription);            
-            result.ObjectType = baseObject.ObjectType;
-            result.LogLine = line;
+            var result = new StateObject(baseObject);
             result.LineNum = lineNumber;
-            result.ObjectState = newState;
-            result.BaseColor = baseObject.BaseColor;            
+            result.Line = line;
+            result.State = state;
+            result.Color = baseObject.BaseColor;                                  
             return result;
-        }
-
-        public static ParserObject CreateObjectClone(this ParserObject original)
-        {
-            var result = new ParserObject(original.ObjectType);
-
-            result.DynObject = DeepClone(original.DynObject);
-            result.DynObjectDictionary = (IDictionary<string, object>)result.DynObject;
-            result.ObjectDescription = new Dictionary<string, string>(original.ObjectDescription);
-            result.ObjectType = original.ObjectType;
-            return result;
-        }
+        }      
  
 
         private static ExpandoObject DeepClone(ExpandoObject original)

@@ -91,7 +91,7 @@
   <ItemGroup>
     <Content Include="App.ico" />
     <Content Include="cancel.png" />
-    <Content Include="LogParserProfile.xml">
+    <Content Include="DefaultProfile.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="Resources\forvard_arrow.png" />

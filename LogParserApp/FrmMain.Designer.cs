@@ -29,12 +29,13 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmMain));
             this.dataGV = new System.Windows.Forms.DataGridView();
             this.dlgLoadLog = new System.Windows.Forms.OpenFileDialog();
             this.gridCmStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.showRelatedLogEntryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.dataBufferToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.propertiesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.progressBar = new System.Windows.Forms.ToolStripProgressBar();
@@ -55,14 +56,16 @@
             this.cmbState = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
             this.cmbThis = new System.Windows.Forms.ComboBox();
-            this.btnViewLog = new System.Windows.Forms.Button();
+            this.btnViewLoadedLog = new System.Windows.Forms.Button();
             this.mnuStripMain = new System.Windows.Forms.MenuStrip();
             this.mnuItemFile = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuItemLoad = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuItemExit = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuItemTools = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuItemProfile = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuItemPatternValidator = new System.Windows.Forms.ToolStripMenuItem();
-            this.dataBufferToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnViewAppLog = new System.Windows.Forms.Button();
+            this.dlgProfile = new System.Windows.Forms.OpenFileDialog();
             ((System.ComponentModel.ISupportInitialize)(this.dataGV)).BeginInit();
             this.gridCmStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
@@ -91,8 +94,8 @@
             this.dataGV.ReadOnly = true;
             this.dataGV.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             this.dataGV.RowHeadersVisible = false;
-            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.dataGV.RowsDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.dataGV.RowsDefaultCellStyle = dataGridViewCellStyle1;
             this.dataGV.RowTemplate.Height = 66;
             this.dataGV.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
             this.dataGV.Size = new System.Drawing.Size(1128, 512);
@@ -108,7 +111,7 @@
             this.dataBufferToolStripMenuItem,
             this.propertiesToolStripMenuItem});
             this.gridCmStrip.Name = "gridCmStrip";
-            this.gridCmStrip.Size = new System.Drawing.Size(196, 92);
+            this.gridCmStrip.Size = new System.Drawing.Size(196, 70);
             // 
             // showRelatedLogEntryToolStripMenuItem
             // 
@@ -116,6 +119,13 @@
             this.showRelatedLogEntryToolStripMenuItem.Size = new System.Drawing.Size(195, 22);
             this.showRelatedLogEntryToolStripMenuItem.Text = "Show related Log Entry";
             this.showRelatedLogEntryToolStripMenuItem.Click += new System.EventHandler(this.showRelatedLogEntryToolStripMenuItem_Click);
+            // 
+            // dataBufferToolStripMenuItem
+            // 
+            this.dataBufferToolStripMenuItem.Name = "dataBufferToolStripMenuItem";
+            this.dataBufferToolStripMenuItem.Size = new System.Drawing.Size(195, 22);
+            this.dataBufferToolStripMenuItem.Text = "Data Buffer";
+            this.dataBufferToolStripMenuItem.Click += new System.EventHandler(this.dataBufferToolStripMenuItem_Click);
             // 
             // propertiesToolStripMenuItem
             // 
@@ -244,7 +254,7 @@
             this.gbFilter.Controls.Add(this.cmbThis);
             this.gbFilter.Location = new System.Drawing.Point(230, 21);
             this.gbFilter.Name = "gbFilter";
-            this.gbFilter.Size = new System.Drawing.Size(758, 62);
+            this.gbFilter.Size = new System.Drawing.Size(766, 62);
             this.gbFilter.TabIndex = 12;
             this.gbFilter.TabStop = false;
             this.gbFilter.Text = "Filter";
@@ -262,7 +272,7 @@
             // 
             // btnClearFilter
             // 
-            this.btnClearFilter.Location = new System.Drawing.Point(671, 19);
+            this.btnClearFilter.Location = new System.Drawing.Point(679, 15);
             this.btnClearFilter.Name = "btnClearFilter";
             this.btnClearFilter.Size = new System.Drawing.Size(81, 30);
             this.btnClearFilter.TabIndex = 14;
@@ -308,16 +318,16 @@
             this.cmbThis.TabIndex = 9;
             this.cmbThis.SelectedIndexChanged += new System.EventHandler(this.cmbThis_SelectedIndexChanged);
             // 
-            // btnViewLog
+            // btnViewLoadedLog
             // 
-            this.btnViewLog.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnViewLog.Location = new System.Drawing.Point(1041, 41);
-            this.btnViewLog.Name = "btnViewLog";
-            this.btnViewLog.Size = new System.Drawing.Size(78, 30);
-            this.btnViewLog.TabIndex = 15;
-            this.btnViewLog.Text = "View log";
-            this.btnViewLog.UseVisualStyleBackColor = true;
-            this.btnViewLog.Click += new System.EventHandler(this.btnViewLog_Click);
+            this.btnViewLoadedLog.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnViewLoadedLog.Location = new System.Drawing.Point(1002, 30);
+            this.btnViewLoadedLog.Name = "btnViewLoadedLog";
+            this.btnViewLoadedLog.Size = new System.Drawing.Size(117, 30);
+            this.btnViewLoadedLog.TabIndex = 15;
+            this.btnViewLoadedLog.Text = "View loaded log";
+            this.btnViewLoadedLog.UseVisualStyleBackColor = true;
+            this.btnViewLoadedLog.Click += new System.EventHandler(this.btnViewLoadedLog_Click);
             // 
             // mnuStripMain
             // 
@@ -356,10 +366,18 @@
             // mnuItemTools
             // 
             this.mnuItemTools.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.mnuItemProfile,
             this.mnuItemPatternValidator});
             this.mnuItemTools.Name = "mnuItemTools";
             this.mnuItemTools.Size = new System.Drawing.Size(46, 20);
             this.mnuItemTools.Text = "Tools";
+            // 
+            // mnuItemProfile
+            // 
+            this.mnuItemProfile.Name = "mnuItemProfile";
+            this.mnuItemProfile.Size = new System.Drawing.Size(186, 22);
+            this.mnuItemProfile.Text = "Import profile";
+            this.mnuItemProfile.Click += new System.EventHandler(this.mnuItemProfile_Click);
             // 
             // mnuItemPatternValidator
             // 
@@ -368,19 +386,24 @@
             this.mnuItemPatternValidator.Text = "Pattern Validator Tool";
             this.mnuItemPatternValidator.Click += new System.EventHandler(this.mnuItemPatternValidator_Click);
             // 
-            // dataBufferToolStripMenuItem
+            // btnViewAppLog
             // 
-            this.dataBufferToolStripMenuItem.Name = "dataBufferToolStripMenuItem";
-            this.dataBufferToolStripMenuItem.Size = new System.Drawing.Size(195, 22);
-            this.dataBufferToolStripMenuItem.Text = "Data Buffer";
-            this.dataBufferToolStripMenuItem.Click += new System.EventHandler(this.dataBufferToolStripMenuItem_Click);
+            this.btnViewAppLog.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnViewAppLog.Location = new System.Drawing.Point(1002, 71);
+            this.btnViewAppLog.Name = "btnViewAppLog";
+            this.btnViewAppLog.Size = new System.Drawing.Size(117, 30);
+            this.btnViewAppLog.TabIndex = 17;
+            this.btnViewAppLog.Text = "Application  log";
+            this.btnViewAppLog.UseVisualStyleBackColor = true;
+            this.btnViewAppLog.Click += new System.EventHandler(this.btnViewAppLog_Click);
             // 
             // FrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1131, 679);
-            this.Controls.Add(this.btnViewLog);
+            this.Controls.Add(this.btnViewAppLog);
+            this.Controls.Add(this.btnViewLoadedLog);
             this.Controls.Add(this.gbFilter);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.chkShowAll);
@@ -435,7 +458,7 @@
         private System.Windows.Forms.ComboBox cmbState;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.ComboBox cmbThis;
-        private System.Windows.Forms.Button btnViewLog;
+        private System.Windows.Forms.Button btnViewLoadedLog;
         private System.Windows.Forms.ToolStripStatusLabel gridLabel;
         private System.Windows.Forms.MenuStrip mnuStripMain;
         private System.Windows.Forms.ToolStripMenuItem mnuItemFile;
@@ -445,6 +468,9 @@
         private System.Windows.Forms.ToolStripMenuItem mnuItemPatternValidator;
         private System.Windows.Forms.CheckBox chkHasDataBuffer;
         private System.Windows.Forms.ToolStripMenuItem dataBufferToolStripMenuItem;
+        private System.Windows.Forms.Button btnViewAppLog;
+        private System.Windows.Forms.OpenFileDialog dlgProfile;
+        private System.Windows.Forms.ToolStripMenuItem mnuItemProfile;
     }
 }
 

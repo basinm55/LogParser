@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Helpers.FlexibleMessageBox.cs" />
+    <Compile Include="Helpers.Logger.cs" />
     <Compile Include="Helpers.ScanFormatted.cs" />
     <Compile Include="Helpers.TextParser.cs" />
     <Compile Include="Helpers.EnumUtils.cs" />

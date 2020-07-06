@@ -28,11 +28,11 @@ namespace LogParserApp
             foreach (var o in data)
             {
                 if (o == null) continue;
-                var voCollection = o.VisualObjectCollection;
+                var voCollection = o.StateCollection;
                 voCollection.RemoveAll((x) => x == null);
             }
             
-            var columnsCount = data.Count > 0 ? data.Where(x => x != null).Max(x => x.VisualObjectCollection.Count()*2 - 1): 0;           
+            var columnsCount = data.Count > 0 ? data.Where(x => x != null).Max(x => x.StateCollection.Count()*2 - 1): 0;           
 
             for (int i = 0; i < columnsCount; i++)
             {
@@ -60,11 +60,11 @@ namespace LogParserApp
         private static void CreateGridRow(ParserObject obj, DataGridView dataGV, string device, int maxDescLength)
         {
             if (obj == null) return;
-            List<ParserObject> parserRowCollection;
+            List<StateObject> parserRowCollection;
             if (device != null)
-                parserRowCollection = obj.VisualObjectCollection.Where(o => o == null || (string)o.GetDynPropertyValue("Parent") == device).ToList();
+                parserRowCollection = obj.StateCollection.Where(o => o == null || o.Parent.Type.ToString() == device).ToList();
             else
-                parserRowCollection = obj.VisualObjectCollection;
+                parserRowCollection = obj.StateCollection;
 
             if (parserRowCollection.Count == 0) return;
 
@@ -103,13 +103,13 @@ namespace LogParserApp
             row.Cells[cellIndex] = cell;
         }
 
-        private static void CreateGridCell(ParserObject visualObj, DataGridViewRow row, int cellIndex, int maxDescLength)
+        private static void CreateGridCell(StateObject stateObj, DataGridViewRow row, int cellIndex, int maxDescLength)
         {                     
             var cell = new DataGridViewTextBoxCell();
             var cellForwardImg = new DataGridViewImageCell();
             cellForwardImg.Value = Properties.Resources.forvard_arrow;       
 
-            if (visualObj == null)
+            if (stateObj == null)
             {
                 row.Cells[cellIndex] = cell;
                 return;
@@ -118,47 +118,46 @@ namespace LogParserApp
 
             cell.Style = new DataGridViewCellStyle
             {
-                BackColor = visualObj.ObjectState == Enums.ObjectState.Dropped ? Color.Black : visualObj.ObjectColor,
-                ForeColor = visualObj.ObjectState == Enums.ObjectState.Dropped ? Color.White : Color.Black,
+                BackColor = stateObj.Color,   
                 Alignment = DataGridViewContentAlignment.MiddleCenter,
                 Padding = new Padding(5, 5, 5, 5),
                 SelectionBackColor = Color.DarkOrange
             };
 
 
-            var visualDescription = CreateVisualDescription(visualObj, maxDescLength);                           
-            visualObj.VisualDescription = visualDescription.ToString();
-            if (visualObj == null || string.IsNullOrWhiteSpace(visualObj.VisualDescription))
-                visualObj.VisualDescription = null;
-            cell.Value = visualObj;
+            var stateDescription = CreateVisualDescription(stateObj, maxDescLength);                           
+            stateObj.Description = stateDescription.ToString();
+            if (string.IsNullOrWhiteSpace(stateObj.Description))
+                stateObj.Description = null;
+            cell.Value = stateObj;
 
 
 
             row.Cells[cellIndex] = cell;            
         }
 
-        private static StringBuilder CreateVisualDescription(ParserObject visualObj, int maxDescLength)
+        private static StringBuilder CreateVisualDescription(StateObject stateObj, int maxDescLength)
         {
-            var visualDescription = new StringBuilder();
-            visualDescription.AppendLine(visualObj.ObjectState.ToString());
-            if (visualObj.ObjectDescription != null)
+            var stateDescription = new StringBuilder();
+            stateDescription.AppendLine(stateObj.State.ToString());
+            if (stateObj.Description != null)
             {
-                foreach (var desc in visualObj.ObjectDescription)
+                foreach (var desc in stateObj.VisualDescription)
                 {
                     var description = desc.Value;
                     if (description.Length > maxDescLength)
                         description = StringExt.Wrap(desc.Value, maxDescLength);
 
                     if ((desc.Key + ": " + description).Length > maxDescLength)
-                        visualDescription.AppendLine(description);
+                        stateDescription.AppendLine(description);
                     else if (desc.Key.ToLower() == "request")
-                        visualDescription.AppendLine(description);
+                        stateDescription.AppendLine(description);
                     else
-                        visualDescription.AppendLine(desc.Key + ": " + description);
+                        stateDescription.AppendLine(desc.Key + ": " + description);
 
                 }
             }
-            return visualDescription;
+            return stateDescription;
         }
 
         private static void CreateGridCell(DataGridViewRow row, int cellIndex)

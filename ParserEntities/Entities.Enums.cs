@@ -44,11 +44,10 @@ namespace Entities
             Hidden = 1
         }
 
-        public enum ObjectState
+        public enum State
         {
-            Unknown = -3,
-            Deleted = -2,
-            Dropped = -1,
+            Unknown = -2,
+            Deleted = -1, 
             Created = 0,                                  
             Queued = 1,
             Sent = 2,
