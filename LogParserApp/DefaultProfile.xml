@@ -3,7 +3,7 @@
 	<Profile>
 		<Filters>			
 			<Filter key="CUsbDevice::CUsbDevice" IsVisible ="0">
-				<ObjectType>Device</ObjectType>
+				<ObjectClass>Device</ObjectClass>
 				<State>Created</State>				
 				<Patterns>
 					<Pattern>[%*1d]%*4c.%*4c::%s [%*7s]CUsbDevice::CUsbDevice: %s</Pattern>
@@ -11,10 +11,9 @@
 				<Properties>
 					<Property i="0">
 						<PatternIndex>1</PatternIndex>
-						<Name>Device</Name>						
+						<Name>this</Name>						
 						<DataType>string</DataType>
 						<Action>New</Action>						
-						<Target>this</Target>
 					</Property>
 					<Property i="1">
 						<PatternIndex>0</PatternIndex>
@@ -23,32 +22,9 @@
 						<Action>AssignToSelf</Action>	
 					</Property>					
 				</Properties>
-			</Filter>
-			<Filter key="CPort::BindUsbDevice" IsVisible ="0">
-				<ObjectType>Device</ObjectType>
-				<State />				
-				<Patterns>
-					<Pattern>CPort::BindUsbDevice port %d CUsbDevice %s</Pattern>
-			    </Patterns>
-				<Properties>	
-					<Property i="0">
-						<PatternIndex>1</PatternIndex>
-						<Name>Device</Name>
-						<DataType>string</DataType>						
-						<Action>Locate</Action>
-						<Target>this</Target>
-					</Property>
-					<Property i="1">
-						<PatternIndex>0</PatternIndex>						
-						<Name>Port</Name>
-						<DataType>decimal</DataType>
-						<Action>Assign</Action>
-						<Target>Port</Target>
-					</Property>									
-				</Properties>
-			</Filter>
+			</Filter>		
 			<Filter key="CUsbDevice::ReportDeviceDecriptor" IsVisible ="0">
-				<ObjectType>Device</ObjectType>
+				<ObjectClass>Device</ObjectClass>
 				<State />
 				<Patterns>
 					<Pattern>CUsbDevice::ReportDeviceDecriptor: dev %s VID:PID %s</Pattern>
@@ -56,10 +32,9 @@
 				<Properties>
 					<Property i="0">
 						<PatternIndex>0</PatternIndex>
-						<Name>Device</Name>
+						<Name>this</Name>
 						<DataType>string</DataType>
-						<Action>Locate</Action>
-						<Target>this</Target>
+						<Action>Locate</Action>						
 					</Property>
 					<Property i="1">
 						<PatternIndex>1</PatternIndex>
@@ -70,8 +45,30 @@
 					</Property>
 				</Properties>
 			</Filter>
+			<Filter key="CPort::BindUsbDevice" IsVisible ="0">
+				<ObjectClass>Port</ObjectClass>
+				<State />
+				<Patterns>
+					<Pattern>CPort::BindUsbDevice port %d CUsbDevice %s</Pattern>
+				</Patterns>
+				<Properties>
+					<Property i="0">
+						<PatternIndex>1</PatternIndex>
+						<Name>this</Name>
+						<DataType>string</DataType>
+						<Action>Locate</Action>						
+					</Property>
+					<Property i="1">
+						<PatternIndex>0</PatternIndex>
+						<Name>Port</Name>
+						<DataType>decimal</DataType>
+						<Action>Assign</Action>
+						<Target>Port</Target>
+					</Property>
+				</Properties>
+			</Filter>			
 			<Filter key="CUsbipRequest::CUsbipRequest" IsVisible ="1">
-				<ObjectType>Request</ObjectType>
+				<ObjectClass>Request</ObjectClass>
 				<State>Created</State>
 				<Patterns>
 					<Pattern>[%*1d]%*4c.%*4c::%s [%*7s]CUsbipRequest::CUsbipRequest: type %s dev %s -> %s</Pattern>
@@ -79,10 +76,9 @@
 				<Properties>
 					<Property i="0">
 						<PatternIndex>3</PatternIndex>
-						<Name>Request</Name>
+						<Name>this</Name>
 						<DataType>string</DataType>
-						<Action>New</Action>
-						<Target>this</Target>
+						<Action>New</Action>						
 						<DisplayMember>1</DisplayMember>
 					</Property>
 					<Property i="1">
@@ -115,7 +111,7 @@
 				</Properties>
 			</Filter>
 			<Filter key="CUsbipRequest::Prepare" IsVisible ="1">
-				<ObjectType>Request</ObjectType>
+				<ObjectClass>Request</ObjectClass>
 				<State>Queued</State>
 				<Patterns>
 					<Pattern>CUsbipRequest::Prepare:@%2s: %s trvil %s req %s</Pattern>
@@ -124,10 +120,9 @@
 				<Properties>
 					<Property i="0">
 						<PatternIndex>3</PatternIndex>
-						<Name>Request</Name>
+						<Name>this</Name>
 						<DataType>string</DataType>						
-						<Action>Locate</Action>
-						<Target>this</Target>
+						<Action>Locate</Action>						
 						<DisplayMember>1</DisplayMember>
 					</Property>						
 					<Property i="1">
@@ -153,7 +148,7 @@
 				</Properties>
 			</Filter>
 			<Filter key="CUsbipRequest::FeedRead" IsVisible ="1">
-				<ObjectType>Request</ObjectType>
+				<ObjectClass>Request</ObjectClass>
 				<State>Sent</State>
 				<Patterns>
 					<Pattern>[%*1d]%*4c.%*4c::%s [%*7s]CUsbipRequest::FeedRead:@%s #%d %s %s len %d, req %s</Pattern>					
@@ -161,10 +156,9 @@
 				<Properties>
 					<Property i="0">
 						<PatternIndex>6</PatternIndex>
-						<Name>Request</Name>
+						<Name>this</Name>
 						<DataType>string</DataType>
-						<Action>Locate</Action>
-						<Target>this</Target>
+						<Action>Locate</Action>						
 						<DisplayMember>1</DisplayMember>
 					</Property>
 					<Property i="1">
@@ -197,7 +191,7 @@
 				</Properties>
 			</Filter>
 			<Filter key="CUsbipRequest::FeedWrite" IsVisible ="1">
-				<ObjectType>Request</ObjectType>
+				<ObjectClass>Request</ObjectClass>
 				<State>Responded</State>
 				<Patterns>
 					<Pattern>[%*1d]%*4c.%*4c::%s [%*7s]CUsbipRequest::FeedWrite:%16s: %*s %d = %s</Pattern>
@@ -205,10 +199,9 @@
 				<Properties>
 					<Property i="0">
 						<PatternIndex>1</PatternIndex>
-						<Name>Request</Name>
+						<Name>this</Name>
 						<DataType>string</DataType>
-						<Action>Locate</Action>
-						<Target>this</Target>
+						<Action>Locate</Action>						
 						<DisplayMember>1</DisplayMember>
 					</Property>
 					<Property i="1">
@@ -234,7 +227,7 @@
 				</Properties>
 			</Filter>
 			<Filter key="CUsbipRequest::Complete" IsVisible ="1">
-				<ObjectType>Request</ObjectType>
+				<ObjectClass>Request</ObjectClass>
 				<State>Completed</State>
 				<Patterns>
 					<Pattern>[%*1d]%*4c.%*4c::%s [%*7s]CUsbipRequest::Complete:@%s #%d %s done in %d ms, wdf %s = %x, req %s</Pattern>					
@@ -242,10 +235,9 @@
 				<Properties>
 					<Property i="0">
 						<PatternIndex>7</PatternIndex>
-						<Name>Request</Name>
+						<Name>this</Name>
 						<DataType>string</DataType>
-						<Action>Locate</Action>
-						<Target>this</Target>
+						<Action>Locate</Action>						
 						<DisplayMember>1</DisplayMember>
 					</Property>
 					<Property i="1">
@@ -271,7 +263,7 @@
 				</Properties>
 			</Filter>
 			<Filter key="CUsbDevice::~CUsbDevice" IsVisible ="0">
-				<ObjectType>Device</ObjectType>
+				<ObjectClass>Device</ObjectClass>
 				<State>Destroyed</State>
 				<Patterns>
 					<Pattern>CUsbDevice::~CUsbDevice %s</Pattern>
@@ -279,15 +271,14 @@
 				<Properties>
 					<Property i="0">
 						<PatternIndex>0</PatternIndex>
-						<Name>Request</Name>
+						<Name>this</Name>
 						<DataType>string</DataType>
-						<Action>Locate</Action>
-						<Target>this</Target>
+						<Action>Locate</Action>						
 					</Property>						
 				</Properties>
 			</Filter>
 			<Filter key="Out:: buffer" IsVisible ="0">
-				<ObjectType>Data</ObjectType>
+				<ObjectClass>Data</ObjectClass>
 				<State/>
 				<Patterns>
 					<Pattern>%s buffer of %d</Pattern>										
@@ -312,7 +303,7 @@
 				</Properties>
 			</Filter>
 			<Filter key="In:: buffer" IsVisible ="0">
-				<ObjectType>Data</ObjectType>
+				<ObjectClass>Data</ObjectClass>
 				<State/>
 				<Patterns>
 					<Pattern>%s buffer of %d</Pattern>

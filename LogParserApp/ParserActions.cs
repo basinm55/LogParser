@@ -17,22 +17,23 @@ namespace LogParserApp
 {
     public partial class Parser
     {        
-        private void DoActionNew(XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectType, string thisValue)
+        private void DoActionNew(XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
         {
             if (!ValidateProfileDefinition(profilePropDefinition,
                 out string name,
                 out PropertyDataType dataType,
-                out string format)) return;
+                out string format))
+                return;
  
             SetPropertiesByProfile(profilePropDefinition,
                 patternIndex,
                 parsedValue,
-                objectType,
+                objectClass,
                 dataType,
                 format);           
         }
 
-        private void DoActionAssignToSelf(XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectType, string thisValue)
+        private void DoActionAssignToSelf(XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
         {
             if (_currentObj == null || !ValidateProfileDefinition(profilePropDefinition,
                       out string name,
@@ -42,7 +43,7 @@ namespace LogParserApp
             _currentObj.SetDynProperty(name, parsedValue, dataType, format);
 
         }
-        private void DoActionLocate(XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectType, string thisValue)
+        private void DoActionLocate(XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
         {
             if (_currentObj == null || !ValidateProfileDefinition(profilePropDefinition,
                       out string name,
@@ -54,18 +55,18 @@ namespace LogParserApp
             _locatedObj = ObjectCollection.FirstOrDefault(x => x != null && (string)x.GetDynPropertyValue("this") == (string)searchValue);
         }
 
-        private void DoActionAssign(XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectType, string thisValue)
+        private void DoActionAssign(XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
         {
             if (_locatedObj == null || !ValidateProfileDefinition(profilePropDefinition,
                       out string name,
                       out PropertyDataType dataType,
                       out string format)) return;
 
-            _locatedObj.SetDynProperty(objectType, parsedValue, dataType, format);
+            _locatedObj.SetDynProperty(objectClass, parsedValue, dataType, format);
             _locatedObj = null;
         }
 
-        private void DoActionAssignDataBuffer(List<string> list, StateObject lastStatelObj, XElement filter, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectType, string thisValue)
+        private void DoActionAssignDataBuffer(List<string> list, StateObject lastStatelObj, XElement filter, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
         {
             if (!ValidateProfileDefinition(profilePropDefinition,
                 out string name,
@@ -75,7 +76,7 @@ namespace LogParserApp
             SetPropertiesByProfile(profilePropDefinition,
                 patternIndex,
                 parsedValue,
-                objectType,
+                objectClass,
                 dataType,
                 format);
 
@@ -88,7 +89,7 @@ namespace LogParserApp
                 
         }
 
-        private void DoActionDrop(XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectType, string thisValue)
+        private void DoActionDrop(XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
         {
             if (_currentObj == null || !ValidateProfileDefinition(profilePropDefinition,
                       out string name,
@@ -96,7 +97,7 @@ namespace LogParserApp
                       out string format)) return;         
         }
 
-        private void DoActionDelete(XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectType, string thisValue)
+        private void DoActionDelete(XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
         {
             if (_currentObj == null || !ValidateProfileDefinition(profilePropDefinition,
                      out string name,
@@ -138,13 +139,13 @@ namespace LogParserApp
                 _currentObj.SetDynProperty("Time", parsedValue, PropertyDataType.Time, format);
         }      
 
-        private bool FindOrCreateParserObject(int lineNumber, XElement filter, List<object> parsedList, out string objectType, out string thisValue, out string objectState)
+        private bool FindOrCreateParserObject(int lineNumber, string line, XElement filter, List<object> parsedList, out string objectClass, out string thisValue, out string objectState)
         {
             thisValue = null;
-            objectType = null;
+            objectClass = null;
             objectState = null;
             var objState = State.Unknown;
-            var objType = ObjectType.Unknown;
+            var objClass = ObjectClass.Unknown;
             ParserObject obj = null;
             bool isExistingFound = false;
            
@@ -152,9 +153,9 @@ namespace LogParserApp
 
             foreach (var prop in filter.XPathSelectElements("Properties/Property"))
             {
-                var target = prop.Element("Target");
-                if (target != null && prop.Element("Target") != null &&
-                        prop.Element("Target").Value.ToLower() == "this")
+                var name = prop.Element("Name");
+                if (name != null && prop.Element("Name") != null &&
+                        prop.Element("Name").Value.ToLower() == "this")
                 {
 
                     if (prop.Element("PatternIndex") == null || prop.Attribute("i") == null) continue;
@@ -172,11 +173,11 @@ namespace LogParserApp
                             if  (!string.IsNullOrWhiteSpace(objectState))
                                 objState = Enum.IsDefined(typeof(State), objectState) ? objectState.ToEnum<State>() : State.Unknown;
 
-                            objectType = filter.Element("ObjectType") != null &&
-                            !string.IsNullOrWhiteSpace(filter.Element("ObjectType").Value)
-                            ? filter.Element("ObjectType").Value : null;
-                            if (!string.IsNullOrWhiteSpace(objectType))
-                                objType = Enum.IsDefined(typeof(ObjectType), objectType) ? objectType.ToEnum<ObjectType>() :  ObjectType.Unknown;                            
+                            objectClass = filter.Element("ObjectClass") != null &&
+                            !string.IsNullOrWhiteSpace(filter.Element("ObjectClass").Value)
+                            ? filter.Element("ObjectClass").Value : null;
+                            if (!string.IsNullOrWhiteSpace(objectClass))
+                                objClass = Enum.IsDefined(typeof(ObjectClass), objectClass) ? objectClass.ToEnum<ObjectClass>() : ObjectClass.Unknown;                            
 
                             var filterKey = filter.Attribute("key").Value;
 
@@ -184,12 +185,12 @@ namespace LogParserApp
                             if (filter.Attribute("IsVisible") != null)
                                 isVisible = filter.Attribute("IsVisible").Value.ToBoolean();                           
 
-                            if (Enum.IsDefined(typeof(ObjectType), objType) &&
+                            if (Enum.IsDefined(typeof(ObjectClass), objClass) &&
                                 !string.IsNullOrWhiteSpace(thisValue))
                             {
                                 var foundExistingObject = ObjectCollection.LastOrDefault(x =>
                                                     x.GetThis() == thisVal &&
-                                                    x.Type == objType &&
+                                                    x.ObjectClass == objClass &&
                                                     x.IsFindable == true);
 
                                 isExistingFound = foundExistingObject != null;
@@ -207,7 +208,7 @@ namespace LogParserApp
                                         //int droppedStatesCount = objState - foundVoCollection[foundVoCollection.Count - 1].ObjectState;
                                         //for (int i = 0; i < droppedStatesCount; i++)
                                         //{
-                                        //    var vo = new ParserObject(objType) { LineNum = -1 };
+                                        //    var vo = new ParserObject(objClass) { LineNum = -1 };
                                         //    vo.ObjectState = ObjectState.Dropped;
                                         //    vo.SetDynProperty("Parent", foundExistingObject.GetDynPropertyValue("Parent"));
                                         //    vo.SetDynProperty("this", thisValue);
@@ -221,10 +222,13 @@ namespace LogParserApp
 
                                 if (!isExistingFound)
                                 {                                   
-                                    obj = new ParserObject(objType);                                   
+                                    obj = new ParserObject(objClass);                                   
                                     obj.SetDynProperty("this", thisValue);                                    
                                     obj.SetDynProperty("FilterKey", filterKey);
-                                    obj.SetDynProperty("IsVisible", isVisible);                                    
+                                    obj.SetDynProperty("IsVisible", isVisible);
+                                    obj.LineNum = lineNumber;
+                                    obj.Line = line;
+                                    obj.FilterKey = filterKey;
                                 }
                                 else
                                 {                               
@@ -242,20 +246,24 @@ namespace LogParserApp
             return isExistingFound;
         }
 
-        private void SetObjectDescription(XElement prop, object parsedValue)
+        private void SetObjectDescription(StateObject stateObj, XElement prop, object parsedValue)
         {
             XElement displayMember = prop.Element("DisplayMember");
-            if (displayMember == null || displayMember.Value == null || !displayMember.Value.ToBoolean()) return;
+            if (displayMember == null || displayMember.Value == null || !displayMember.Value.ToBoolean())
+                return;
 
             if (prop.Element("DataType").Value.ToLower() == "time" && prop.Element("DataType").Attribute("Format") != null)
-            {                          
+            {
                 if (DateTime.TryParseExact((string)parsedValue, prop.Element("DataType").Attribute("Format").Value, new CultureInfo("en-US"), DateTimeStyles.None, out DateTime dt))
+                {
                     parsedValue = dt.ToString(_visualDateTimeFormat);
-            }             
-         
-            //var key = prop.Element("Name").Value.ToString();               
-            //if (_currentObj != null && !_currentObj.ObjectDescription.ContainsKey(key))
-            //    _currentObj.ObjectDescription.Add(new KeyValuePair<string, string>(key, parsedValue.ToString()));          
+                    stateObj.Time = dt;
+                }
+            }
+
+            var key = prop.Element("Name").Value.ToString();
+            if (stateObj != null && !stateObj.VisualDescription.ContainsKey(key))
+                stateObj.VisualDescription.Add(new KeyValuePair<string, string>(key, parsedValue.ToString()));
         }     
     }
 }

@@ -18,20 +18,27 @@ namespace Entities
 
         public IDictionary<string, object> DynObjectDictionary;
 
-        public List<StateObject> StateCollection { get; set; }
-       
+        public string Line { get; set; }
 
-        public ObjectType Type { get; private set; }
+        public int LineNum { get; set; }
+
+        public List<StateObject> StateCollection { get; set; }        
+
+        public ObjectClass ObjectClass { get; private set; }
+
+        public DateTime Time { get; set; }
+
+        public string FilterKey { get; set; }
 
         public bool IsFindable { get; set; }
 
 
         //C'tor
-        public ParserObject(ObjectType objType)
+        public ParserObject(ObjectClass objClass)
         {
             DynObject = new ExpandoObject();
             DynObjectDictionary = (IDictionary<string, object>)DynObject;
-            Type = objType;
+            ObjectClass = objClass;
             IsFindable = true;
             BaseColor = Color.Transparent;
             StateCollection = new List<StateObject>();        
@@ -106,8 +113,7 @@ namespace Entities
             if (!DynPropertyExists(propertyName))
                 throw new Exception(string.Format("Property '{0}' not found." +
                  Environment.NewLine +
-                 "Check the LogParserProfile definitions."
-                 , propertyName));
+                 "Check the LogParserProfile definitions.", propertyName));
 
             DynObjectDictionary.Remove(propertyName);
         }
@@ -126,18 +132,7 @@ namespace Entities
         {
             GetDynPropertyValue(propertyName, out object propertyValue);
             return propertyValue;
-        }
-
-        public void SetDynPropertyValue(string propertyName, object propertyValue, PropertyDataType propertyDataType = PropertyDataType.String, Type enumType = null, string dateTimeFormat = null)
-        {
-            if (!DynPropertyExists(propertyName))
-                throw new Exception(string.Format("Property '{0}' not found." +
-                    Environment.NewLine +
-                    "Check the LogParserProfile definitions."
-                    , propertyName));
-
-            DynObjectDictionary[propertyName] = CovertValueToRequiredDataType(propertyValue.ToString(), propertyDataType, enumType, dateTimeFormat);
-        }
+        }      
 
         public void Dispose()
         {
@@ -151,13 +146,7 @@ namespace Entities
         public static string GetThis(this ParserObject item)
         {
             return item != null ? (string)item.GetDynPropertyValue("this") : null;
-        }
-
-        public static void SetThis(this ParserObject item, string thisValue)
-        {
-            if (item != null)
-                item.SetDynPropertyValue("this", thisValue);
-        }
+        }     
 
         public static string GetParent(this ParserObject item)
         {
@@ -165,13 +154,15 @@ namespace Entities
         }
           
 
-        public static StateObject CreateStateObject(this ParserObject baseObject, State state, int lineNumber, string line)
+        public static StateObject CreateStateObject(this ParserObject baseObject, State state, int lineNumber, string line, string filterKey)
         {
             var result = new StateObject(baseObject);
             result.LineNum = lineNumber;
             result.Line = line;
             result.State = state;
-            result.Color = baseObject.BaseColor;                                  
+            result.Color = baseObject.BaseColor;
+            result.FilterKey = filterKey;
+            result.ObjectClass = baseObject.ObjectClass;
             return result;
         }      
  

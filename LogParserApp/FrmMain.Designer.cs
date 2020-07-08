@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmMain));
             this.dataGV = new System.Windows.Forms.DataGridView();
             this.dlgLoadLog = new System.Windows.Forms.OpenFileDialog();
@@ -66,12 +66,14 @@
             this.mnuItemPatternValidator = new System.Windows.Forms.ToolStripMenuItem();
             this.btnViewAppLog = new System.Windows.Forms.Button();
             this.dlgProfile = new System.Windows.Forms.OpenFileDialog();
+            this.dgvInfo = new System.Windows.Forms.DataGridView();
             ((System.ComponentModel.ISupportInitialize)(this.dataGV)).BeginInit();
             this.gridCmStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.gbFilter.SuspendLayout();
             this.mnuStripMain.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvInfo)).BeginInit();
             this.SuspendLayout();
             // 
             // dataGV
@@ -90,19 +92,23 @@
             this.dataGV.ColumnHeadersVisible = false;
             this.dataGV.GridColor = System.Drawing.SystemColors.Window;
             this.dataGV.Location = new System.Drawing.Point(3, 142);
+            this.dataGV.MultiSelect = false;
             this.dataGV.Name = "dataGV";
             this.dataGV.ReadOnly = true;
             this.dataGV.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             this.dataGV.RowHeadersVisible = false;
-            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.dataGV.RowsDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle5.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.dataGV.RowsDefaultCellStyle = dataGridViewCellStyle5;
             this.dataGV.RowTemplate.Height = 66;
             this.dataGV.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
-            this.dataGV.Size = new System.Drawing.Size(1128, 512);
+            this.dataGV.Size = new System.Drawing.Size(1062, 587);
             this.dataGV.TabIndex = 0;
             this.dataGV.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dataGV_CellFormatting);
             this.dataGV.CellMouseDown += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataGV_CellMouseDown);
+            this.dataGV.CellMouseLeave += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGV_CellMouseLeave);
+            this.dataGV.CellMouseMove += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataGV_CellMouseMove);
             this.dataGV.CellStateChanged += new System.Windows.Forms.DataGridViewCellStateChangedEventHandler(this.dataGV_CellStateChanged);
+            this.dataGV.SelectionChanged += new System.EventHandler(this.dataGV_SelectionChanged);
             // 
             // gridCmStrip
             // 
@@ -143,9 +149,9 @@
             this.resultLabel,
             this.calculateLabel,
             this.gridLabel});
-            this.statusStrip.Location = new System.Drawing.Point(0, 657);
+            this.statusStrip.Location = new System.Drawing.Point(0, 732);
             this.statusStrip.Name = "statusStrip";
-            this.statusStrip.Size = new System.Drawing.Size(1131, 22);
+            this.statusStrip.Size = new System.Drawing.Size(1359, 22);
             this.statusStrip.TabIndex = 4;
             // 
             // progressBar
@@ -200,6 +206,9 @@
             this.lblHeader.Name = "lblHeader";
             this.lblHeader.Size = new System.Drawing.Size(0, 15);
             this.lblHeader.TabIndex = 6;
+            this.lblHeader.Click += new System.EventHandler(this.lblHeader_Click);
+            this.lblHeader.MouseLeave += new System.EventHandler(this.lblHeader_MouseLeave);
+            this.lblHeader.MouseMove += new System.Windows.Forms.MouseEventHandler(this.lblHeader_MouseMove);
             // 
             // label1
             // 
@@ -239,7 +248,7 @@
             this.groupBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBox1.Location = new System.Drawing.Point(12, 99);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(1107, 36);
+            this.groupBox1.Size = new System.Drawing.Size(1339, 36);
             this.groupBox1.TabIndex = 11;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Device details:";
@@ -321,7 +330,7 @@
             // btnViewLoadedLog
             // 
             this.btnViewLoadedLog.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnViewLoadedLog.Location = new System.Drawing.Point(1002, 30);
+            this.btnViewLoadedLog.Location = new System.Drawing.Point(1234, 30);
             this.btnViewLoadedLog.Name = "btnViewLoadedLog";
             this.btnViewLoadedLog.Size = new System.Drawing.Size(117, 30);
             this.btnViewLoadedLog.TabIndex = 15;
@@ -336,7 +345,7 @@
             this.mnuItemTools});
             this.mnuStripMain.Location = new System.Drawing.Point(0, 0);
             this.mnuStripMain.Name = "mnuStripMain";
-            this.mnuStripMain.Size = new System.Drawing.Size(1131, 24);
+            this.mnuStripMain.Size = new System.Drawing.Size(1359, 24);
             this.mnuStripMain.TabIndex = 16;
             this.mnuStripMain.Text = "menuStrip1";
             // 
@@ -389,7 +398,7 @@
             // btnViewAppLog
             // 
             this.btnViewAppLog.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnViewAppLog.Location = new System.Drawing.Point(1002, 71);
+            this.btnViewAppLog.Location = new System.Drawing.Point(1234, 71);
             this.btnViewAppLog.Name = "btnViewAppLog";
             this.btnViewAppLog.Size = new System.Drawing.Size(117, 30);
             this.btnViewAppLog.TabIndex = 17;
@@ -397,11 +406,34 @@
             this.btnViewAppLog.UseVisualStyleBackColor = true;
             this.btnViewAppLog.Click += new System.EventHandler(this.btnViewAppLog_Click);
             // 
+            // dgvInfo
+            // 
+            this.dgvInfo.AllowUserToAddRows = false;
+            this.dgvInfo.AllowUserToDeleteRows = false;
+            this.dgvInfo.AllowUserToResizeRows = false;
+            this.dgvInfo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dgvInfo.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+            this.dgvInfo.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
+            this.dgvInfo.BackgroundColor = System.Drawing.SystemColors.Control;
+            this.dgvInfo.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.dgvInfo.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvInfo.ColumnHeadersVisible = false;
+            this.dgvInfo.Enabled = false;
+            this.dgvInfo.Location = new System.Drawing.Point(1071, 141);
+            this.dgvInfo.MultiSelect = false;
+            this.dgvInfo.Name = "dgvInfo";
+            this.dgvInfo.RowHeadersVisible = false;
+            this.dgvInfo.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
+            this.dgvInfo.Size = new System.Drawing.Size(280, 588);
+            this.dgvInfo.TabIndex = 20;
+            // 
             // FrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1131, 679);
+            this.ClientSize = new System.Drawing.Size(1359, 754);
+            this.Controls.Add(this.dgvInfo);
             this.Controls.Add(this.btnViewAppLog);
             this.Controls.Add(this.btnViewLoadedLog);
             this.Controls.Add(this.gbFilter);
@@ -429,6 +461,7 @@
             this.gbFilter.PerformLayout();
             this.mnuStripMain.ResumeLayout(false);
             this.mnuStripMain.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvInfo)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -471,6 +504,7 @@
         private System.Windows.Forms.Button btnViewAppLog;
         private System.Windows.Forms.OpenFileDialog dlgProfile;
         private System.Windows.Forms.ToolStripMenuItem mnuItemProfile;
+        private System.Windows.Forms.DataGridView dgvInfo;
     }
 }
 

@@ -15,7 +15,22 @@ using Helpers;
 namespace LogParserApp
 {
     public partial class ParserView
-    {        
+    {
+        public static bool AllowedForDisplayProperties(string propName)
+        {
+           string[] allowed =
+           {                   
+                "this",
+                "Parent",                
+                "State",
+                "Line",
+                "LineNum",
+                "Port", 
+            };
+
+            return allowed.Contains(propName);
+        }
+
         public static void CreateGridView(List<ParserObject> data, DataGridView dataGV, string deviceFilter)
         {
             //if (data.Count == 0) return;
@@ -28,8 +43,8 @@ namespace LogParserApp
             foreach (var o in data)
             {
                 if (o == null) continue;
-                var voCollection = o.StateCollection;
-                voCollection.RemoveAll((x) => x == null);
+                var stateCollection = o.StateCollection;
+                stateCollection.RemoveAll((x) => x == null);
             }
             
             var columnsCount = data.Count > 0 ? data.Where(x => x != null).Max(x => x.StateCollection.Count()*2 - 1): 0;           
@@ -57,22 +72,22 @@ namespace LogParserApp
             dataGV.ClearSelection();       
         }
 
-        private static void CreateGridRow(ParserObject obj, DataGridView dataGV, string device, int maxDescLength)
+        private static void CreateGridRow(ParserObject obj, DataGridView dataGV, string thisOfDevice, int maxDescLength)
         {
             if (obj == null) return;
-            List<StateObject> parserRowCollection;
-            if (device != null)
-                parserRowCollection = obj.StateCollection.Where(o => o == null || o.Parent.Type.ToString() == device).ToList();
+            List<StateObject> visualStateCollection;
+            if (!string.IsNullOrWhiteSpace(thisOfDevice))
+                visualStateCollection = obj.StateCollection.Where(o => o == null || o.Parent.GetParent() == thisOfDevice).ToList();
             else
-                parserRowCollection = obj.StateCollection;
+                visualStateCollection = obj.StateCollection;
 
-            if (parserRowCollection.Count == 0) return;
+            if (visualStateCollection.Count == 0) return;
 
             //Insert places for ForwardArrow images
-            var parserRowCollectionCount = parserRowCollection.Count * 2 - 1;
-            for (int i=0; i<parserRowCollectionCount; i++)
-            {                  
-                parserRowCollection.Insert(i+1, null);
+            var visualStateCollectionCount = visualStateCollection.Count * 2 - 1;
+            for (int i=0; i< visualStateCollectionCount; i++)
+            {
+                visualStateCollection.Insert(i+1, null);
                 i++;
             }
 
@@ -82,10 +97,10 @@ namespace LogParserApp
             for (int i=0; i<dataGV.ColumnCount; i++)
             {
 
-                if (i < parserRowCollectionCount)
+                if (i < visualStateCollectionCount)
                 {
-                    if (i % 2 == 0 || parserRowCollection[i] != null)
-                        CreateGridCell(parserRowCollection[i], row, i, maxDescLength);                   
+                    if (i % 2 == 0 || visualStateCollection[i] != null)
+                        CreateGridCell(visualStateCollection[i], row, i, maxDescLength);                   
                     else
                         CreateForwardImadeCell(row, i);
 
@@ -107,8 +122,7 @@ namespace LogParserApp
         {                     
             var cell = new DataGridViewTextBoxCell();
             var cellForwardImg = new DataGridViewImageCell();
-            cellForwardImg.Value = Properties.Resources.forvard_arrow;       
-
+    
             if (stateObj == null)
             {
                 row.Cells[cellIndex] = cell;
@@ -127,11 +141,10 @@ namespace LogParserApp
 
             var stateDescription = CreateVisualDescription(stateObj, maxDescLength);                           
             stateObj.Description = stateDescription.ToString();
-            if (string.IsNullOrWhiteSpace(stateObj.Description))
-                stateObj.Description = null;
+            //if (string.IsNullOrWhiteSpace(stateObj.Description))
+            //    stateObj.Description = null;
             cell.Value = stateObj;
-
-
+            //cell.Value = stateObj.Description;
 
             row.Cells[cellIndex] = cell;            
         }
@@ -140,23 +153,22 @@ namespace LogParserApp
         {
             var stateDescription = new StringBuilder();
             stateDescription.AppendLine(stateObj.State.ToString());
-            if (stateObj.Description != null)
+           
+            foreach (var desc in stateObj.VisualDescription)
             {
-                foreach (var desc in stateObj.VisualDescription)
-                {
-                    var description = desc.Value;
-                    if (description.Length > maxDescLength)
-                        description = StringExt.Wrap(desc.Value, maxDescLength);
+                var description = desc.Value;
+                if (description.Length > maxDescLength)
+                    description = StringExt.Wrap(desc.Value, maxDescLength);
 
-                    if ((desc.Key + ": " + description).Length > maxDescLength)
-                        stateDescription.AppendLine(description);
-                    else if (desc.Key.ToLower() == "request")
-                        stateDescription.AppendLine(description);
-                    else
-                        stateDescription.AppendLine(desc.Key + ": " + description);
+                if ((desc.Key + ": " + description).Length > maxDescLength)
+                    stateDescription.AppendLine(description);
+                else if (desc.Key.ToLower() == "request")
+                    stateDescription.AppendLine(description);
+                else
+                    stateDescription.AppendLine(desc.Key + ": " + description);
 
                 }
-            }
+
             return stateDescription;
         }
 

@@ -12,6 +12,10 @@ namespace Entities
     {
         public State State { get; set; }
 
+        public ObjectClass ObjectClass { get; set; }
+
+        public DateTime Time { get; set; }
+
         public string Description { get; set; }
 
         public IDictionary<string, string> VisualDescription { get; set; }
@@ -19,6 +23,8 @@ namespace Entities
         public string Line { get; set; }
 
         public int LineNum { get; set; }
+
+        public string FilterKey { get; set; }
 
         public Color Color { get; set; }
 

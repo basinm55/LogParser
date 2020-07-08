@@ -11,10 +11,12 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml.Linq;
+using System.Reflection;
 using Entities;
 using Helpers;
 using PatternValidator;
 using static Entities.Enums;
+using System.Data;
 
 namespace LogParserApp
 {
@@ -84,16 +86,154 @@ namespace LogParserApp
             { 
                 Text = "LogParser";
             }
-        }       
-      
+        }
+        
+        private void UpdateInfoBox(StateObject stateObj)
+        {
+            
+            var ds = new List<KeyValuePair<string, string>>();
+
+
+            if (stateObj != null)
+            {
+                var baseObj = stateObj.Parent;                
+                var time = stateObj.Time != DateTime.MinValue ?
+                                    string.Format("{0:dd/MM/yyyy-HH:mm:ss.FFF}", stateObj.Time)
+                                    : null;
+
+                ds.Add(new KeyValuePair<string, string>("Class", stateObj.ObjectClass.ToString()));
+                ds.Add(new KeyValuePair<string, string>("this", baseObj.GetThis()));
+                ds.Add(new KeyValuePair<string, string>("Time", time));
+
+                foreach (var prop in baseObj.DynObjectDictionary)
+                {
+                    if (ParserView.AllowedForDisplayProperties(prop.Key) && !ds.Any(x => x.Key == prop.Key))
+                        ds.Add(new KeyValuePair<string, string>(prop.Key, prop.Value.ToString()));
+                }
+
+                Type t = typeof(StateObject);
+                var propertyInfo = t.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+                foreach (var prop in propertyInfo)
+                {
+                    if (!ds.Any(x => x.Key == prop.Name))
+                    {
+                        if ((prop.PropertyType == typeof(string) ||
+                        prop.PropertyType == typeof(int) ||
+                        prop.PropertyType == typeof(ObjectClass))
+                        && prop.Name.ToLower() != "description")
+                        {                           
+                            var val = prop.GetValue(stateObj, null).ToString();
+                            ds.Add(new KeyValuePair<string, string>(prop.Name, val));
+                        }
+                    }
+                }
+
+                foreach (var desc in stateObj.VisualDescription)
+                {               
+                    if (!ds.Any(x => x.Key == desc.Key))
+                        ds.Add(new KeyValuePair<string, string>(desc.Key, desc.Value));
+                }                               
+
+                dgvInfo.AutoGenerateColumns = false;
+                dgvInfo.DataSource = ds;               
+                dgvInfo.ClearSelection();
+                dgvInfo.Enabled = true;
+                dgvInfo.ReadOnly = false;
+                dgvInfo.Columns[1].DefaultCellStyle.WrapMode = DataGridViewTriState.True;               
+         
+            }
+            else
+            {
+                dgvInfo.AutoGenerateColumns = true;
+                dgvInfo.DataSource = ds;                
+            }
+        }
+
+
+        private void UpdateInfoBoxForDevice(ParserObject parserObj)
+        {
+
+            var ds = new List<KeyValuePair<string, string>>();
+
+
+            if (parserObj != null)
+            {
+                var time = parserObj.Time != DateTime.MinValue ?
+                    string.Format("{0:dd/MM/yyyy-HH:mm:ss.FFF}", parserObj.Time)
+                    : null;
+                ds.Add(new KeyValuePair<string, string>("Class", parserObj.ObjectClass.ToString()));
+                ds.Add(new KeyValuePair<string, string>("this", parserObj.GetThis()));
+                if (time != null)
+                    ds.Add(new KeyValuePair<string, string>("Time", time));
+
+                foreach (var prop in parserObj.DynObjectDictionary)
+                {
+                    if (ParserView.AllowedForDisplayProperties(prop.Key) && !ds.Any(x => x.Key == prop.Key))
+                        ds.Add(new KeyValuePair<string, string>(prop.Key, prop.Value.ToString()));
+                }
+
+                Type t = typeof(ParserObject);
+                var propertyInfo = t.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+                foreach (var prop in propertyInfo)
+                {
+                    if (!ds.Any(x => x.Key == prop.Name))
+                    {
+                        if ((prop.PropertyType == typeof(string) ||
+                            prop.PropertyType == typeof(int)) ||
+                            prop.PropertyType == typeof(ObjectClass)
+                            && prop.Name.ToLower() != "description")
+                        {                            
+                            var val = prop.GetValue(parserObj, null).ToString();
+                            ds.Add(new KeyValuePair<string, string>(prop.Name, val));
+                        }
+                    }
+                }                
+
+                dgvInfo.AutoGenerateColumns = false;
+                dgvInfo.DataSource = ds;
+                dgvInfo.ClearSelection();
+                dgvInfo.Enabled = true;
+                dgvInfo.ReadOnly = false;
+                dgvInfo.Columns[1].DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+     
+            }
+            else
+            {
+                dgvInfo.AutoGenerateColumns = true;
+                dgvInfo.DataSource = ds;
+            }
+        }
+
+
 
         private void dataGV_CellStateChanged(object sender, DataGridViewCellStateChangedEventArgs e)
         {
             //Set empty cells unselectable
             if (e.Cell == null || e.StateChanged != DataGridViewElementStates.Selected)
                 return;
-            if (e.Cell.Value != null && (e.Cell.Value is ParserObject)) return;
+            if (e.Cell.Value != null && (e.Cell.Value is StateObject)) return;
                 e.Cell.Selected = false;
+        }
+
+        private void dataGV_SelectionChanged(object sender, EventArgs e)
+        {
+            if (dataGV.SelectedCells.Count > 0)
+            {
+                var selectedCell = dataGV.SelectedCells[0];
+
+                if (selectedCell == null || selectedCell.Value == null) return;
+
+                if (selectedCell.Value is StateObject)
+                {
+                    var selctedStateObj = selectedCell.Value as StateObject;                    
+                    UpdateInfoBox(selctedStateObj);
+
+                }
+            }
+            else
+            {
+                UpdateInfoBox(null);
+            }
         }
 
         private void dataGV_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
@@ -105,7 +245,7 @@ namespace LogParserApp
                 {
                     DataGridViewCell clickedCell = (sender as DataGridView).Rows[e.RowIndex].Cells[e.ColumnIndex];
 
-                    if (!(clickedCell.Value is ParserObject)) return;
+                    if (!(clickedCell.Value is StateObject)) return;
                                        
                     dataGV.CurrentCell = clickedCell;  // Select the clicked cell
 
@@ -117,28 +257,32 @@ namespace LogParserApp
                         (clickedCell.Value as StateObject).State >= 0;
 
                     dataBufferToolStripMenuItem.Enabled =
-                        (clickedCell.Value as ParserObject).GetDynPropertyValue("DataBuffer") != null;
+                        (clickedCell.Value as StateObject).DataBuffer != null;
 
                     gridCmStrip.Show(dataGV, relativeMousePosition);
+                }
+                else
+                {
+
                 }
             }
         }     
 
         private void dataGV_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {          
-            if (e.Value != null && e.Value is ParserObject)
-                e.Value = ((StateObject)e.Value).VisualDescription;
+            if (e.Value != null && e.Value is StateObject)
+                e.Value = ((StateObject)e.Value).Description;
         }
 
 
         private void showRelatedLogEntryToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //if (dataGV.CurrentCell != null && dataGV.CurrentCell.Value != null && dataGV.CurrentCell.Value is ParserObject)
-            //{
-            //    var relatedParserObject = (ParserObject)dataGV.CurrentCell.Value;
-            //    if (relatedParserObject != null)
-            //        FlexibleMessageBox.Show(relatedParserObject.LogLine, "Related Log Entry", MessageBoxButtons.OK);
-            //}
+            if (dataGV.CurrentCell != null && dataGV.CurrentCell.Value != null && dataGV.CurrentCell.Value is ParserObject)
+            {
+                var relatedStateObject = (StateObject)dataGV.CurrentCell.Value;
+                if (relatedStateObject != null)
+                    FlexibleMessageBox.Show(relatedStateObject.Line, "Related Log Entry", MessageBoxButtons.OK);
+            }
 
         }
 
@@ -146,11 +290,11 @@ namespace LogParserApp
         {
             if (dataGV.CurrentCell != null && dataGV.CurrentCell.Value != null && dataGV.CurrentCell.Value is ParserObject)
             {
-                var relatedParserObject = (ParserObject)dataGV.CurrentCell.Value;
-                if (relatedParserObject != null)
+                var relatedStateObject = (StateObject)dataGV.CurrentCell.Value;
+                if (relatedStateObject != null && relatedStateObject.Parent != null)
                 {
                     var properties = new StringBuilder();
-                    foreach (var prop in relatedParserObject.DynObjectDictionary)
+                    foreach (var prop in relatedStateObject.Parent.DynObjectDictionary)
                     {  
                         if (prop.Value is DateTime)
                         {
@@ -167,7 +311,7 @@ namespace LogParserApp
 
                     //FlexibleMessageBox.Show(properties.ToString(),
                     //    string.Format("Properties of {0}: {1}",
-                    //        relatedParserObject.ObjectType.ToString(),
+                    //        relatedParserObject.ObjectClass.ToString(),
                     //        relatedParserObject.GetDynPropertyValue("this")),
                     //    MessageBoxButtons.OK);
                 }
@@ -262,15 +406,15 @@ namespace LogParserApp
         private void CreateComboDeviceDataSource()
         {
             var ds = _parser.ObjectCollection.
-                                Where( o => o != null && o.Type == ObjectType.Device).Distinct().
+                                Where( o => o != null && o.ObjectClass == ObjectClass.Device).Distinct().
                                 ToList();
 
             var comboSource = new Dictionary<string, ParserObject>();
             foreach (var itm in ds)
             {
-                var key = (string)itm.GetDynPropertyValue("this");
-                if (!comboSource.ContainsKey(key))
-                    comboSource.Add((string)itm.GetDynPropertyValue("this"), itm);
+                var thisVal = itm.GetThis();
+                if (!comboSource.ContainsKey(thisVal))
+                    comboSource.Add(thisVal, itm);
             }
 
             if (comboSource.Count > 0)
@@ -322,8 +466,9 @@ namespace LogParserApp
             {
                 ParserView.CreateGridView(_parser.ObjectCollection, dataGV, _currentDevice);
             }
-            catch
+            catch (Exception ex)
             {
+                _parser.AppLogger.Log(ex.ToString());
                 throw;
             }
             finally
@@ -356,8 +501,9 @@ namespace LogParserApp
                 {
                     ParserView.CreateGridView(_parser.ObjectCollection, dataGV, _currentDevice);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    _parser.AppLogger.Log(ex.ToString());
                     throw;
                 }
                 finally
@@ -375,9 +521,17 @@ namespace LogParserApp
 
             var device = ((KeyValuePair<string, ParserObject>)cmbShowDevice.SelectedItem).Key;
             var obj = ((KeyValuePair<string, ParserObject>)cmbShowDevice.SelectedItem).Value;
-            var time = string.Format("{0:MM/dd/yyyy-HH:mm:ss.FFF}", obj.GetDynPropertyValue("Time"));
-
-            lblHeader.Text = string.Format("{0}   Time: {1}", device, time);
+            var time = string.Format("{0:MM/dd/yyyy-HH:mm:ss.FFF}", obj.GetDynPropertyValue("Time"));                        
+            
+            if (obj != null)
+            {
+                lblHeader.Tag = obj;
+                lblHeader.Text = string.Format("{0}: {1} on the port {2}. Created at {3}",
+                    obj.ObjectClass.ToString(),
+                    obj.GetThis(),
+                    (string)obj.GetDynPropertyValue("Port"),
+                    time);
+            }
         }
             
 
@@ -469,7 +623,7 @@ namespace LogParserApp
         }
 
         private void btnViewLoadedLog_Click(object sender, EventArgs e)
-        {
+        {         
             if (_externalEditorProcess == null || _externalEditorProcess.HasExited)
             {
                 try
@@ -488,6 +642,18 @@ namespace LogParserApp
 
         private void btnViewAppLog_Click(object sender, EventArgs e)
         {
+            if (!_parser.AppLogIsActive)
+            {
+                MessageBox.Show("Application log is not active!" +
+                                Environment.NewLine +
+                                "Please activate it via configuration file.",
+                                "Application log",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Warning);
+                return;
+            }
+
+
             if (_externalEditorProcess == null || _externalEditorProcess.HasExited)
             {
                 try
@@ -602,7 +768,7 @@ namespace LogParserApp
                         {
                             FlexibleMessageBox.Show(prop.Value.ToString(),
                                     string.Format("Data Buffer of {0}: {1}",
-                                        relatedParserObject.Type.ToString(),
+                                        relatedParserObject.ObjectClass.ToString(),
                                         relatedParserObject.GetDynPropertyValue("this")),
                                     MessageBoxButtons.OK);
                             return;
@@ -611,6 +777,39 @@ namespace LogParserApp
                     }               
                 }
             }
-        }      
+        }
+
+        private void dataGV_CellMouseMove(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            var stateObj = (dataGV.Rows[e.RowIndex].Cells[e.ColumnIndex].Value as StateObject);
+            if (stateObj != null)
+                (sender as DataGridView).Cursor = Cursors.Hand;
+            else
+                (sender as DataGridView).Cursor = Cursors.Default;
+        }
+
+        private void dataGV_CellMouseLeave(object sender, DataGridViewCellEventArgs e)
+        {
+            (sender as DataGridView).Cursor = Cursors.Default;
+        }
+
+        private void lblHeader_MouseMove(object sender, MouseEventArgs e)
+        {           
+            lblHeader.Cursor = Cursors.Hand;           
+        }
+
+        private void lblHeader_MouseLeave(object sender, EventArgs e)
+        {
+            lblHeader.Cursor = Cursors.Default;
+        }
+
+        private void lblHeader_Click(object sender, EventArgs e)
+        {
+            //MessageBox.Show("bla-bla");
+            dataGV.ClearSelection();
+            var relatedParserObj = ((sender as Label).Tag) as ParserObject;
+            if (relatedParserObj != null)
+                UpdateInfoBoxForDevice(relatedParserObj);
+        }
     }
 }

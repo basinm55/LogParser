@@ -55,12 +55,13 @@ namespace Entities
             Completed = 4,                        
         }
 
-        public enum ObjectType
+        public enum ObjectClass
         {
             Unknown = -1,
             Device = 0,
-            Request = 1,
-            Data = 2
+            Port = 1,
+            Request = 2,
+            Data = 3
         }
     }
 }
