@@ -100,8 +100,9 @@ namespace LogParserApp
                 var time = stateObj.Time != DateTime.MinValue ?
                                     string.Format("{0:dd/MM/yyyy-HH:mm:ss.FFF}", stateObj.Time)
                                     : null;
-
+                
                 ds.Add(new KeyValuePair<string, string>("Class", stateObj.ObjectClass.ToString()));
+ds.Add(new KeyValuePair<string, string>("State", stateObj.State.ToString()));
                 ds.Add(new KeyValuePair<string, string>("this", baseObj.GetThis()));
                 ds.Add(new KeyValuePair<string, string>("Time", time));
 
@@ -236,37 +237,37 @@ namespace LogParserApp
             }
         }
 
-        private void dataGV_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
-        {
-            // Ignore if a column or row header is clicked
-            if (e.RowIndex != -1 && e.ColumnIndex != -1)
-            {
-                if (e.Button == MouseButtons.Right)
-                {
-                    DataGridViewCell clickedCell = (sender as DataGridView).Rows[e.RowIndex].Cells[e.ColumnIndex];
+        //private void dataGV_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
+        //{
+        //    // Ignore if a column or row header is clicked
+        //    if (e.RowIndex != -1 && e.ColumnIndex != -1)
+        //    {
+        //        if (e.Button == MouseButtons.Right)
+        //        {
+        //            DataGridViewCell clickedCell = (sender as DataGridView).Rows[e.RowIndex].Cells[e.ColumnIndex];
 
-                    if (!(clickedCell.Value is StateObject)) return;
+        //            if (!(clickedCell.Value is StateObject)) return;
                                        
-                    dataGV.CurrentCell = clickedCell;  // Select the clicked cell
+        //            dataGV.CurrentCell = clickedCell;  // Select the clicked cell
 
-                    // Get mouse position relative to the grid
-                    var relativeMousePosition = dataGV.PointToClient(Cursor.Position);
+        //            // Get mouse position relative to the grid
+        //            var relativeMousePosition = dataGV.PointToClient(Cursor.Position);
 
-                    // Show the context menu
-                    showRelatedLogEntryToolStripMenuItem.Enabled =
-                        (clickedCell.Value as StateObject).State >= 0;
+        //            // Show the context menu
+        //            showRelatedLogEntryToolStripMenuItem.Enabled =
+        //                (clickedCell.Value as StateObject).State >= 0;
 
-                    dataBufferToolStripMenuItem.Enabled =
-                        (clickedCell.Value as StateObject).DataBuffer != null;
+        //            dataBufferToolStripMenuItem.Enabled =
+        //                (clickedCell.Value as StateObject).DataBuffer != null;
 
-                    gridCmStrip.Show(dataGV, relativeMousePosition);
-                }
-                else
-                {
+        //            gridCmStrip.Show(dataGV, relativeMousePosition);
+        //        }
+        //        else
+        //        {
 
-                }
-            }
-        }     
+        //        }
+        //    }
+        //}     
 
         private void dataGV_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {          
@@ -391,6 +392,34 @@ namespace LogParserApp
                     Application.DoEvents();
                     Cursor.Current = Cursors.Default;
                     gbFilter.Enabled = true;
+                    if (_parser.AppLogIsActive && _parser.AppLogger.ReportedLinesCount > 0)
+                    {
+                        if (MessageBox.Show(string.Format("Hi, Yuri! There are {0} parsing errors reported while loading."
+                            + Environment.NewLine
+                            + "Hi, Youri! Do you want to open Application Log now?",
+                            _parser.AppLogger.ReportedLinesCount),
+                            "Warning: Errors reported",
+                            MessageBoxButtons.YesNo,
+                            MessageBoxIcon.Warning,
+                            MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+                        {
+                            if (_externalEditorProcess == null || _externalEditorProcess.HasExited)
+                            {
+                                try
+                                {
+                                    _externalEditorProcess = WindowHelper.ViewFileInExternalEditor(_externalEditorExecutablePath, _parser.AppLogger.TargetPath);
+                                }
+                                catch
+                                {
+                                    MessageBox.Show("Hi, Yuri! Unfortunately you can't launch the external editor " + _externalEditorExecutablePath);
+                                    _externalEditorProcess = WindowHelper.ViewFileInExternalEditor("notepad.exe", _parser.AppLogger.TargetPath);
+
+                                }
+                            }
+                            else
+                                WindowHelper.BringProcessToFront(_externalEditorProcess);
+                        }
+                    }
                 }
             }
             else
@@ -448,7 +477,7 @@ namespace LogParserApp
             cmbShowDevice.Enabled = !chkShowAll.Checked && cmbShowDevice.Items.Count > 0;
             if (chkShowAll.Checked)
             {
-                lblHeader.Text = string.Empty;
+                txtHeader.Text = string.Empty;
                 _currentDevice = null;
             }
 
@@ -468,8 +497,8 @@ namespace LogParserApp
             }
             catch (Exception ex)
             {
-                _parser.AppLogger.Log(ex.ToString());
-                throw;
+                _parser.AppLogger.LogException(ex);
+                throw ex;
             }
             finally
             {
@@ -503,14 +532,15 @@ namespace LogParserApp
                 }
                 catch (Exception ex)
                 {
-                    _parser.AppLogger.Log(ex.ToString());
-                    throw;
+                    _parser.AppLogger.LogException(ex);
+                    throw ex;
                 }
                 finally
                 {
                     Cursor.Current = Cursors.Default;
                     gridLabel.Text = string.Format("  Total view rows: {0}", dataGV.Rows.Count.ToString());
                     gbFilter.Enabled = true;
+                    txtHeader.BackColor = Color.Red;
                 }
             }                       
         }
@@ -525,8 +555,8 @@ namespace LogParserApp
             
             if (obj != null)
             {
-                lblHeader.Tag = obj;
-                lblHeader.Text = string.Format("{0}: {1} on the port {2}. Created at {3}",
+                txtHeader.Tag = obj;
+                txtHeader.Text = string.Format("{0}: {1} on the port {2}. Created at {3}",
                     obj.ObjectClass.ToString(),
                     obj.GetThis(),
                     (string)obj.GetDynPropertyValue("Port"),
@@ -539,13 +569,17 @@ namespace LogParserApp
         {
             if (bkgWorkerLoad.IsBusy)
             {
-                if (MessageBox.Show("Do you want to cancel loading?", "Log Loading in progress...", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+                _parser.Locker.Reset();
+                if (MessageBox.Show("Hi, Youri! Do you realy want to cancel loading?", "Log Loading in progress...", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
                 {
                     closePending = true;
                     bkgWorkerLoad.CancelAsync();
                 }
-                else                
+                else
+                {
+                    _parser.Locker.Set();
                     e.Cancel = true;
+                }
 
                 return;
             }   
@@ -632,7 +666,7 @@ namespace LogParserApp
                 }
                 catch
                 {
-                    MessageBox.Show("Cannot launch the external editor " + _externalEditorExecutablePath);
+                    MessageBox.Show("Hi, Youri! Unfortunately you can't launch the external editor " + _externalEditorExecutablePath);
                     _externalEditorProcess = WindowHelper.ViewFileInExternalEditor("notepad.exe", _loadedLogFileName);
                 }
             }
@@ -644,7 +678,7 @@ namespace LogParserApp
         {
             if (!_parser.AppLogIsActive)
             {
-                MessageBox.Show("Application log is not active!" +
+                MessageBox.Show("Hi, Youri! Unfortunately, the application log is not active!" +
                                 Environment.NewLine +
                                 "Please activate it via configuration file.",
                                 "Application log",
@@ -662,7 +696,7 @@ namespace LogParserApp
                 }
                 catch
                 {
-                    MessageBox.Show("Cannot launch the external editor " + _externalEditorExecutablePath);
+                    MessageBox.Show("Hi, Youri! Unfortunately you can't launch the external editor " + _externalEditorExecutablePath);
                     _externalEditorProcess = WindowHelper.ViewFileInExternalEditor("notepad.exe", _parser.AppLogger.TargetPath);
 
                 }
@@ -684,7 +718,7 @@ namespace LogParserApp
                 _parser = new Parser(_loadedLogFileName);
                 if (!bkgWorkerLoad.IsBusy)
                 {
-                    lblHeader.Text = string.Empty;
+                    txtHeader.Text = string.Empty;
                     dataGV.DataSource = null;
                     dataGV.Rows.Clear();
                     dataGV.Refresh();
@@ -723,7 +757,7 @@ namespace LogParserApp
                 _selectedProfile = _profileMng.CurrentProfile;
                 if (!bkgWorkerLoad.IsBusy)
                 {
-                    lblHeader.Text = string.Empty;
+                    txtHeader.Text = string.Empty;
                     dataGV.DataSource = null;
                     dataGV.Rows.Clear();
                     dataGV.Refresh();
@@ -787,29 +821,43 @@ namespace LogParserApp
             else
                 (sender as DataGridView).Cursor = Cursors.Default;
         }
+          
 
-        private void dataGV_CellMouseLeave(object sender, DataGridViewCellEventArgs e)
+        private void txtHeader_Click(object sender, EventArgs e)
         {
-            (sender as DataGridView).Cursor = Cursors.Default;
-        }
-
-        private void lblHeader_MouseMove(object sender, MouseEventArgs e)
-        {           
-            lblHeader.Cursor = Cursors.Hand;           
-        }
-
-        private void lblHeader_MouseLeave(object sender, EventArgs e)
-        {
-            lblHeader.Cursor = Cursors.Default;
-        }
-
-        private void lblHeader_Click(object sender, EventArgs e)
-        {
-            //MessageBox.Show("bla-bla");
             dataGV.ClearSelection();
-            var relatedParserObj = ((sender as Label).Tag) as ParserObject;
+            var txtBox = sender as TextBox;
+            var relatedParserObj = txtBox.Tag as ParserObject;
             if (relatedParserObj != null)
+            {
+                txtBox.BackColor = Color.DarkOrange;
                 UpdateInfoBoxForDevice(relatedParserObj);
+            }
+
+        }
+
+        private void txtHeader_MouseLeave(object sender, EventArgs e)
+        {
+            txtHeader.Cursor = Cursors.Default;
+        }
+
+        private void txtHeader_MouseMove(object sender, MouseEventArgs e)
+        {
+            txtHeader.Cursor = Cursors.Hand;
+        }
+
+        private void txtHeader_Leave(object sender, EventArgs e)
+        {
+            var txtBox = sender as TextBox;
+            txtBox.BackColor = Color.Red;
+        }
+
+        private void txtHeader_TextChanged(object sender, EventArgs e)
+        {
+            var txtBox = sender as TextBox;
+            Size size = TextRenderer.MeasureText(txtBox.Text, txtBox.Font);
+            txtBox.Width = size.Width;
+            txtBox.Height = size.Height;
         }
     }
 }

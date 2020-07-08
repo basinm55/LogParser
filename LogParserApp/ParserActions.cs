@@ -20,6 +20,7 @@ namespace LogParserApp
         private void DoActionNew(XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
         {
             if (!ValidateProfileDefinition(profilePropDefinition,
+                lineNumber,
                 out string name,
                 out PropertyDataType dataType,
                 out string format))
@@ -36,6 +37,7 @@ namespace LogParserApp
         private void DoActionAssignToSelf(XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
         {
             if (_currentObj == null || !ValidateProfileDefinition(profilePropDefinition,
+                      lineNumber,
                       out string name,
                       out PropertyDataType dataType,
                       out string format)) return;             
@@ -46,6 +48,7 @@ namespace LogParserApp
         private void DoActionLocate(XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
         {
             if (_currentObj == null || !ValidateProfileDefinition(profilePropDefinition,
+                      lineNumber,
                       out string name,
                       out PropertyDataType dataType,
                       out string format)) return;
@@ -58,6 +61,7 @@ namespace LogParserApp
         private void DoActionAssign(XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
         {
             if (_locatedObj == null || !ValidateProfileDefinition(profilePropDefinition,
+                      lineNumber,
                       out string name,
                       out PropertyDataType dataType,
                       out string format)) return;
@@ -69,6 +73,7 @@ namespace LogParserApp
         private void DoActionAssignDataBuffer(List<string> list, StateObject lastStatelObj, XElement filter, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
         {
             if (!ValidateProfileDefinition(profilePropDefinition,
+                lineNumber,
                 out string name,
                 out PropertyDataType dataType,
                 out string format)) return;
@@ -92,6 +97,7 @@ namespace LogParserApp
         private void DoActionDrop(XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
         {
             if (_currentObj == null || !ValidateProfileDefinition(profilePropDefinition,
+                      lineNumber,
                       out string name,
                       out PropertyDataType dataType,
                       out string format)) return;         
@@ -100,23 +106,36 @@ namespace LogParserApp
         private void DoActionDelete(XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
         {
             if (_currentObj == null || !ValidateProfileDefinition(profilePropDefinition,
+                     lineNumber,
                      out string name,
                      out PropertyDataType dataType,
                      out string format)) return;
         }
 
-        private bool ValidateProfileDefinition(XElement profilePropDefinition, out string name, out PropertyDataType dataType, out string format)
+        private bool ValidateProfileDefinition(XElement profilePropDefinition, int lineNum, out string name, out PropertyDataType dataType, out string format)
         {
             dataType = PropertyDataType.String;
             format = null;
             name = null;
 
-            if (profilePropDefinition.Element("Name") == null) return false;
+            if (profilePropDefinition.Element("Name") == null)
+            {
+                AppLogger.LogLine("Invalid profile definition: missing element 'Name' of property", lineNum);
+                return false;
+            }
 
             name = profilePropDefinition.Element("Name").Value;
-            if (string.IsNullOrWhiteSpace(name)) return false;
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                AppLogger.LogLine("Invalid profile definition: element 'Name' is null or empty", lineNum);
+                return false;
+            }
 
-            if (profilePropDefinition.Element("DataType") == null) return false;
+            if (profilePropDefinition.Element("DataType") == null)
+            {
+                AppLogger.LogLine(string.Format("Invalid profile definition: missing element '{0}' of property '{1}'", "DataType", name), lineNum);
+                return false;
+            }
             dataType = profilePropDefinition.Element("DataType").Value.ToEnum<PropertyDataType>();
 
             format = dataType == PropertyDataType.Time ?
@@ -158,7 +177,11 @@ namespace LogParserApp
                         prop.Element("Name").Value.ToLower() == "this")
                 {
 
-                    if (prop.Element("PatternIndex") == null || prop.Attribute("i") == null) continue;
+                    if (prop.Element("PatternIndex") == null || prop.Attribute("i") == null)
+                    {
+                        AppLogger.LogLine(string.Format("Invalid profile definition: missing index {0} of property '{1}'", "'i=' or 'PatternIndex'", "this"), lineNumber);
+                        continue;
+                    }
 
                     if (int.TryParse(prop.Element("PatternIndex").Value, out int patternIndex))
                     {
@@ -256,7 +279,7 @@ namespace LogParserApp
             {
                 if (DateTime.TryParseExact((string)parsedValue, prop.Element("DataType").Attribute("Format").Value, new CultureInfo("en-US"), DateTimeStyles.None, out DateTime dt))
                 {
-                    parsedValue = dt.ToString(_visualDateTimeFormat);
+                    parsedValue = dt.ToString(_visualDescriptionDateTimeFormat);
                     stateObj.Time = dt;
                 }
             }

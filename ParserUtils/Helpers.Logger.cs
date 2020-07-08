@@ -12,6 +12,8 @@ namespace Helpers
     {
         public string TargetPath {  get; set; }
         public string LoadingFilePath { get; set; }
+
+        public int ReportedLinesCount;
         private bool _isActive { get; set; }
 
         public ParserLogger(bool isActive = true)
@@ -59,6 +61,20 @@ namespace Helpers
             if (!_isActive) return;
 
             Log(message, lineNum);
+
+            ReportedLinesCount++;
+        }
+
+        public void LogException(Exception ex, int lineNum = -1)
+        {
+            if (!_isActive) return;
+
+            if (lineNum <= 0)
+                Log(ex.ToString(), lineNum);
+            else
+                Log(ex.ToString());
+
+            ReportedLinesCount++;
         }
     }
 }

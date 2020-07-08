@@ -114,32 +114,39 @@
 				<ObjectClass>Request</ObjectClass>
 				<State>Queued</State>
 				<Patterns>
-					<Pattern>CUsbipRequest::Prepare:@%2s: %s trvil %s req %s</Pattern>
-					<Pattern>CUsbipRequest::Prepare:@%2s: %s %s req %s</Pattern>
+					<Pattern>[%*1d]%*4c.%*4c::%s [%*7s]CUsbipRequest::Prepare:@%2s: %s trvil %s req %s</Pattern>
+					<Pattern>[%*1d]%*4c.%*4c::%s [%*7s]CUsbipRequest::Prepare:@%2s: %s %s req %s</Pattern>
 				</Patterns>
 				<Properties>
 					<Property i="0">
-						<PatternIndex>3</PatternIndex>
+						<PatternIndex>0</PatternIndex>
+						<Name>Time</Name>
+						<DataType Format ="MM/dd/yyyy-HH:mm:ss.FFF">Time</DataType>
+						<Action>AssignToSelf</Action>
+						<DisplayMember>1</DisplayMember>
+					</Property>					
+					<Property i="1">
+						<PatternIndex>4</PatternIndex>
 						<Name>this</Name>
 						<DataType>string</DataType>						
 						<Action>Locate</Action>						
 						<DisplayMember>1</DisplayMember>
 					</Property>						
-					<Property i="1">
-						<PatternIndex>0</PatternIndex>						
+					<Property i="2">
+						<PatternIndex>1</PatternIndex>						
 						<Name>Address</Name>
 						<DataType>string</DataType>
 						<Action>Assign</Action>
 						<DisplayMember>1</DisplayMember>
 					</Property>
-					<Property i="2">
-						<PatternIndex>2</PatternIndex>
+					<Property i="3">
+						<PatternIndex>3</PatternIndex>
 						<Name>Direction</Name>
 						<DataType>string</DataType>						
 						<Action>Assign</Action>
 					</Property>
-					<Property i="3">
-						<PatternIndex>1</PatternIndex>
+					<Property i="4">
+						<PatternIndex>2</PatternIndex>
 						<Name>Type</Name>
 						<DataType>string</DataType>
 						<Action>Assign</Action>

@@ -13,12 +13,15 @@ using System.Drawing;
 using System.ComponentModel;
 using System.Configuration;
 using System.Text;
+using System.Threading;
 
 namespace LogParserApp
 {
     public partial class Parser : IDisposable
     {
-        string _logFileName;       
+        private string _logFileName;
+
+        public ManualResetEvent Locker = new ManualResetEvent(true);
 
         public List<ParserObject> ObjectCollection { get; private set; }
         ParserObject _currentObj, _locatedObj;
@@ -27,7 +30,7 @@ namespace LogParserApp
 
         private ParserColorManager _colorMng;
 
-        private string _visualDateTimeFormat;
+        private string _visualDescriptionDateTimeFormat;
 
         public int TotalLogLines { get; private set; }
         public int CompletedLogLines { get; private set; }
@@ -39,7 +42,7 @@ namespace LogParserApp
         public Parser(string logFileName)
         {
             if (string.IsNullOrWhiteSpace(logFileName) || !File.Exists(logFileName))
-                MessageBox.Show(string.Format("Log file: '{0}' does not exists!", logFileName));
+                MessageBox.Show(string.Format("Hi, Youri! Unfortunately, the Log file: '{0}' does not exists!", logFileName));
             else
             {
                 _logFileName = logFileName;
@@ -56,8 +59,10 @@ namespace LogParserApp
 
             int maxLoadLines = (int)Utils.GetConfigValue<int>("MaxLoadLines");
             maxLoadLines = maxLoadLines == 0 ? 50000 : maxLoadLines;
-            _visualDateTimeFormat = (string)Utils.GetConfigValue<string>("VisualDateTimeFormat");
-            _visualDateTimeFormat = string.IsNullOrWhiteSpace(_visualDateTimeFormat) ? "HH:mm:ss.FFF" : _visualDateTimeFormat;
+            _visualDescriptionDateTimeFormat = (string)Utils.GetConfigValue<string>("VisualDateTimeFormat");
+            _visualDescriptionDateTimeFormat = string.IsNullOrWhiteSpace(_visualDescriptionDateTimeFormat)
+                ? "HH:mm:ss.FFF"
+                : _visualDescriptionDateTimeFormat;
 
             _sf = new ScanFormatted();
 
@@ -68,6 +73,8 @@ namespace LogParserApp
             int lineNumber = 1;
             foreach (var line in list)
             {
+                Locker.WaitOne();
+
                 if (worker.CancellationPending == true)
                 {
                     e.Cancel = true;
@@ -75,7 +82,7 @@ namespace LogParserApp
                 }
                 else
                 {
-                    // Perform a time consuming operation and report progress.                    
+                    //Report progress.                    
                     int percentComplete = (int)(CompletedLogLines / (float)Math.Min(TotalLogLines, maxLoadLines) * 100);
 
                     worker.ReportProgress(percentComplete);
@@ -92,14 +99,7 @@ namespace LogParserApp
                 }
                 catch (Exception ex)
                 {
-                    AppLogger.LogLine(ex.ToString(), lineNumber);
-                    throw new Exception(string.Format("Parsing error on the line number: {0}" +
-                                                       Environment.NewLine +
-                                                       "{1}" + Environment.NewLine +
-                                                       "Exception Details:" + Environment.NewLine + "{2}",
-                                                    lineNumber.ToString(),
-                                                    line,
-                                                    ex.ToString()));
+                    AppLogger.LogException(ex, lineNumber);   
                 }
 
                 lineNumber++;
@@ -119,7 +119,7 @@ namespace LogParserApp
         {
             if (string.IsNullOrWhiteSpace(line))
             {
-                AppLogger.LogLine("Line is empty", lineNumber);
+                AppLogger.LogLine("Log entry is empty", lineNumber);
                 return;
             }
 

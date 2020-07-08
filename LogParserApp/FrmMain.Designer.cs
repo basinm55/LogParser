@@ -29,34 +29,29 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmMain));
             this.dataGV = new System.Windows.Forms.DataGridView();
             this.dlgLoadLog = new System.Windows.Forms.OpenFileDialog();
             this.gridCmStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.showRelatedLogEntryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.dataBufferToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.propertiesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.progressBar = new System.Windows.Forms.ToolStripProgressBar();
-            this.btnStopLoading = new System.Windows.Forms.ToolStripSplitButton();
             this.resultLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.calculateLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.gridLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.bkgWorkerLoad = new System.ComponentModel.BackgroundWorker();
-            this.lblHeader = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.cmbShowDevice = new System.Windows.Forms.ComboBox();
             this.chkShowAll = new System.Windows.Forms.CheckBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.txtHeader = new System.Windows.Forms.TextBox();
             this.gbFilter = new System.Windows.Forms.GroupBox();
             this.chkHasDataBuffer = new System.Windows.Forms.CheckBox();
-            this.btnClearFilter = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.cmbState = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
             this.cmbThis = new System.Windows.Forms.ComboBox();
-            this.btnViewLoadedLog = new System.Windows.Forms.Button();
             this.mnuStripMain = new System.Windows.Forms.MenuStrip();
             this.mnuItemFile = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuItemLoad = new System.Windows.Forms.ToolStripMenuItem();
@@ -64,13 +59,15 @@
             this.mnuItemTools = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuItemProfile = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuItemPatternValidator = new System.Windows.Forms.ToolStripMenuItem();
-            this.btnViewAppLog = new System.Windows.Forms.Button();
             this.dlgProfile = new System.Windows.Forms.OpenFileDialog();
             this.dgvInfo = new System.Windows.Forms.DataGridView();
+            this.btnViewAppLog = new System.Windows.Forms.Button();
+            this.btnViewLoadedLog = new System.Windows.Forms.Button();
+            this.btnClearFilter = new System.Windows.Forms.Button();
+            this.btnStopLoading = new System.Windows.Forms.ToolStripSplitButton();
             ((System.ComponentModel.ISupportInitialize)(this.dataGV)).BeginInit();
             this.gridCmStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
-            this.groupBox1.SuspendLayout();
             this.gbFilter.SuspendLayout();
             this.mnuStripMain.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvInfo)).BeginInit();
@@ -97,15 +94,13 @@
             this.dataGV.ReadOnly = true;
             this.dataGV.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             this.dataGV.RowHeadersVisible = false;
-            dataGridViewCellStyle5.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.dataGV.RowsDefaultCellStyle = dataGridViewCellStyle5;
+            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.dataGV.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dataGV.RowTemplate.Height = 66;
             this.dataGV.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
             this.dataGV.Size = new System.Drawing.Size(1062, 587);
             this.dataGV.TabIndex = 0;
             this.dataGV.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dataGV_CellFormatting);
-            this.dataGV.CellMouseDown += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataGV_CellMouseDown);
-            this.dataGV.CellMouseLeave += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGV_CellMouseLeave);
             this.dataGV.CellMouseMove += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataGV_CellMouseMove);
             this.dataGV.CellStateChanged += new System.Windows.Forms.DataGridViewCellStateChangedEventHandler(this.dataGV_CellStateChanged);
             this.dataGV.SelectionChanged += new System.EventHandler(this.dataGV_SelectionChanged);
@@ -113,32 +108,16 @@
             // gridCmStrip
             // 
             this.gridCmStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.showRelatedLogEntryToolStripMenuItem,
-            this.dataBufferToolStripMenuItem,
-            this.propertiesToolStripMenuItem});
+            this.dataBufferToolStripMenuItem});
             this.gridCmStrip.Name = "gridCmStrip";
-            this.gridCmStrip.Size = new System.Drawing.Size(196, 70);
-            // 
-            // showRelatedLogEntryToolStripMenuItem
-            // 
-            this.showRelatedLogEntryToolStripMenuItem.Name = "showRelatedLogEntryToolStripMenuItem";
-            this.showRelatedLogEntryToolStripMenuItem.Size = new System.Drawing.Size(195, 22);
-            this.showRelatedLogEntryToolStripMenuItem.Text = "Show related Log Entry";
-            this.showRelatedLogEntryToolStripMenuItem.Click += new System.EventHandler(this.showRelatedLogEntryToolStripMenuItem_Click);
+            this.gridCmStrip.Size = new System.Drawing.Size(134, 26);
             // 
             // dataBufferToolStripMenuItem
             // 
             this.dataBufferToolStripMenuItem.Name = "dataBufferToolStripMenuItem";
-            this.dataBufferToolStripMenuItem.Size = new System.Drawing.Size(195, 22);
+            this.dataBufferToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
             this.dataBufferToolStripMenuItem.Text = "Data Buffer";
             this.dataBufferToolStripMenuItem.Click += new System.EventHandler(this.dataBufferToolStripMenuItem_Click);
-            // 
-            // propertiesToolStripMenuItem
-            // 
-            this.propertiesToolStripMenuItem.Name = "propertiesToolStripMenuItem";
-            this.propertiesToolStripMenuItem.Size = new System.Drawing.Size(195, 22);
-            this.propertiesToolStripMenuItem.Text = "Properties...";
-            this.propertiesToolStripMenuItem.Click += new System.EventHandler(this.showPropertiesToolStripMenuItem_Click);
             // 
             // statusStrip
             // 
@@ -158,17 +137,6 @@
             // 
             this.progressBar.Name = "progressBar";
             this.progressBar.Size = new System.Drawing.Size(300, 16);
-            // 
-            // btnStopLoading
-            // 
-            this.btnStopLoading.DropDownButtonWidth = 1;
-            this.btnStopLoading.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.btnStopLoading.Image = ((System.Drawing.Image)(resources.GetObject("btnStopLoading.Image")));
-            this.btnStopLoading.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.btnStopLoading.Name = "btnStopLoading";
-            this.btnStopLoading.Size = new System.Drawing.Size(107, 20);
-            this.btnStopLoading.Text = "Stop loading...";
-            this.btnStopLoading.ButtonClick += new System.EventHandler(this.btnStopLoading_ButtonClick);
             // 
             // resultLabel
             // 
@@ -195,20 +163,6 @@
             this.bkgWorkerLoad.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bkgWorkerLoad_DoWork);
             this.bkgWorkerLoad.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bkgWorkerLoad_ProgressChanged);
             this.bkgWorkerLoad.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bkgWorkerLoad_RunWorkerCompleted);
-            // 
-            // lblHeader
-            // 
-            this.lblHeader.AutoSize = true;
-            this.lblHeader.BackColor = System.Drawing.Color.Crimson;
-            this.lblHeader.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblHeader.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.lblHeader.Location = new System.Drawing.Point(27, 16);
-            this.lblHeader.Name = "lblHeader";
-            this.lblHeader.Size = new System.Drawing.Size(0, 15);
-            this.lblHeader.TabIndex = 6;
-            this.lblHeader.Click += new System.EventHandler(this.lblHeader_Click);
-            this.lblHeader.MouseLeave += new System.EventHandler(this.lblHeader_MouseLeave);
-            this.lblHeader.MouseMove += new System.Windows.Forms.MouseEventHandler(this.lblHeader_MouseMove);
             // 
             // label1
             // 
@@ -244,14 +198,31 @@
             // 
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox1.Controls.Add(this.lblHeader);
             this.groupBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBox1.Location = new System.Drawing.Point(12, 99);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(1339, 36);
+            this.groupBox1.Size = new System.Drawing.Size(1053, 36);
             this.groupBox1.TabIndex = 11;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Device details:";
+            this.groupBox1.Text = "Parent";
+            // 
+            // txtHeader
+            // 
+            this.txtHeader.BackColor = System.Drawing.SystemColors.Control;
+            this.txtHeader.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.txtHeader.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.txtHeader.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtHeader.ForeColor = System.Drawing.SystemColors.Window;
+            this.txtHeader.Location = new System.Drawing.Point(20, 120);
+            this.txtHeader.Name = "txtHeader";
+            this.txtHeader.ReadOnly = true;
+            this.txtHeader.Size = new System.Drawing.Size(1045, 13);
+            this.txtHeader.TabIndex = 7;
+            this.txtHeader.Click += new System.EventHandler(this.txtHeader_Click);
+            this.txtHeader.TextChanged += new System.EventHandler(this.txtHeader_TextChanged);
+            this.txtHeader.Leave += new System.EventHandler(this.txtHeader_Leave);
+            this.txtHeader.MouseLeave += new System.EventHandler(this.txtHeader_MouseLeave);
+            this.txtHeader.MouseMove += new System.Windows.Forms.MouseEventHandler(this.txtHeader_MouseMove);
             // 
             // gbFilter
             // 
@@ -263,7 +234,7 @@
             this.gbFilter.Controls.Add(this.cmbThis);
             this.gbFilter.Location = new System.Drawing.Point(230, 21);
             this.gbFilter.Name = "gbFilter";
-            this.gbFilter.Size = new System.Drawing.Size(766, 62);
+            this.gbFilter.Size = new System.Drawing.Size(835, 62);
             this.gbFilter.TabIndex = 12;
             this.gbFilter.TabStop = false;
             this.gbFilter.Text = "Filter";
@@ -278,16 +249,6 @@
             this.chkHasDataBuffer.Text = "Has Data Buffer";
             this.chkHasDataBuffer.UseVisualStyleBackColor = true;
             this.chkHasDataBuffer.CheckedChanged += new System.EventHandler(this.chkHasDataBuffer_CheckedChanged);
-            // 
-            // btnClearFilter
-            // 
-            this.btnClearFilter.Location = new System.Drawing.Point(679, 15);
-            this.btnClearFilter.Name = "btnClearFilter";
-            this.btnClearFilter.Size = new System.Drawing.Size(81, 30);
-            this.btnClearFilter.TabIndex = 14;
-            this.btnClearFilter.Text = "Clear filter";
-            this.btnClearFilter.UseVisualStyleBackColor = true;
-            this.btnClearFilter.Click += new System.EventHandler(this.btnClearFilter_Click);
             // 
             // label3
             // 
@@ -326,17 +287,6 @@
             this.cmbThis.Size = new System.Drawing.Size(148, 21);
             this.cmbThis.TabIndex = 9;
             this.cmbThis.SelectedIndexChanged += new System.EventHandler(this.cmbThis_SelectedIndexChanged);
-            // 
-            // btnViewLoadedLog
-            // 
-            this.btnViewLoadedLog.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnViewLoadedLog.Location = new System.Drawing.Point(1234, 30);
-            this.btnViewLoadedLog.Name = "btnViewLoadedLog";
-            this.btnViewLoadedLog.Size = new System.Drawing.Size(117, 30);
-            this.btnViewLoadedLog.TabIndex = 15;
-            this.btnViewLoadedLog.Text = "View loaded log";
-            this.btnViewLoadedLog.UseVisualStyleBackColor = true;
-            this.btnViewLoadedLog.Click += new System.EventHandler(this.btnViewLoadedLog_Click);
             // 
             // mnuStripMain
             // 
@@ -395,17 +345,6 @@
             this.mnuItemPatternValidator.Text = "Pattern Validator Tool";
             this.mnuItemPatternValidator.Click += new System.EventHandler(this.mnuItemPatternValidator_Click);
             // 
-            // btnViewAppLog
-            // 
-            this.btnViewAppLog.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnViewAppLog.Location = new System.Drawing.Point(1234, 71);
-            this.btnViewAppLog.Name = "btnViewAppLog";
-            this.btnViewAppLog.Size = new System.Drawing.Size(117, 30);
-            this.btnViewAppLog.TabIndex = 17;
-            this.btnViewAppLog.Text = "Application  log";
-            this.btnViewAppLog.UseVisualStyleBackColor = true;
-            this.btnViewAppLog.Click += new System.EventHandler(this.btnViewAppLog_Click);
-            // 
             // dgvInfo
             // 
             this.dgvInfo.AllowUserToAddRows = false;
@@ -428,11 +367,61 @@
             this.dgvInfo.Size = new System.Drawing.Size(280, 588);
             this.dgvInfo.TabIndex = 20;
             // 
+            // btnViewAppLog
+            // 
+            this.btnViewAppLog.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnViewAppLog.Image = global::LogParserApp.Properties.Resources.AppLogView_24x24;
+            this.btnViewAppLog.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
+            this.btnViewAppLog.Location = new System.Drawing.Point(1189, 71);
+            this.btnViewAppLog.Name = "btnViewAppLog";
+            this.btnViewAppLog.Size = new System.Drawing.Size(153, 30);
+            this.btnViewAppLog.TabIndex = 17;
+            this.btnViewAppLog.Text = "Application  log";
+            this.btnViewAppLog.UseVisualStyleBackColor = true;
+            this.btnViewAppLog.Click += new System.EventHandler(this.btnViewAppLog_Click);
+            // 
+            // btnViewLoadedLog
+            // 
+            this.btnViewLoadedLog.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnViewLoadedLog.Image = global::LogParserApp.Properties.Resources.Log;
+            this.btnViewLoadedLog.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnViewLoadedLog.Location = new System.Drawing.Point(1189, 30);
+            this.btnViewLoadedLog.Name = "btnViewLoadedLog";
+            this.btnViewLoadedLog.Size = new System.Drawing.Size(153, 30);
+            this.btnViewLoadedLog.TabIndex = 15;
+            this.btnViewLoadedLog.Text = "View loaded log";
+            this.btnViewLoadedLog.UseVisualStyleBackColor = true;
+            this.btnViewLoadedLog.Click += new System.EventHandler(this.btnViewLoadedLog_Click);
+            // 
+            // btnClearFilter
+            // 
+            this.btnClearFilter.Image = global::LogParserApp.Properties.Resources.ClearFilter;
+            this.btnClearFilter.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnClearFilter.Location = new System.Drawing.Point(704, 19);
+            this.btnClearFilter.Name = "btnClearFilter";
+            this.btnClearFilter.Size = new System.Drawing.Size(121, 30);
+            this.btnClearFilter.TabIndex = 14;
+            this.btnClearFilter.Text = "Clear filter";
+            this.btnClearFilter.UseVisualStyleBackColor = true;
+            this.btnClearFilter.Click += new System.EventHandler(this.btnClearFilter_Click);
+            // 
+            // btnStopLoading
+            // 
+            this.btnStopLoading.DropDownButtonWidth = 1;
+            this.btnStopLoading.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnStopLoading.Image = ((System.Drawing.Image)(resources.GetObject("btnStopLoading.Image")));
+            this.btnStopLoading.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnStopLoading.Name = "btnStopLoading";
+            this.btnStopLoading.Size = new System.Drawing.Size(107, 20);
+            this.btnStopLoading.Text = "Stop loading...";
+            this.btnStopLoading.ButtonClick += new System.EventHandler(this.btnStopLoading_ButtonClick);
+            // 
             // FrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1359, 754);
+            this.Controls.Add(this.txtHeader);
             this.Controls.Add(this.dgvInfo);
             this.Controls.Add(this.btnViewAppLog);
             this.Controls.Add(this.btnViewLoadedLog);
@@ -455,8 +444,6 @@
             this.gridCmStrip.ResumeLayout(false);
             this.statusStrip.ResumeLayout(false);
             this.statusStrip.PerformLayout();
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
             this.gbFilter.ResumeLayout(false);
             this.gbFilter.PerformLayout();
             this.mnuStripMain.ResumeLayout(false);
@@ -472,14 +459,11 @@
         private System.Windows.Forms.DataGridView dataGV;
         private System.Windows.Forms.OpenFileDialog dlgLoadLog;
         private System.Windows.Forms.ContextMenuStrip gridCmStrip;
-        private System.Windows.Forms.ToolStripMenuItem showRelatedLogEntryToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem propertiesToolStripMenuItem;
         private System.Windows.Forms.StatusStrip statusStrip;
         private System.Windows.Forms.ToolStripStatusLabel resultLabel;
         public System.ComponentModel.BackgroundWorker bkgWorkerLoad;
         private System.Windows.Forms.ToolStripProgressBar progressBar;
-        private System.Windows.Forms.ToolStripStatusLabel calculateLabel;
-        private System.Windows.Forms.Label lblHeader;
+        private System.Windows.Forms.ToolStripStatusLabel calculateLabel;        
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ComboBox cmbShowDevice;
         private System.Windows.Forms.CheckBox chkShowAll;
@@ -505,6 +489,7 @@
         private System.Windows.Forms.OpenFileDialog dlgProfile;
         private System.Windows.Forms.ToolStripMenuItem mnuItemProfile;
         private System.Windows.Forms.DataGridView dgvInfo;
+        private System.Windows.Forms.TextBox txtHeader;
     }
 }
 
