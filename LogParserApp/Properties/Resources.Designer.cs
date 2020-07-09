@@ -63,9 +63,9 @@ namespace LogParserApp.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap AppLogView_24x24 {
+        internal static System.Drawing.Bitmap applog {
             get {
-                object obj = ResourceManager.GetObject("AppLogView_24x24", resourceCulture);
+                object obj = ResourceManager.GetObject("applog", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -73,9 +73,9 @@ namespace LogParserApp.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap ClearFilter {
+        internal static System.Drawing.Bitmap clearfilter {
             get {
-                object obj = ResourceManager.GetObject("ClearFilter", resourceCulture);
+                object obj = ResourceManager.GetObject("clearfilter", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -93,9 +93,9 @@ namespace LogParserApp.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap Log {
+        internal static System.Drawing.Bitmap log {
             get {
-                object obj = ResourceManager.GetObject("Log", resourceCulture);
+                object obj = ResourceManager.GetObject("log", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

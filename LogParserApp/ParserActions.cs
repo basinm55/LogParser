@@ -250,7 +250,7 @@ namespace LogParserApp
                                     obj.SetDynProperty("FilterKey", filterKey);
                                     obj.SetDynProperty("IsVisible", isVisible);
                                     obj.LineNum = lineNumber;
-                                    obj.Line = line;
+                                    obj.LogEntry = line;
                                     obj.FilterKey = filterKey;
                                 }
                                 else
@@ -286,7 +286,12 @@ namespace LogParserApp
 
             var key = prop.Element("Name").Value.ToString();
             if (stateObj != null && !stateObj.VisualDescription.ContainsKey(key))
-                stateObj.VisualDescription.Add(new KeyValuePair<string, string>(key, parsedValue.ToString()));
+            {
+                if (key.ToLower() == "timetocomplete")
+                    stateObj.VisualDescription.Add(new KeyValuePair<string, string>(key, parsedValue.ToString()+ " ms."));
+                else
+                    stateObj.VisualDescription.Add(new KeyValuePair<string, string>(key, parsedValue.ToString()));
+            }
         }     
     }
 }

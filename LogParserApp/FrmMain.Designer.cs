@@ -370,7 +370,7 @@
             // btnViewAppLog
             // 
             this.btnViewAppLog.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnViewAppLog.Image = global::LogParserApp.Properties.Resources.AppLogView_24x24;
+            this.btnViewAppLog.Image = global::LogParserApp.Properties.Resources.applog;
             this.btnViewAppLog.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
             this.btnViewAppLog.Location = new System.Drawing.Point(1189, 71);
             this.btnViewAppLog.Name = "btnViewAppLog";
@@ -383,7 +383,7 @@
             // btnViewLoadedLog
             // 
             this.btnViewLoadedLog.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnViewLoadedLog.Image = global::LogParserApp.Properties.Resources.Log;
+            this.btnViewLoadedLog.Image = global::LogParserApp.Properties.Resources.log;
             this.btnViewLoadedLog.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnViewLoadedLog.Location = new System.Drawing.Point(1189, 30);
             this.btnViewLoadedLog.Name = "btnViewLoadedLog";
@@ -395,7 +395,7 @@
             // 
             // btnClearFilter
             // 
-            this.btnClearFilter.Image = global::LogParserApp.Properties.Resources.ClearFilter;
+            this.btnClearFilter.Image = global::LogParserApp.Properties.Resources.clearfilter;
             this.btnClearFilter.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnClearFilter.Location = new System.Drawing.Point(704, 19);
             this.btnClearFilter.Name = "btnClearFilter";

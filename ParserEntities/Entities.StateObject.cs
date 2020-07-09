@@ -20,7 +20,7 @@ namespace Entities
 
         public IDictionary<string, string> VisualDescription { get; set; }
 
-        public string Line { get; set; }
+        public string LogEntry { get; set; }
 
         public int LineNum { get; set; }
 

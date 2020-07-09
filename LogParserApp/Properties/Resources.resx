@@ -121,13 +121,13 @@
   <data name="forvard_arrow" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\forvard_arrow.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="AppLogView_24x24" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\AppLogView_24x24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="applog" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\applog.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Log" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Log.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="log" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\log.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="ClearFilter" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\ClearFilter.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="clearfilter" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\clearfilter.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

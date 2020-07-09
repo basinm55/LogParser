@@ -18,7 +18,7 @@ namespace Entities
 
         public IDictionary<string, object> DynObjectDictionary;
 
-        public string Line { get; set; }
+        public string LogEntry { get; set; }
 
         public int LineNum { get; set; }
 
@@ -158,7 +158,7 @@ namespace Entities
         {
             var result = new StateObject(baseObject);
             result.LineNum = lineNumber;
-            result.Line = line;
+            result.LogEntry = line;
             result.State = state;
             result.Color = baseObject.BaseColor;
             result.FilterKey = filterKey;

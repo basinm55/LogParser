@@ -102,7 +102,7 @@ namespace LogParserApp
                                     : null;
                 
                 ds.Add(new KeyValuePair<string, string>("Class", stateObj.ObjectClass.ToString()));
-ds.Add(new KeyValuePair<string, string>("State", stateObj.State.ToString()));
+                ds.Add(new KeyValuePair<string, string>("State", stateObj.State.ToString()));
                 ds.Add(new KeyValuePair<string, string>("this", baseObj.GetThis()));
                 ds.Add(new KeyValuePair<string, string>("Time", time));
 
@@ -123,7 +123,7 @@ ds.Add(new KeyValuePair<string, string>("State", stateObj.State.ToString()));
                         prop.PropertyType == typeof(ObjectClass))
                         && prop.Name.ToLower() != "description")
                         {                           
-                            var val = prop.GetValue(stateObj, null).ToString();
+                            var val = prop.GetValue(stateObj, null).ToString();                            
                             ds.Add(new KeyValuePair<string, string>(prop.Name, val));
                         }
                     }
@@ -282,7 +282,7 @@ ds.Add(new KeyValuePair<string, string>("State", stateObj.State.ToString()));
             {
                 var relatedStateObject = (StateObject)dataGV.CurrentCell.Value;
                 if (relatedStateObject != null)
-                    FlexibleMessageBox.Show(relatedStateObject.Line, "Related Log Entry", MessageBoxButtons.OK);
+                    FlexibleMessageBox.Show(relatedStateObject.LogEntry, "Related Log Entry", MessageBoxButtons.OK);
             }
 
         }
