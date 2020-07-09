@@ -46,8 +46,10 @@ namespace Entities
 
         public enum State
         {
-            Unknown = -2,
-            Deleted = -1, 
+            Unknown = -4,
+            Deleted = -3,
+            ViewArrow = -2,
+            Empty = -1,
             Created = 0,                                  
             Queued = 1,
             Sent = 2,
@@ -57,7 +59,7 @@ namespace Entities
 
         public enum ObjectClass
         {
-            Unknown = -1,
+            Unknown = -1,           
             Device = 0,
             Port = 1,
             Request = 2,

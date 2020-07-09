@@ -24,11 +24,13 @@ namespace Entities
 
         public List<StateObject> StateCollection { get; set; }        
 
-        public ObjectClass ObjectClass { get; private set; }
+        public ObjectClass ObjectClass { get; set; }
 
         public DateTime Time { get; set; }
 
         public string FilterKey { get; set; }
+
+        public ParserObject PrevInterruptedObj { get; set; }
 
         public bool IsFindable { get; set; }
 
@@ -162,10 +164,40 @@ namespace Entities
             result.State = state;
             result.Color = baseObject.BaseColor;
             result.FilterKey = filterKey;
-            result.ObjectClass = baseObject.ObjectClass;
+            result.ObjectClass = baseObject.ObjectClass;                                        
             return result;
-        }      
- 
+        }
+
+        public static StateObject CreateEmptyStateObject(this ParserObject baseObject)
+        {
+            var result = new StateObject(baseObject);
+            result.State = State.Empty;
+            result.Color = Color.Transparent;
+            result.Description = null;
+            return result;
+        }
+
+        public static StateObject CreateArrowStateObject(this ParserObject baseObject)
+        {
+            var result = new StateObject(baseObject);
+            result.State = State.ViewArrow;
+            result.Color = Color.Transparent;
+            result.Description = null;
+            return result;
+        }
+
+
+        public static ParserObject CreateObjectClone(this ParserObject original)
+        {
+            var result = new ParserObject(original.ObjectClass);
+
+            result.DynObject = DeepClone(original.DynObject);
+            result.DynObjectDictionary = (IDictionary<string, object>)result.DynObject;            
+            result.ObjectClass = original.ObjectClass;
+            result.BaseColor = original.BaseColor;
+            return result;
+        }
+
 
         private static ExpandoObject DeepClone(ExpandoObject original)
         {

@@ -40,12 +40,12 @@ namespace LogParserApp
             dataGV.AutoGenerateColumns = false;            
             dataGV.Columns.Clear();
 
-            foreach (var o in data)
-            {
-                if (o == null) continue;
-                var stateCollection = o.StateCollection;
-                stateCollection.RemoveAll((x) => x == null);
-            }
+            //foreach (var o in data)
+            //{
+            //    if (o == null) continue;
+            //    var stateCollection = o.StateCollection;
+            //    stateCollection.RemoveAll((x) => x == null);
+            //}
             
             var columnsCount = data.Count > 0 ? data.Where(x => x != null).Max(x => x.StateCollection.Count()*2 - 1): 0;           
 
@@ -83,30 +83,31 @@ namespace LogParserApp
 
             if (visualStateCollection.Count == 0) return;
 
-            //Insert places for ForwardArrow images
-            var visualStateCollectionCount = visualStateCollection.Count * 2 - 1;
-            for (int i=0; i< visualStateCollectionCount; i++)
-            {
-                visualStateCollection.Insert(i+1, null);
-                i++;
-            }
+            ////Insert places for ForwardArrow images
+            //var visualStateCollectionCount = visualStateCollection.Count() * 2 - 1;
+            //for (int i=0; i< visualStateCollectionCount; i++)
+            //{
+            //    visualStateCollection.Insert(i+1, null);
+            //    i++;
+            //}
 
             var rowIndex = dataGV.Rows.Add();
             var row = dataGV.Rows[rowIndex];
             
-            for (int i=0; i<dataGV.ColumnCount; i++)
+            for (int i=0; i < dataGV.ColumnCount; i++)
             {
 
-                if (i < visualStateCollectionCount)
+                if (i < visualStateCollection.Count)
                 {
-                    if (i % 2 == 0 || visualStateCollection[i] != null)
-                        CreateGridCell(visualStateCollection[i], row, i, maxDescLength);                   
-                    else
-                        CreateForwardImadeCell(row, i);
+                    if (visualStateCollection[i] != null)
+                    {
+                        if (visualStateCollection[i].State == Enums.State.ViewArrow)
+                            CreateForwardImadeCell(row, i);
+                        else
+                            CreateGridCell(visualStateCollection[i], row, i, maxDescLength);                                              
+                    }
 
-                }
-                else
-                    CreateGridCell(row, i);
+                }               
             }        
             
         }
@@ -139,12 +140,14 @@ namespace LogParserApp
             };
 
 
-            var stateDescription = CreateVisualDescription(stateObj, maxDescLength);                           
-            stateObj.Description = stateDescription.ToString();
-            //if (string.IsNullOrWhiteSpace(stateObj.Description))
-            //    stateObj.Description = null;
-            cell.Value = stateObj;
-            //cell.Value = stateObj.Description;
+            if (stateObj.State != Enums.State.Empty)
+            {
+                var stateDescription = CreateVisualDescription(stateObj, maxDescLength);
+                stateObj.Description = stateDescription.ToString();
+                cell.Value = stateObj;
+            }            
+            else
+                cell.Value = null;
 
             row.Cells[cellIndex] = cell;            
         }

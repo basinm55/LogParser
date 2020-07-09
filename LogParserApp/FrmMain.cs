@@ -94,7 +94,7 @@ namespace LogParserApp
             var ds = new List<KeyValuePair<string, string>>();
 
 
-            if (stateObj != null)
+            if (stateObj != null && stateObj.State != State.Empty)
             {
                 var baseObj = stateObj.Parent;                
                 var time = stateObj.Time != DateTime.MinValue ?
@@ -394,9 +394,10 @@ namespace LogParserApp
                     gbFilter.Enabled = true;
                     if (_parser.AppLogIsActive && _parser.AppLogger.ReportedLinesCount > 0)
                     {
-                        if (MessageBox.Show(string.Format("Hi, Yuri! There are {0} parsing errors reported while loading."
+                        if (MessageBox.Show(string.Format("Hi, Yuri!"
+                            + Environment.NewLine + " There are {0} parsing errors reported while loading."
                             + Environment.NewLine
-                            + "Hi, Youri! Do you want to open Application Log now?",
+                            + "Do you want to open Application Log now?",
                             _parser.AppLogger.ReportedLinesCount),
                             "Warning: Errors reported",
                             MessageBoxButtons.YesNo,

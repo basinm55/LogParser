@@ -219,23 +219,33 @@ namespace LogParserApp
                     lastCurrentObj = null;
                 }
 
-                stateObj.Color = _colorMng.GetColorByState(_currentObj.BaseColor, stateObj.State);                             
+                stateObj.Color = _colorMng.GetColorByState(_currentObj.BaseColor, stateObj.State);
 
                 if (isVisible)
-                    _currentObj.StateCollection.Add(stateObj);                     
+                {
+                    _currentObj.StateCollection.Add(stateObj);
+                    if (stateObj.State != State.Completed)
+                        _currentObj.StateCollection.Add(_currentObj.CreateArrowStateObject());
+                }
             }
 
             if (!isExistingFound)
             {
                 if (isVisible)
                 {
-                    _currentObj.BaseColor = _colorMng.GetNextBaseColor();
+                    if (_currentObj.PrevInterruptedObj == null)
+                        _currentObj.BaseColor = _colorMng.GetNextBaseColor();
+
                     foreach (var stateObj in _currentObj.StateCollection)
                     {
-                        if (stateObj != null)
+                        if (stateObj != null && stateObj.State != State.Empty && stateObj.State != State.ViewArrow)
                             stateObj.Color = _colorMng.GetColorByState(_currentObj.BaseColor, stateObj.State);
                     }
                 }
+
+                if (_currentObj.StateCollection.Count > 0 &&
+                    _currentObj.StateCollection.Any(x => x != null && x.State == State.Completed))
+                        _currentObj.IsFindable = false;
 
                 ObjectCollection.Add(_currentObj);
             }            

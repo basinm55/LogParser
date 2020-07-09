@@ -166,7 +166,7 @@ namespace LogParserApp
             var objState = State.Unknown;
             var objClass = ObjectClass.Unknown;
             ParserObject obj = null;
-            bool isExistingFound = false;
+            bool isExistingFound = false;            
            
             _currentObj = null;
 
@@ -211,6 +211,7 @@ namespace LogParserApp
                             if (Enum.IsDefined(typeof(ObjectClass), objClass) &&
                                 !string.IsNullOrWhiteSpace(thisValue))
                             {
+                                var foundLastState = State.Unknown;
                                 var foundExistingObject = ObjectCollection.LastOrDefault(x =>
                                                     x.GetThis() == thisVal &&
                                                     x.ObjectClass == objClass &&
@@ -218,40 +219,49 @@ namespace LogParserApp
 
                                 isExistingFound = foundExistingObject != null;
 
+                                ParserObject foundInterruptedObj = null; 
+
                                 if (isExistingFound)
                                 {
+                                    //Check is new row needed                                    
                                     var foundStateCollection = foundExistingObject.StateCollection;
-                                    if (foundStateCollection != null && foundStateCollection.Count > 0
-                                        && foundStateCollection[foundStateCollection.Count - 1].State == State.Completed)
+                                    if (foundStateCollection != null && foundStateCollection.Count > 0)
+                                    {                                        
+                                        if (ObjectCollection[ObjectCollection.Count - 1].GetThis() != thisVal)
+                                        {
+                                            foundInterruptedObj = foundExistingObject;
+                                            foundLastState = foundStateCollection[foundStateCollection.Count - 1].State;                                            
+                                            isExistingFound = false;
+                                        }
 
-                                        isExistingFound = false;
-                                    else if (foundStateCollection != null && foundStateCollection.Count > 0
-                                        && foundStateCollection[foundStateCollection.Count - 1].State + 1 != objState)
-                                    {
-                                        //int droppedStatesCount = objState - foundVoCollection[foundVoCollection.Count - 1].ObjectState;
-                                        //for (int i = 0; i < droppedStatesCount; i++)
-                                        //{
-                                        //    var vo = new ParserObject(objClass) { LineNum = -1 };
-                                        //    vo.ObjectState = ObjectState.Dropped;
-                                        //    vo.SetDynProperty("Parent", foundExistingObject.GetDynPropertyValue("Parent"));
-                                        //    vo.SetDynProperty("this", thisValue);
-                                        //    //vo.SetDynProperty("FilterKey", filterKey);
-                                        //    //vo.SetDynProperty("IsVisible", isVisible);                                            
-                                        //    foundVoCollection.Add(vo);
-                                        //    i++;
-                                        //}
-                                    }
+                                        //&& foundStateCollection[foundStateCollection.Count - 1].State != State.Completed)
+
+
+                                    }                                  
                                 }
 
                                 if (!isExistingFound)
-                                {                                   
-                                    obj = new ParserObject(objClass);                                   
-                                    obj.SetDynProperty("this", thisValue);                                    
-                                    obj.SetDynProperty("FilterKey", filterKey);
-                                    obj.SetDynProperty("IsVisible", isVisible);
-                                    obj.LineNum = lineNumber;
-                                    obj.LogEntry = line;
-                                    obj.FilterKey = filterKey;
+                                {
+                                    if (foundInterruptedObj != null)
+                                    {
+                                        obj = foundInterruptedObj.CreateObjectClone();
+                                        obj.BaseColor = foundInterruptedObj.BaseColor;
+                                        obj.PrevInterruptedObj = foundInterruptedObj;
+                                        for (int i = 0; i < foundInterruptedObj.StateCollection.Count; i++)
+                                        {
+                                            obj.StateCollection.Add(obj.CreateEmptyStateObject());                                            
+                                        }
+                                    }
+                                    else
+                                    {
+                                        obj = new ParserObject(objClass);
+                                        obj.SetDynProperty("this", thisValue);
+                                        obj.SetDynProperty("FilterKey", filterKey);
+                                        obj.SetDynProperty("IsVisible", isVisible);
+                                        obj.LineNum = lineNumber;
+                                        obj.LogEntry = line;
+                                        obj.FilterKey = filterKey;
+                                    }
                                 }
                                 else
                                 {                               
@@ -271,6 +281,8 @@ namespace LogParserApp
 
         private void SetObjectDescription(StateObject stateObj, XElement prop, object parsedValue)
         {
+            if (stateObj.State == State.Empty) return;
+
             XElement displayMember = prop.Element("DisplayMember");
             if (displayMember == null || displayMember.Value == null || !displayMember.Value.ToBoolean())
                 return;
