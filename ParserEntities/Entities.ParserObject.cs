@@ -32,6 +32,8 @@ namespace Entities
 
         public ParserObject PrevInterruptedObj { get; set; }
 
+        public ParserObject NextContinuedObj { get; set; }
+
         public bool IsFindable { get; set; }
 
 
@@ -171,21 +173,24 @@ namespace Entities
         public static StateObject CreateEmptyStateObject(this ParserObject baseObject)
         {
             var result = new StateObject(baseObject);
+            result.ObjectClass = ObjectClass.Empty;
             result.State = State.Empty;
             result.Color = Color.Transparent;
             result.Description = null;
             return result;
         }
 
-        public static StateObject CreateArrowStateObject(this ParserObject baseObject)
+        public static StateObject CreateArrowStateObject(this ParserObject baseObject, bool isClickable = false)
         {
             var result = new StateObject(baseObject);
+            result.ObjectClass = ObjectClass.ViewArrow;
             result.State = State.ViewArrow;
             result.Color = Color.Transparent;
             result.Description = null;
+            result.IsClickable = isClickable;            
             return result;
         }
-
+     
 
         public static ParserObject CreateObjectClone(this ParserObject original)
         {

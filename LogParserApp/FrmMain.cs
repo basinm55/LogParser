@@ -31,7 +31,7 @@ namespace LogParserApp
         private string _currentFilterState = null;
         private string _loadedLogFileName = null;
         private string _selectedProfileFileName = null;
-        private bool _currentFilterHasDataBuffer = false;
+        private bool _currentFilterHasDataBuffer = false;        
         private Process _externalEditorProcess = null;
 
         public FrmMain()
@@ -609,7 +609,7 @@ namespace LogParserApp
         }
 
         private void SetFilters()
-        {
+        {           
             gbFilter.Enabled = false;
             _currentFilterThis = cmbThis.SelectedIndex > 0 ? (string)cmbThis.SelectedItem : null;
             _currentFilterState = cmbState.SelectedIndex > 0 ? (string)cmbState.SelectedItem : null;
@@ -639,7 +639,7 @@ namespace LogParserApp
             {
                 Cursor.Current = Cursors.Default;
                 gridLabel.Text = string.Format("  Total view rows: {0}", dataGV.Rows.Count.ToString());
-                gbFilter.Enabled = true;
+                gbFilter.Enabled = true;               
             }
 
         }
@@ -817,6 +817,11 @@ namespace LogParserApp
         private void dataGV_CellMouseMove(object sender, DataGridViewCellMouseEventArgs e)
         {
             var stateObj = (dataGV.Rows[e.RowIndex].Cells[e.ColumnIndex].Value as StateObject);
+
+            //if (stateObj.ObjectClass == ObjectClass.ViewArrow)
+            //{ 
+            //}
+
             if (stateObj != null)
                 (sender as DataGridView).Cursor = Cursors.Hand;
             else

@@ -59,7 +59,9 @@ namespace Entities
 
         public enum ObjectClass
         {
-            Unknown = -1,           
+            Unknown = -3,
+            ViewArrow = -2,
+            Empty = -1,
             Device = 0,
             Port = 1,
             Request = 2,

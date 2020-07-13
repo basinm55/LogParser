@@ -32,7 +32,8 @@ namespace LogParserApp
         }
 
         public static void CreateGridView(List<ParserObject> data, DataGridView dataGV, string deviceFilter)
-        {
+        {          
+
             //if (data.Count == 0) return;
             int maxDescLength = (int)Utils.GetConfigValue<int>("MaxVisualDescriptionLength");
             maxDescLength = maxDescLength == 0 ? 30 : maxDescLength;
@@ -47,7 +48,7 @@ namespace LogParserApp
             //    stateCollection.RemoveAll((x) => x == null);
             //}
             
-            var columnsCount = data.Count > 0 ? data.Where(x => x != null).Max(x => x.StateCollection.Count()*2 - 1): 0;           
+            var columnsCount = data.Count > 0 ? data.Max(x => x.StateCollection.Count()): 0;           
 
             for (int i = 0; i < columnsCount; i++)
             {
@@ -81,15 +82,7 @@ namespace LogParserApp
             else
                 visualStateCollection = obj.StateCollection;
 
-            if (visualStateCollection.Count == 0) return;
-
-            ////Insert places for ForwardArrow images
-            //var visualStateCollectionCount = visualStateCollection.Count() * 2 - 1;
-            //for (int i=0; i< visualStateCollectionCount; i++)
-            //{
-            //    visualStateCollection.Insert(i+1, null);
-            //    i++;
-            //}
+            if (visualStateCollection.Count == 0) return;           
 
             var rowIndex = dataGV.Rows.Add();
             var row = dataGV.Rows[rowIndex];
@@ -102,7 +95,7 @@ namespace LogParserApp
                     if (visualStateCollection[i] != null)
                     {
                         if (visualStateCollection[i].State == Enums.State.ViewArrow)
-                            CreateForwardImadeCell(row, i);
+                            CreateForwardImadeCell(visualStateCollection[i], row, i, obj.NextContinuedObj, obj.PrevInterruptedObj);
                         else
                             CreateGridCell(visualStateCollection[i], row, i, maxDescLength);                                              
                     }
@@ -112,17 +105,38 @@ namespace LogParserApp
             
         }
 
-        private static void CreateForwardImadeCell(DataGridViewRow row, int cellIndex)
-        {
+        private static void CreateForwardImadeCell(StateObject stateObj, DataGridViewRow row, int cellIndex, ParserObject nextContinuedObj, ParserObject prevInterruptedObj)
+        {            
             var cell = new DataGridViewImageCell();
-            cell.Value = Properties.Resources.forvard_arrow;
+
+            if (stateObj == null)
+            {
+                row.Cells[cellIndex] = cell;
+                return;
+            }
+
+            if (nextContinuedObj != null)
+            {
+                cell.Value = ImageExt.ColorReplace(Properties.Resources.forward_arrow, Color.White, nextContinuedObj.BaseColor);
+                cell.Tag = nextContinuedObj;
+            }
+            else if (prevInterruptedObj != null)
+            {
+                cell.Value = ImageExt.ColorReplace(Properties.Resources.forward_arrow, Color.White, prevInterruptedObj.BaseColor);
+                cell.Tag = prevInterruptedObj;
+            }
+            else
+            {
+                cell.Value = Properties.Resources.forward_arrow;
+                cell.Tag = null;
+            }
+
             row.Cells[cellIndex] = cell;
         }
 
         private static void CreateGridCell(StateObject stateObj, DataGridViewRow row, int cellIndex, int maxDescLength)
         {                     
-            var cell = new DataGridViewTextBoxCell();
-            var cellForwardImg = new DataGridViewImageCell();
+            var cell = new DataGridViewTextBoxCell();            
     
             if (stateObj == null)
             {

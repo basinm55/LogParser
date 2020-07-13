@@ -83,9 +83,9 @@ namespace LogParserApp.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap forvard_arrow {
+        internal static System.Drawing.Bitmap forward_arrow {
             get {
-                object obj = ResourceManager.GetObject("forvard_arrow", resourceCulture);
+                object obj = ResourceManager.GetObject("forward_arrow", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

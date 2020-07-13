@@ -90,6 +90,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App.ico" />
+    <None Include="forward_arrow.png" />
+    <None Include="Resources\forward_arrow.bmp" />
     <None Include="log.png" />
     <None Include="applog.png" />
     <Content Include="cancel.png" />

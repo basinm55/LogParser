@@ -186,98 +186,108 @@ namespace LogParserApp
                     if (int.TryParse(prop.Element("PatternIndex").Value, out int patternIndex))
                     {
                         if (patternIndex < _sf.Results.Count)
-                        {                            
+                        {
                             thisValue = (string)parsedList[patternIndex];
                             var thisVal = thisValue;
 
                             objectState = filter.Element("State") != null &&
                             !string.IsNullOrWhiteSpace(filter.Element("State").Value)
                             ? filter.Element("State").Value : null;
-                            if  (!string.IsNullOrWhiteSpace(objectState))
+                            if (!string.IsNullOrWhiteSpace(objectState))
                                 objState = Enum.IsDefined(typeof(State), objectState) ? objectState.ToEnum<State>() : State.Unknown;
 
                             objectClass = filter.Element("ObjectClass") != null &&
                             !string.IsNullOrWhiteSpace(filter.Element("ObjectClass").Value)
                             ? filter.Element("ObjectClass").Value : null;
                             if (!string.IsNullOrWhiteSpace(objectClass))
-                                objClass = Enum.IsDefined(typeof(ObjectClass), objectClass) ? objectClass.ToEnum<ObjectClass>() : ObjectClass.Unknown;                            
+                                objClass = Enum.IsDefined(typeof(ObjectClass), objectClass) ? objectClass.ToEnum<ObjectClass>() : ObjectClass.Unknown;
 
-                            var filterKey = filter.Attribute("key").Value;
-
-                            bool isVisible = true;
-                            if (filter.Attribute("IsVisible") != null)
-                                isVisible = filter.Attribute("IsVisible").Value.ToBoolean();                           
-
-                            if (Enum.IsDefined(typeof(ObjectClass), objClass) &&
-                                !string.IsNullOrWhiteSpace(thisValue))
-                            {
-                                var foundLastState = State.Unknown;
-                                var foundExistingObject = ObjectCollection.LastOrDefault(x =>
-                                                    x.GetThis() == thisVal &&
-                                                    x.ObjectClass == objClass &&
-                                                    x.IsFindable == true);
-
-                                isExistingFound = foundExistingObject != null;
-
-                                ParserObject foundInterruptedObj = null; 
-
-                                if (isExistingFound)
-                                {
-                                    //Check is new row needed                                    
-                                    var foundStateCollection = foundExistingObject.StateCollection;
-                                    if (foundStateCollection != null && foundStateCollection.Count > 0)
-                                    {                                        
-                                        if (ObjectCollection[ObjectCollection.Count - 1].GetThis() != thisVal)
-                                        {
-                                            foundInterruptedObj = foundExistingObject;
-                                            foundLastState = foundStateCollection[foundStateCollection.Count - 1].State;                                            
-                                            isExistingFound = false;
-                                        }
-
-                                        //&& foundStateCollection[foundStateCollection.Count - 1].State != State.Completed)
-
-
-                                    }                                  
-                                }
-
-                                if (!isExistingFound)
-                                {
-                                    if (foundInterruptedObj != null)
-                                    {
-                                        obj = foundInterruptedObj.CreateObjectClone();
-                                        obj.BaseColor = foundInterruptedObj.BaseColor;
-                                        obj.PrevInterruptedObj = foundInterruptedObj;
-                                        for (int i = 0; i < foundInterruptedObj.StateCollection.Count; i++)
-                                        {
-                                            obj.StateCollection.Add(obj.CreateEmptyStateObject());                                            
-                                        }
-                                    }
-                                    else
-                                    {
-                                        obj = new ParserObject(objClass);
-                                        obj.SetDynProperty("this", thisValue);
-                                        obj.SetDynProperty("FilterKey", filterKey);
-                                        obj.SetDynProperty("IsVisible", isVisible);
-                                        obj.LineNum = lineNumber;
-                                        obj.LogEntry = line;
-                                        obj.FilterKey = filterKey;
-                                    }
-                                }
-                                else
-                                {                               
-                                    obj = foundExistingObject;
-                                    isExistingFound = true;
-                                }
-                                _currentObj = obj;
-                            }                            
-                            return isExistingFound;
+                            var filterKey = filter.Attribute("key").Value;                           
                         }
-                    }                    
+                    }
                 }
+            }
 
-            }            
+            if (Enum.IsDefined(typeof(ObjectClass), objClass) &&
+                !string.IsNullOrWhiteSpace(thisValue))
+            {
+                var thisVal = thisValue;
+                var foundInterruptedLastState = State.Unknown;
+                ParserObject foundInterruptedObj = null;
+                var foundExistingObjects = ObjectCollection.Where(x =>
+                                    x.GetThis() == thisVal &&
+                                    x.ObjectClass == objClass &&
+                                    objClass != ObjectClass.Device && //TODO ?????????
+                                    x.IsFindable == true);
+
+                isExistingFound = foundExistingObjects != null && foundExistingObjects.Count() > 0;
+                if (isExistingFound)
+                {
+                    var isCompletedFound = foundExistingObjects.Any(x => x.StateCollection.Any(y => y.State == State.Completed));
+                    if (isCompletedFound)
+                    {
+                        //Set isFindable = true
+                        foreach (var o in foundExistingObjects)
+                        {
+                            o.IsFindable = false;
+                        }
+                        isExistingFound = false;
+                    }
+                    else
+                    {
+                        foundInterruptedObj = foundExistingObjects.Last();
+                        if (foundInterruptedObj != null)
+                        {
+                            var foundStateCollection = foundInterruptedObj.StateCollection;
+                            if (foundStateCollection != null && foundStateCollection.Count > 0)
+                            {
+                                foundInterruptedLastState = foundStateCollection[foundStateCollection.Count - 1].State;
+                                if (ObjectCollection[ObjectCollection.Count - 1].GetThis() != thisVal ||
+                                                            objState < foundInterruptedLastState)                                  
+                                    isExistingFound = false;
+                            }
+                        }
+                    }
+                }                                                               
+
+                if (!isExistingFound)
+                {
+                    if (foundInterruptedObj != null )
+                    {
+                        obj = foundInterruptedObj.CreateObjectClone();
+                        obj.BaseColor = foundInterruptedObj.BaseColor;
+                        foundInterruptedObj.NextContinuedObj = obj;
+                        obj.PrevInterruptedObj = foundInterruptedObj;
+                        for (int i = 0; i < foundInterruptedObj.StateCollection.Count; i++)
+                        {
+                            obj.StateCollection.Add(obj.CreateEmptyStateObject());                          
+                        }
+                    }
+                    else
+                    {
+                        var filterKey = filter.Attribute("key").Value;
+                        bool isVisible = true;
+                        if (filter.Attribute("IsVisible") != null)
+                            isVisible = filter.Attribute("IsVisible").Value.ToBoolean();
+                        obj = new ParserObject(objClass);
+                        obj.SetDynProperty("this", thisValue);
+                        obj.SetDynProperty("FilterKey", filterKey);
+                        obj.SetDynProperty("IsVisible", isVisible);
+                        obj.LineNum = lineNumber;
+                        obj.LogEntry = line;
+                        obj.FilterKey = filterKey;                                       
+                    }
+                }
+                else
+                {                               
+                    obj = foundExistingObjects.Last();
+                    isExistingFound = true;
+                }
+                _currentObj = obj;
+            }                            
             return isExistingFound;
         }
+            
 
         private void SetObjectDescription(StateObject stateObj, XElement prop, object parsedValue)
         {

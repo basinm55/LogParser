@@ -30,7 +30,9 @@ namespace Entities
 
         public ParserObject Parent { get; private set; }
 
-        public StringBuilder DataBuffer { get; private set; }
+        public bool IsClickable { get; set; }
+
+        public StringBuilder DataBuffer { get; private set; }        
 
         //C'tor
         public StateObject(ParserObject parent)

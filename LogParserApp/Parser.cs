@@ -183,7 +183,8 @@ namespace LogParserApp
 
 
             bool isVisible = _currentObj != null && ((string)_currentObj.GetDynPropertyValue("IsVisible")).ToBoolean();
-            if (true)
+
+            if (isVisible)
             {
                 var properties = filter.XPathSelectElements("Properties/Property");
                 properties.OrderBy(e => e.Attribute("i").Value);               
@@ -223,9 +224,15 @@ namespace LogParserApp
 
                 if (isVisible)
                 {
+                    if (stateObj.State > State.Created && _currentObj.PrevInterruptedObj != null)
+                    {
+                        _currentObj.StateCollection.RemoveAt(_currentObj.StateCollection.Count - 1);
+                        _currentObj.StateCollection.Add(_currentObj.CreateArrowStateObject(true));
+                    }
                     _currentObj.StateCollection.Add(stateObj);
-                    if (stateObj.State != State.Completed)
-                        _currentObj.StateCollection.Add(_currentObj.CreateArrowStateObject());
+                    if (stateObj.State < State.Completed)
+                        _currentObj.StateCollection.Add(_currentObj.CreateArrowStateObject(_currentObj.NextContinuedObj != null));                    
+
                 }
             }
 
@@ -243,9 +250,9 @@ namespace LogParserApp
                     }
                 }
 
-                if (_currentObj.StateCollection.Count > 0 &&
-                    _currentObj.StateCollection.Any(x => x != null && x.State == State.Completed))
-                        _currentObj.IsFindable = false;
+                //if (_currentObj.StateCollection.Count > 0 &&
+                //    _currentObj.StateCollection.Any(x => x != null && x.State == State.Completed))
+                //        _currentObj.IsFindable = false;
 
                 ObjectCollection.Add(_currentObj);
             }            
