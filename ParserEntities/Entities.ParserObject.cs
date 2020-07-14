@@ -32,9 +32,9 @@ namespace Entities
 
         public ParserObject PrevInterruptedObj { get; set; }
 
-        public ParserObject NextContinuedObj { get; set; }
+        public ParserObject NextContinuedObj { get; set; }      
 
-        public bool IsFindable { get; set; }
+    public bool IsFindable { get; set; }
 
 
         //C'tor
@@ -175,8 +175,8 @@ namespace Entities
             var result = new StateObject(baseObject);
             result.ObjectClass = ObjectClass.Empty;
             result.State = State.Empty;
-            result.Color = Color.Transparent;
-            result.Description = null;
+            result.Color = Color.White;
+            result.Description = string.Empty;
             return result;
         }
 
@@ -184,10 +184,12 @@ namespace Entities
         {
             var result = new StateObject(baseObject);
             result.ObjectClass = ObjectClass.ViewArrow;
-            result.State = State.ViewArrow;
-            result.ReferenceObj = referenceObject; 
+            result.State = State.ViewArrow;                       
             result.Color = referenceObject == null ? Color.Transparent : referenceObject.BaseColor;
-            result.Description = null;                       
+            result.Description = null;
+            if (referenceObject != null)
+                result.ReferenceStateObj = referenceObject.StateCollection.LastOrDefault(x => x.ObjectClass != ObjectClass.ViewArrow && x.ObjectClass != ObjectClass.Empty);
+
             return result;
         }
      

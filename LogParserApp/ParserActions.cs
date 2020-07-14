@@ -257,7 +257,7 @@ namespace LogParserApp
                         obj = foundInterruptedObj.CreateObjectClone();
                         obj.BaseColor = foundInterruptedObj.BaseColor;
                         foundInterruptedObj.NextContinuedObj = obj;
-                        obj.PrevInterruptedObj = foundInterruptedObj;
+                        obj.PrevInterruptedObj = foundInterruptedObj;                        
                         for (int i = 0; i < foundInterruptedObj.StateCollection.Count; i++)
                         {
                             obj.StateCollection.Add(obj.CreateEmptyStateObject());                          

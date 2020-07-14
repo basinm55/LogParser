@@ -30,15 +30,15 @@ namespace Entities
 
         public ParserObject Parent { get; private set; }
 
-        public ParserObject ReferenceObj { get; set; }       
-
+        public StateObject ReferenceStateObj { get; set; }
+                
         public StringBuilder DataBuffer { get; private set; }        
 
         //C'tor
-        public StateObject(ParserObject parent, ParserObject referenceObject = null)
+        public StateObject(ParserObject parent, StateObject referenceStateObj = null)
         {
             Parent = parent;
-            ReferenceObj = referenceObject;
+            ReferenceStateObj = referenceStateObj;            
             VisualDescription = new Dictionary<string, string>();
             DataBuffer = new StringBuilder();
         }        

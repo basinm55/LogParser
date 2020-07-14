@@ -102,6 +102,7 @@
             this.dataGV.TabIndex = 0;
             this.dataGV.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGV_CellClick);
             this.dataGV.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dataGV_CellFormatting);
+            this.dataGV.CellMouseLeave += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGV_CellMouseLeave);
             this.dataGV.CellMouseMove += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataGV_CellMouseMove);
             this.dataGV.CellStateChanged += new System.Windows.Forms.DataGridViewCellStateChangedEventHandler(this.dataGV_CellStateChanged);
             this.dataGV.SelectionChanged += new System.EventHandler(this.dataGV_SelectionChanged);

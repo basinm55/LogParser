@@ -239,60 +239,156 @@ namespace LogParserApp
 
         private void dataGV_CellClick(object sender, DataGridViewCellEventArgs e)
         {
+            SearchInterrupted(e);
+
             //Handle arrow click
+            //if (!(dataGV.Rows[e.RowIndex].Cells[e.ColumnIndex] is DataGridViewImageCell)) return;
+
+            //var clickedCell = (DataGridViewImageCell)dataGV.Rows[e.RowIndex].Cells[e.ColumnIndex];
+
+            //if (clickedCell == null || clickedCell.Tag == null) return;
+
+            //if (clickedCell.Tag is ParserObject)
+            //{
+
+            //    var referenceObj = clickedCell.Tag;
+            //    //Find reference                                
+            //    for (int i = 0; i < dataGV.Rows.Count; i++)
+            //    {
+
+            //        foreach (var cell in dataGV.Rows[i].Cells)
+            //        {
+            //            if ((cell as DataGridViewCell).Value != null &&
+            //                (cell as DataGridViewCell).Value is StateObject &&
+            //                ((cell as DataGridViewCell).Value as StateObject).Parent != null)
+            //            {
+            //                var parentObject = ((cell as DataGridViewCell).Value as StateObject).Parent;
+
+            //                if (parentObject.PrevInterruptedObj == referenceObj ||
+            //                    parentObject.NextContinuedObj == referenceObj)
+            //                {
+            //                    if (dataGV.Rows[i] != dataGV.Rows[(cell as DataGridViewCell).RowIndex])
+            //                    {
+            //                        dataGV.CurrentCell = (cell as DataGridViewCell);//dataGV[(cell as DataGridViewCell).ColumnIndex, iRowIndex];
+            //                        break;
+            //                    }
+            //                }
+            //            }
+            //        }
+
+
+            //        //foreach (var cell in dataGV.Rows[j].Cells)
+            //        //{
+            //        //    if ((cell as DataGridViewCell).Value != null &&
+            //        //        (cell as DataGridViewCell).Value is StateObject &&
+            //        //        ((cell as DataGridViewCell).Value as StateObject).Parent != null)
+            //        //    {
+            //        //        var parentObject = ((cell as DataGridViewCell).Value as StateObject).Parent;
+
+            //        //        if (parentObject.PrevInterruptedObj == referenceObj ||
+            //        //            parentObject.NextContinuedObj == referenceObj)
+            //        //        {
+            //        //            iRowIndex = j;
+            //        //            break;
+            //        //        }
+            //        //    }
+            //        //}                   
+            //        //j--;
+            //        //dataGV.CurrentCell = dataGV[0, 0];               
+            //    }
+            //}
+
+        }
+
+        private void SearchInterrupted(DataGridViewCellEventArgs e)
+        {            
+            int rowIndex = 0;
+
             if (!(dataGV.Rows[e.RowIndex].Cells[e.ColumnIndex] is DataGridViewImageCell)) return;
 
             var clickedCell = (DataGridViewImageCell)dataGV.Rows[e.RowIndex].Cells[e.ColumnIndex];
 
-            if (clickedCell == null || clickedCell.Tag == null) return;
+            if (clickedCell == null || clickedCell.Tag == null || !(clickedCell.Tag is ParserObject)) return;
 
-            if (clickedCell.Tag is ParserObject)
+            var referenceObj = clickedCell.Tag;
+            if (!(referenceObj is ParserObject)) return;
+
+            StateObject referenceStateObj = null;
+
+            if ((referenceObj as ParserObject).PrevInterruptedObj != null)
+                referenceStateObj = (referenceObj as ParserObject).StateCollection.FirstOrDefault(x => x.ObjectClass != ObjectClass.Empty && x.ObjectClass != ObjectClass.ViewArrow);
+            else if ((referenceObj as ParserObject).NextContinuedObj != null)
+                referenceStateObj = (referenceObj as ParserObject).StateCollection.LastOrDefault(x => x.ObjectClass != ObjectClass.Empty && x.ObjectClass != ObjectClass.ViewArrow);
+            else
+                return;
+
+            if (referenceStateObj == null) return;
+
+            var colIndex = (referenceObj as ParserObject).StateCollection.IndexOf(referenceStateObj);
+
+            bool isFound = false;
+            foreach (DataGridViewRow row in dataGV.Rows)
             {
-                
-                var referenceObj = clickedCell.Tag;
-                //Find reference                                
-                for (int i = 0; i < Convert.ToInt32(dataGV.Rows.Count); i++)
+                foreach (var cell in row.Cells)
                 {
-
-                    foreach (var cell in dataGV.Rows[i].Cells)
+                    var stateObj = ((cell as DataGridViewCell).Value) as StateObject;
+                    if (stateObj == referenceStateObj)
                     {
-                        if ((cell as DataGridViewCell).Value != null &&
-                            (cell as DataGridViewCell).Value is StateObject &&
-                            ((cell as DataGridViewCell).Value as StateObject).Parent != null)
-                        {
-                            var parentObject = ((cell as DataGridViewCell).Value as StateObject).Parent;
-
-                            if (parentObject.PrevInterruptedObj == referenceObj ||
-                                parentObject.NextContinuedObj == referenceObj)
-                            {                                
-                                dataGV.CurrentCell = (cell as DataGridViewCell);//dataGV[(cell as DataGridViewCell).ColumnIndex, iRowIndex];
-                                break;
-                            }
-                        }
+                        isFound = true;
+                        dataGV.CurrentCell = dataGV[colIndex, rowIndex];
+                        break;
                     }
-
-
-                    //foreach (var cell in dataGV.Rows[j].Cells)
-                    //{
-                    //    if ((cell as DataGridViewCell).Value != null &&
-                    //        (cell as DataGridViewCell).Value is StateObject &&
-                    //        ((cell as DataGridViewCell).Value as StateObject).Parent != null)
-                    //    {
-                    //        var parentObject = ((cell as DataGridViewCell).Value as StateObject).Parent;
-
-                    //        if (parentObject.PrevInterruptedObj == referenceObj ||
-                    //            parentObject.NextContinuedObj == referenceObj)
-                    //        {
-                    //            iRowIndex = j;
-                    //            break;
-                    //        }
-                    //    }
-                    //}                   
-                    //j--;
-                    //dataGV.CurrentCell = dataGV[0, 0];               
                 }
+                
+                if (isFound)
+                    break;
+               
+                rowIndex++;
             }
 
+
+            //foreach (DataGridViewRow row in dataGV.Rows)
+            //{
+            //    if (row.Cells[rowIndex].Value == null) continue;
+
+            //    var stateObj = row.Cells[rowIndex].Value as StateObject;
+
+            //    if (stateObj == null ||
+            //        stateObj.ObjectClass == ObjectClass.ViewArrow ||
+            //        stateObj.ObjectClass == ObjectClass.Empty) continue;
+
+            //    var parentObject = stateObj.Parent;
+
+            //    if (parentObject == referenceObj)
+            //    {
+
+            //    }
+
+            //    List<StateObject> stateCollection = null;
+            //    if (parentObject.NextContinuedObj != null)
+            //        stateCollection = parentObject.NextContinuedObj.StateCollection;
+            //    else if (parentObject.PrevInterruptedObj != null)
+            //        stateCollection = parentObject.PrevInterruptedObj.StateCollection;
+
+            //    if (stateCollection != null)
+            //    {
+            //        foreach (var st in stateCollection)
+            //        {
+            //            if (st.ObjectClass != ObjectClass.ViewArrow && st.ObjectClass != ObjectClass.Empty)
+            //            {
+            //                if (st == referenceStateObj)//stateObj.LineNum)
+            //                {
+            //                    rowIndex = row.Index;
+            //                    dataGV.Rows[rowIndex].Selected = true;
+            //                    break;
+            //                }
+            //            }
+            //        }
+
+            //    }
+            //    //else
+            //    rowIndex++;
+            //}                              
         }
 
         //private void dataGV_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
@@ -874,18 +970,29 @@ namespace LogParserApp
 
         private void dataGV_CellMouseMove(object sender, DataGridViewCellMouseEventArgs e)
         {
-            var stateObj = (dataGV.Rows[e.RowIndex].Cells[e.ColumnIndex].Value as StateObject);
+            if (dataGV.Rows[e.RowIndex].Cells[e.ColumnIndex] is DataGridViewImageCell)
+            {
+                var tag = dataGV.Rows[e.RowIndex].Cells[e.ColumnIndex].Tag;
+                if (tag is ParserObject &&
+                    ((tag as ParserObject).NextContinuedObj != null || (tag as ParserObject).PrevInterruptedObj != null))
+                    (sender as DataGridView).Cursor = Cursors.Hand;
+                return;
+            }
+            
 
-            //if (stateObj.ObjectClass == ObjectClass.ViewArrow)
-            //{ 
-            //}
+            var stateObj = (dataGV.Rows[e.RowIndex].Cells[e.ColumnIndex].Value as StateObject);            
 
             if (stateObj != null)
                 (sender as DataGridView).Cursor = Cursors.Hand;
             else
                 (sender as DataGridView).Cursor = Cursors.Default;
+           
         }
-          
+
+        private void dataGV_CellMouseLeave(object sender, DataGridViewCellEventArgs e)
+        {
+            (sender as DataGridView).Cursor = Cursors.Default;
+        }
 
         private void txtHeader_Click(object sender, EventArgs e)
         {
@@ -922,6 +1029,6 @@ namespace LogParserApp
             Size size = TextRenderer.MeasureText(txtBox.Text, txtBox.Font);
             txtBox.Width = size.Width;
             txtBox.Height = size.Height;
-        }      
+        }       
     }
 }

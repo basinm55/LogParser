@@ -225,7 +225,7 @@ namespace LogParserApp
                 if (isVisible)
                 {
                     if (stateObj.State > State.Created && _currentObj.PrevInterruptedObj != null)
-                    {
+                    {                        
                         _currentObj.StateCollection.RemoveAt(_currentObj.StateCollection.Count - 1);
                         _currentObj.StateCollection.Add(_currentObj.CreateArrowStateObject(_currentObj.PrevInterruptedObj));
                     }
@@ -233,8 +233,9 @@ namespace LogParserApp
                     _currentObj.StateCollection.Add(stateObj);
 
                     if (stateObj.State < State.Completed)
-                        _currentObj.StateCollection.Add(_currentObj.CreateArrowStateObject(_currentObj.NextContinuedObj));                    
-
+                    {                        
+                        _currentObj.StateCollection.Add(_currentObj.CreateArrowStateObject(_currentObj.NextContinuedObj));
+                    }
                 }
             }
 
