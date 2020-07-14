@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmMain));
             this.dataGV = new System.Windows.Forms.DataGridView();
             this.dlgLoadLog = new System.Windows.Forms.OpenFileDialog();
@@ -37,6 +37,7 @@
             this.dataBufferToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.progressBar = new System.Windows.Forms.ToolStripProgressBar();
+            this.btnStopLoading = new System.Windows.Forms.ToolStripSplitButton();
             this.resultLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.calculateLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.gridLabel = new System.Windows.Forms.ToolStripStatusLabel();
@@ -48,6 +49,7 @@
             this.txtHeader = new System.Windows.Forms.TextBox();
             this.gbFilter = new System.Windows.Forms.GroupBox();
             this.chkHasDataBuffer = new System.Windows.Forms.CheckBox();
+            this.btnClearFilter = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.cmbState = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
@@ -63,8 +65,6 @@
             this.dgvInfo = new System.Windows.Forms.DataGridView();
             this.btnViewAppLog = new System.Windows.Forms.Button();
             this.btnViewLoadedLog = new System.Windows.Forms.Button();
-            this.btnClearFilter = new System.Windows.Forms.Button();
-            this.btnStopLoading = new System.Windows.Forms.ToolStripSplitButton();
             ((System.ComponentModel.ISupportInitialize)(this.dataGV)).BeginInit();
             this.gridCmStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
@@ -94,12 +94,13 @@
             this.dataGV.ReadOnly = true;
             this.dataGV.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             this.dataGV.RowHeadersVisible = false;
-            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.dataGV.RowsDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.dataGV.RowsDefaultCellStyle = dataGridViewCellStyle1;
             this.dataGV.RowTemplate.Height = 66;
             this.dataGV.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
             this.dataGV.Size = new System.Drawing.Size(1062, 587);
             this.dataGV.TabIndex = 0;
+            this.dataGV.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGV_CellClick);
             this.dataGV.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dataGV_CellFormatting);
             this.dataGV.CellMouseMove += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataGV_CellMouseMove);
             this.dataGV.CellStateChanged += new System.Windows.Forms.DataGridViewCellStateChangedEventHandler(this.dataGV_CellStateChanged);
@@ -137,6 +138,17 @@
             // 
             this.progressBar.Name = "progressBar";
             this.progressBar.Size = new System.Drawing.Size(300, 16);
+            // 
+            // btnStopLoading
+            // 
+            this.btnStopLoading.DropDownButtonWidth = 1;
+            this.btnStopLoading.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnStopLoading.Image = ((System.Drawing.Image)(resources.GetObject("btnStopLoading.Image")));
+            this.btnStopLoading.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnStopLoading.Name = "btnStopLoading";
+            this.btnStopLoading.Size = new System.Drawing.Size(107, 20);
+            this.btnStopLoading.Text = "Stop loading...";
+            this.btnStopLoading.ButtonClick += new System.EventHandler(this.btnStopLoading_ButtonClick);
             // 
             // resultLabel
             // 
@@ -249,6 +261,18 @@
             this.chkHasDataBuffer.Text = "Has Data Buffer";
             this.chkHasDataBuffer.UseVisualStyleBackColor = true;
             this.chkHasDataBuffer.CheckedChanged += new System.EventHandler(this.chkHasDataBuffer_CheckedChanged);
+            // 
+            // btnClearFilter
+            // 
+            this.btnClearFilter.Image = global::LogParserApp.Properties.Resources.clearfilter;
+            this.btnClearFilter.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnClearFilter.Location = new System.Drawing.Point(704, 19);
+            this.btnClearFilter.Name = "btnClearFilter";
+            this.btnClearFilter.Size = new System.Drawing.Size(121, 30);
+            this.btnClearFilter.TabIndex = 14;
+            this.btnClearFilter.Text = "Clear filter";
+            this.btnClearFilter.UseVisualStyleBackColor = true;
+            this.btnClearFilter.Click += new System.EventHandler(this.btnClearFilter_Click);
             // 
             // label3
             // 
@@ -392,29 +416,6 @@
             this.btnViewLoadedLog.Text = "View loaded log";
             this.btnViewLoadedLog.UseVisualStyleBackColor = true;
             this.btnViewLoadedLog.Click += new System.EventHandler(this.btnViewLoadedLog_Click);
-            // 
-            // btnClearFilter
-            // 
-            this.btnClearFilter.Image = global::LogParserApp.Properties.Resources.clearfilter;
-            this.btnClearFilter.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnClearFilter.Location = new System.Drawing.Point(704, 19);
-            this.btnClearFilter.Name = "btnClearFilter";
-            this.btnClearFilter.Size = new System.Drawing.Size(121, 30);
-            this.btnClearFilter.TabIndex = 14;
-            this.btnClearFilter.Text = "Clear filter";
-            this.btnClearFilter.UseVisualStyleBackColor = true;
-            this.btnClearFilter.Click += new System.EventHandler(this.btnClearFilter_Click);
-            // 
-            // btnStopLoading
-            // 
-            this.btnStopLoading.DropDownButtonWidth = 1;
-            this.btnStopLoading.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.btnStopLoading.Image = ((System.Drawing.Image)(resources.GetObject("btnStopLoading.Image")));
-            this.btnStopLoading.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.btnStopLoading.Name = "btnStopLoading";
-            this.btnStopLoading.Size = new System.Drawing.Size(107, 20);
-            this.btnStopLoading.Text = "Stop loading...";
-            this.btnStopLoading.ButtonClick += new System.EventHandler(this.btnStopLoading_ButtonClick);
             // 
             // FrmMain
             // 

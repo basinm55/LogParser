@@ -237,6 +237,64 @@ namespace LogParserApp
             }
         }
 
+        private void dataGV_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            //Handle arrow click
+            if (!(dataGV.Rows[e.RowIndex].Cells[e.ColumnIndex] is DataGridViewImageCell)) return;
+
+            var clickedCell = (DataGridViewImageCell)dataGV.Rows[e.RowIndex].Cells[e.ColumnIndex];
+
+            if (clickedCell == null || clickedCell.Tag == null) return;
+
+            if (clickedCell.Tag is ParserObject)
+            {
+                
+                var referenceObj = clickedCell.Tag;
+                //Find reference                                
+                for (int i = 0; i < Convert.ToInt32(dataGV.Rows.Count); i++)
+                {
+
+                    foreach (var cell in dataGV.Rows[i].Cells)
+                    {
+                        if ((cell as DataGridViewCell).Value != null &&
+                            (cell as DataGridViewCell).Value is StateObject &&
+                            ((cell as DataGridViewCell).Value as StateObject).Parent != null)
+                        {
+                            var parentObject = ((cell as DataGridViewCell).Value as StateObject).Parent;
+
+                            if (parentObject.PrevInterruptedObj == referenceObj ||
+                                parentObject.NextContinuedObj == referenceObj)
+                            {                                
+                                dataGV.CurrentCell = (cell as DataGridViewCell);//dataGV[(cell as DataGridViewCell).ColumnIndex, iRowIndex];
+                                break;
+                            }
+                        }
+                    }
+
+
+                    //foreach (var cell in dataGV.Rows[j].Cells)
+                    //{
+                    //    if ((cell as DataGridViewCell).Value != null &&
+                    //        (cell as DataGridViewCell).Value is StateObject &&
+                    //        ((cell as DataGridViewCell).Value as StateObject).Parent != null)
+                    //    {
+                    //        var parentObject = ((cell as DataGridViewCell).Value as StateObject).Parent;
+
+                    //        if (parentObject.PrevInterruptedObj == referenceObj ||
+                    //            parentObject.NextContinuedObj == referenceObj)
+                    //        {
+                    //            iRowIndex = j;
+                    //            break;
+                    //        }
+                    //    }
+                    //}                   
+                    //j--;
+                    //dataGV.CurrentCell = dataGV[0, 0];               
+                }
+            }
+
+        }
+
         //private void dataGV_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
         //{
         //    // Ignore if a column or row header is clicked
@@ -247,7 +305,7 @@ namespace LogParserApp
         //            DataGridViewCell clickedCell = (sender as DataGridView).Rows[e.RowIndex].Cells[e.ColumnIndex];
 
         //            if (!(clickedCell.Value is StateObject)) return;
-                                       
+
         //            dataGV.CurrentCell = clickedCell;  // Select the clicked cell
 
         //            // Get mouse position relative to the grid
@@ -864,6 +922,6 @@ namespace LogParserApp
             Size size = TextRenderer.MeasureText(txtBox.Text, txtBox.Font);
             txtBox.Width = size.Width;
             txtBox.Height = size.Height;
-        }
+        }      
     }
 }

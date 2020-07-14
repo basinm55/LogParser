@@ -180,14 +180,14 @@ namespace Entities
             return result;
         }
 
-        public static StateObject CreateArrowStateObject(this ParserObject baseObject, bool isClickable = false)
+        public static StateObject CreateArrowStateObject(this ParserObject baseObject, ParserObject referenceObject = null)
         {
             var result = new StateObject(baseObject);
             result.ObjectClass = ObjectClass.ViewArrow;
             result.State = State.ViewArrow;
-            result.Color = Color.Transparent;
-            result.Description = null;
-            result.IsClickable = isClickable;            
+            result.ReferenceObj = referenceObject; 
+            result.Color = referenceObject == null ? Color.Transparent : referenceObject.BaseColor;
+            result.Description = null;                       
             return result;
         }
      

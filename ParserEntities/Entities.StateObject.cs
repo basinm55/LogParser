@@ -30,14 +30,15 @@ namespace Entities
 
         public ParserObject Parent { get; private set; }
 
-        public bool IsClickable { get; set; }
+        public ParserObject ReferenceObj { get; set; }       
 
         public StringBuilder DataBuffer { get; private set; }        
 
         //C'tor
-        public StateObject(ParserObject parent)
+        public StateObject(ParserObject parent, ParserObject referenceObject = null)
         {
             Parent = parent;
+            ReferenceObj = referenceObject;
             VisualDescription = new Dictionary<string, string>();
             DataBuffer = new StringBuilder();
         }        
