@@ -25,7 +25,8 @@ namespace LogParserApp
                 "State",
                 "Line",
                 "LineNum",
-                "Port", 
+                "Port",
+                "ID"
             };
 
             return allowed.Contains(propName);

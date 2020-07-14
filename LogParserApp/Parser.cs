@@ -151,15 +151,11 @@ namespace LogParserApp
                 _sf.Parse(line, filterPattern.Value);
                 isParsingSuccess = IsParsingSuccessful(filterPattern);
                 if (!isParsingSuccess)
-                {
-                    invalidPatterns.Add(filterPattern.Value);
-                    //continue;
-                }
-                                    
+                    invalidPatterns.Add(filterPattern.Value);                                    
 
                 if (isParsingSuccess)
                 {
-                    isExistingFound = FindOrCreateParserObject(lineNumber, line, filter, _sf.Results, out string objectClass, out string thisValue, out string objectState);
+                    isExistingFound = FindOrCreateParserObject(lineNumber, line, filter, _sf.Results, out string objectClass, out string thisValue, out string stateStr);
                     thisVal = thisValue;
                     break;
                 }
@@ -180,62 +176,58 @@ namespace LogParserApp
                 return;
             }
 
-
-
             bool isVisible = _currentObj != null && ((string)_currentObj.GetDynPropertyValue("IsVisible")).ToBoolean();
+
+  
+            var properties = filter.XPathSelectElements("Properties/Property");
+            properties.OrderBy(e => e.Attribute("i").Value);               
+            var objectState = State.Unknown;
+            var objStateStr = filter.Element("State") != null &&
+                                        !string.IsNullOrWhiteSpace(filter.Element("State").Value)
+                                        ? filter.Element("State").Value : null;
+            if (!string.IsNullOrWhiteSpace(objStateStr))
+                objectState = Enum.IsDefined(typeof(State), objStateStr) ? objStateStr.ToEnum<State>() : State.Unknown;
+
+            var filterKey = filter.Attribute("key").Value;
+            var stateObj = _currentObj.CreateStateObject(objectState, lineNumber, line, filterKey);
+            foreach (var prop in properties)
+            {
+                if (prop.Element("PatternIndex") == null || prop.Attribute("i") == null) continue;
+
+                if (int.TryParse(prop.Element("PatternIndex").Value, out int patternIndex))
+                {
+                    if (patternIndex < _sf.Results.Count)
+                    {
+                        DoObjectAction(filter, prop, lineNumber, patternIndex, _sf.Results[patternIndex], line, _currentObj.ObjectClass.ToString(), _currentObj.GetThis());
+                        var key = prop.Element("Name").Value.ToString();
+
+                        //SetDataBuffer(key, patternIndex, bufferContainer, list, lineNumber, lastCurrentObj);
+
+                        SetObjectDescription(stateObj, prop, _sf.Results[patternIndex]);
+                    }
+                }
+            }
+            if (lastCurrentObj != null)
+            {
+                //stateObj.DataBuffer = lastCurrentObj.GetDynPropertyValue("DataBuffer"));
+                lastCurrentObj = null;
+            }
+
+            stateObj.Color = _colorMng.GetColorByState(_currentObj.BaseColor, stateObj.State);
 
             if (isVisible)
             {
-                var properties = filter.XPathSelectElements("Properties/Property");
-                properties.OrderBy(e => e.Attribute("i").Value);               
-                var objectState = State.Unknown;
-                var objStateStr = filter.Element("State") != null &&
-                                            !string.IsNullOrWhiteSpace(filter.Element("State").Value)
-                                            ? filter.Element("State").Value : null;
-                if (!string.IsNullOrWhiteSpace(objStateStr))
-                    objectState = Enum.IsDefined(typeof(State), objStateStr) ? objStateStr.ToEnum<State>() : State.Unknown;
-
-                var filterKey = filter.Attribute("key").Value;
-                var stateObj = _currentObj.CreateStateObject(objectState, lineNumber, line, filterKey);
-                foreach (var prop in properties)
-                {
-                    if (prop.Element("PatternIndex") == null || prop.Attribute("i") == null) continue;
-
-                    if (int.TryParse(prop.Element("PatternIndex").Value, out int patternIndex))
-                    {
-                        if (patternIndex < _sf.Results.Count)
-                        {
-                            DoObjectAction(filter, prop, lineNumber, patternIndex, _sf.Results[patternIndex], line, _currentObj.ObjectClass.ToString(), _currentObj.GetThis());
-                            var key = prop.Element("Name").Value.ToString();
-
-                            //SetDataBuffer(key, patternIndex, bufferContainer, list, lineNumber, lastCurrentObj);
-
-                            SetObjectDescription(stateObj, prop, _sf.Results[patternIndex]);
-                        }
-                    }
-                }
-                if (lastCurrentObj != null)
-                {
-                    //stateObj.DataBuffer = lastCurrentObj.GetDynPropertyValue("DataBuffer"));
-                    lastCurrentObj = null;
+                if (stateObj.State > State.Created && _currentObj.PrevInterruptedObj != null)
+                {                        
+                    _currentObj.StateCollection.RemoveAt(_currentObj.StateCollection.Count - 1);
+                    _currentObj.StateCollection.Add(_currentObj.CreateArrowStateObject(_currentObj.PrevInterruptedObj));
                 }
 
-                stateObj.Color = _colorMng.GetColorByState(_currentObj.BaseColor, stateObj.State);
+                _currentObj.StateCollection.Add(stateObj);
 
-                if (isVisible)
-                {
-                    if (stateObj.State > State.Created && _currentObj.PrevInterruptedObj != null)
-                    {                        
-                        _currentObj.StateCollection.RemoveAt(_currentObj.StateCollection.Count - 1);
-                        _currentObj.StateCollection.Add(_currentObj.CreateArrowStateObject(_currentObj.PrevInterruptedObj));
-                    }
-
-                    _currentObj.StateCollection.Add(stateObj);
-
-                    if (stateObj.State < State.Completed)
-                    {                        
-                        _currentObj.StateCollection.Add(_currentObj.CreateArrowStateObject(_currentObj.NextContinuedObj));
-                    }
+                if (stateObj.State < State.Completed)
+                {                        
+                    _currentObj.StateCollection.Add(_currentObj.CreateArrowStateObject(_currentObj.NextContinuedObj));
                 }
             }
 
@@ -246,10 +238,10 @@ namespace LogParserApp
                     if (_currentObj.PrevInterruptedObj == null)
                         _currentObj.BaseColor = _colorMng.GetNextBaseColor();
 
-                    foreach (var stateObj in _currentObj.StateCollection)
+                    foreach (var stObj in _currentObj.StateCollection)
                     {
-                        if (stateObj != null && stateObj.State != State.Empty && stateObj.State != State.ViewArrow)
-                            stateObj.Color = _colorMng.GetColorByState(_currentObj.BaseColor, stateObj.State);
+                        if (stObj != null && stObj.State != State.Empty && stObj.State != State.ViewArrow)
+                            stObj.Color = _colorMng.GetColorByState(_currentObj.BaseColor, stObj.State);
                     }
                 }
 

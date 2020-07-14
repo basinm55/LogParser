@@ -66,7 +66,7 @@ namespace LogParserApp
                       out PropertyDataType dataType,
                       out string format)) return;
 
-            _locatedObj.SetDynProperty(objectClass, parsedValue, dataType, format);
+            _locatedObj.SetDynProperty(name, parsedValue, dataType, format);
             _locatedObj = null;
         }
 

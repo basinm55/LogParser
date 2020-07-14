@@ -711,9 +711,10 @@ namespace LogParserApp
             if (obj != null)
             {
                 txtHeader.Tag = obj;
-                txtHeader.Text = string.Format("{0}: {1} on the port {2}. Created at {3}",
+                txtHeader.Text = string.Format("{0}: {1}   ID: {2} on the port {3}. Created at {4}",
                     obj.ObjectClass.ToString(),
                     obj.GetThis(),
+                    (string)obj.GetDynPropertyValue("ID"),
                     (string)obj.GetDynPropertyValue("Port"),
                     time);
             }
