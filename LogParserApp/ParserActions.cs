@@ -43,28 +43,35 @@ namespace LogParserApp
                       out string format)) return;             
 
             _currentObj.SetDynProperty(name, parsedValue, dataType, format);
-
         }
 
-        private void DoActionAssignDataBuffer(XElement filter, List<string> list, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
+        private int DoActionAssignDataBuffer(XElement filter, List<string> list, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
         {
+            int skipLines = 0;
             if (_currentObj == null || !ValidateProfileDefinition(profilePropDefinition,
                       lineNumber,
                       out string name,
                       out PropertyDataType dataType,
-                      out string format)) return;
+                      out string format)) return skipLines;
 
             _currentObj.SetDynProperty(name, parsedValue, dataType, format);            
 
             if (name.ToLower() == "buffersize")
             {
-                var dataBuff = BuildDataBuffer(name, patternIndex, list, lineNumber);
+                skipLines = skipLines + BuildDataBuffer(name, patternIndex, list, lineNumber, out StringBuilder dataBuff);
                 //Update DataBuffer
-                var foundStateObjToBufferUpdate = _currentObj.StateCollection.LastOrDefault(x => x.ObjectClass != ObjectClass.Empty && x.ObjectClass != ObjectClass.ViewArrow);
-                if (foundStateObjToBufferUpdate != null)
-                    foundStateObjToBufferUpdate.DataBuffer = new StringBuilder(dataBuff.ToString());
-            }
+                var foundStateObjToBufferUpdate = _currentObj.StateCollection.LastOrDefault(
+                    x => x.ObjectClass != ObjectClass.Empty && x.ObjectClass != ObjectClass.ViewArrow);
 
+                if (foundStateObjToBufferUpdate != null)
+                    foundStateObjToBufferUpdate.DataBuffer = dataBuff;
+                else
+                {
+                    if (filter.Attribute("key") != null)                   
+                        AppLogger.LogLine(string.Format("DataBuffer for filter [{0}] cannot be applied.", filter.Attribute("key").Value), lineNumber);
+                }
+            }
+            return skipLines;
         }
         private void DoActionLocate(XElement filter, List<string> list, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
         {
@@ -77,6 +84,8 @@ namespace LogParserApp
             var searchValue = _currentObj.GetDynPropertyValue("this");
 
             _locatedObj = ObjectCollection.FirstOrDefault(x => x != null && (string)x.GetDynPropertyValue("this") == (string)searchValue);
+            if (_locatedObj == null && filter.Attribute("key") != null)
+                AppLogger.LogLine(string.Format("Object [{0}] for filter [{1}] cannot be located.", searchValue, filter.Attribute("key").Value), lineNumber);
         }
 
         private void DoActionAssign(XElement filter, List<string> list, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
@@ -89,31 +98,7 @@ namespace LogParserApp
 
             _locatedObj.SetDynProperty(name, parsedValue, dataType, format);
             _locatedObj = null;
-        }
-
-        //private void DoActionAssignDataBuffer(List<string> list, StateObject lastStatelObj, XElement filter, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
-        //{
-        //    if (!ValidateProfileDefinition(profilePropDefinition,
-        //        lineNumber,
-        //        out string name,
-        //        out PropertyDataType dataType,
-        //        out string format)) return;
-
-        //    SetPropertiesByProfile(profilePropDefinition,
-        //        patternIndex,
-        //        parsedValue,
-        //        objectClass,
-        //        dataType,
-        //        format);
-
-        //    XElement displayMember = profilePropDefinition.Element("DisplayMember");
-        //    if (displayMember == null || displayMember.Value == null || !displayMember.Value.ToBoolean()) return;
-          
-        //    var key = profilePropDefinition.Element("Name").Value.ToString();
-        //    if (!lastStatelObj.VisualDescription.ContainsKey(key))
-        //        lastStatelObj.VisualDescription.Add(new KeyValuePair<string, string>(key, parsedValue.ToString()));  
-                
-        //}
+        }       
 
         private void DoActionDrop(XElement filter, List<string> list, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
         {
@@ -141,7 +126,7 @@ namespace LogParserApp
 
             if (profilePropDefinition.Element("Name") == null)
             {
-                AppLogger.LogLine("Invalid profile definition: missing element 'Name' of property", lineNum);
+                AppLogger.LogLine("Invalid profile definition: missing element 'Name' of the property", lineNum);
                 return false;
             }
 

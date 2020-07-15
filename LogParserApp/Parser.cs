@@ -56,7 +56,7 @@ namespace LogParserApp
 
         public void Run(XElement profile, BackgroundWorker worker, DoWorkEventArgs e)
         {
-            AppLogger.LogStartLoadingStarted();
+            AppLogger.LogLoadingStarted();
 
             int maxLoadLines = (int)Utils.GetConfigValue<int>("MaxLoadLines");
             maxLoadLines = maxLoadLines == 0 ? 50000 : maxLoadLines;
@@ -69,10 +69,9 @@ namespace LogParserApp
 
             ObjectCollection.Clear();
             var list = ReadLogFileToList();
-            TotalLogLines = list.Count;
-            CompletedLogLines = 0;
-            int lineNumber = 1;
-            foreach (var line in list)
+            TotalLogLines = list.Count;                       
+            int skipLines;
+            for (int i=0; i < list.Count; i++)
             {
                 Locker.WaitOne();
 
@@ -96,14 +95,20 @@ namespace LogParserApp
 
                 try
                 {
-                    ParseLogLine(list, lineNumber, line, profile);
+                    skipLines = ParseLogLine(list, i+1, list[i], profile);
+                    //Skipping lines if any DataBuffer has been found
+                    int j = 0;
+                    while (j < skipLines - 1)
+                    {
+                        i++;
+                        j++;
+                    }
                 }
                 catch (Exception ex)
                 {
-                    AppLogger.LogException(ex, lineNumber);   
+                    AppLogger.LogException(ex, i+1);   
                 }
-
-                lineNumber++;
+                
             }
             if (!e.Cancel)
                 worker.ReportProgress(100);
@@ -116,12 +121,13 @@ namespace LogParserApp
             return File.ReadLines(_logFileName).ToList();
         }
 
-        private void ParseLogLine(List<string> list, int lineNumber, string line, XElement profile)
+        private int ParseLogLine(List<string> list, int lineNumber, string line, XElement profile)
         {
+            int skipLines = 0;
             if (string.IsNullOrWhiteSpace(line))
             {
                 AppLogger.LogLine("Log entry is empty", lineNumber);
-                return;
+                return skipLines;
             }
 
             var filters = profile.XPathSelectElements("Profile/Filters/Filter");
@@ -131,18 +137,19 @@ namespace LogParserApp
                 if (filterKey != null)
                 {
                     if (string.IsNullOrWhiteSpace(filterKey.Value) || line.ContainsCaseInsensitive(filterKey.Value))
-                        ApplyFilter(list, lineNumber, line, filter);
+                        skipLines = skipLines + ApplyFilter(list, lineNumber, line, filter);
                 }
             }
+            return skipLines;
         }
 
-        private void ApplyFilter(List<string> list, int lineNumber, string line, XElement filter)
+        private int ApplyFilter(List<string> list, int lineNumber, string line, XElement filter)
         {
+            int skipLines = 0;
             bool isExistingFound = false;
             bool isParsingSuccess = false;
             var invalisPatterns = new List<string>();
-            var invalidPatterns = new List<string>();
-            StringBuilder bufferContainer = null;            
+            var invalidPatterns = new List<string>();                       
             ParserObject lastCurrentObj = _currentObj;
             var filterPatterns = filter.XPathSelectElements("Patterns/Pattern");
             string thisVal = null;
@@ -174,7 +181,7 @@ namespace LogParserApp
             if (_currentObj == null && filter.Attribute("key") != null)
             {
                 //AppLogger.LogLine(string.Format("Profile filter [{0}] cannot be applied.", filter.Attribute("key").Value), lineNumber);
-                //return;
+                //return skipLines;;
             }
 
             bool isVisible = _currentObj != null && ((string)_currentObj.GetDynPropertyValue("IsVisible")).ToBoolean();
@@ -207,7 +214,7 @@ namespace LogParserApp
                 {
                     if (patternIndex < _sf.Results.Count)
                     {
-                        DoObjectAction(filter, list, prop, lineNumber, patternIndex, _sf.Results[patternIndex], line, _currentObj.ObjectClass.ToString(), _currentObj.GetThis());
+                        skipLines = skipLines + DoObjectAction(filter, list, prop, lineNumber, patternIndex, _sf.Results[patternIndex], line, _currentObj.ObjectClass.ToString(), _currentObj.GetThis());
                         SetObjectDescription(stateObj, prop, _sf.Results[patternIndex]);                                    
                     }
                 }
@@ -235,7 +242,7 @@ namespace LogParserApp
                 }          
             }
 
-            if (!isExistingFound)
+            if (!isExistingFound && stateObj.State != State.Temporary)
             {
                 if (isVisible)
                 {
@@ -247,16 +254,17 @@ namespace LogParserApp
                         if (stObj != null && stObj.State != State.Empty && stObj.State != State.ViewArrow)
                             stObj.Color = _colorMng.GetColorByState(_currentObj.BaseColor, stObj.State);
                     }
-                }              
-
+                }
+                
                 ObjectCollection.Add(_currentObj);
-            }            
-
+            }
+            return skipLines;
         } 
         
-        private StringBuilder BuildDataBuffer(string key, int patternIndex, List<string> list, int lineNumber)
+        private int BuildDataBuffer(string key, int patternIndex, List<string> list, int lineNumber, out StringBuilder bufferContainer)
         {
-            StringBuilder bufferContainer = null;
+            int skipLines = 0;
+            bufferContainer = null;
             if (key == "BufferSize")
             {
                 if (int.TryParse(_sf.Results[patternIndex].ToString(), out int bufferLength))
@@ -266,11 +274,12 @@ namespace LogParserApp
                     for (int i = lineNumber - 1; i < lineNumber + readBufferLinesCount - 1; i++)
                     {
                         bufferContainer.AppendLine(list[i]);
+                        skipLines++;
                     }
                     lineNumber = lineNumber + readBufferLinesCount - 1;                    
                 }
             }            
-            return bufferContainer;
+            return skipLines;
         }       
 
         private bool IsParsingSuccessful(XElement filterPattern)
@@ -286,9 +295,10 @@ namespace LogParserApp
             return true;
         }
 
-        private void DoObjectAction(XElement filter, List<string> list, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
+        private int DoObjectAction(XElement filter, List<string> list, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
         {
-            if (profilePropDefinition.Element("Action") == null) return;
+            int skipLines = 0;
+            if (profilePropDefinition.Element("Action") == null) return skipLines;
             var action = profilePropDefinition.Element("Action").Value.ToEnum<PropertyAction>();           
 
             switch (action)
@@ -300,7 +310,7 @@ namespace LogParserApp
                     DoActionAssignToSelf(filter, list, profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine, objectClass, thisValue);
                     break;
                 case PropertyAction.AssignDataBuffer:
-                    DoActionAssignDataBuffer(filter, list, profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine, objectClass, thisValue);
+                    skipLines = skipLines + DoActionAssignDataBuffer(filter, list, profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine, objectClass, thisValue);
                     break;
                 case PropertyAction.Locate:
                     DoActionLocate(filter, list, profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine, objectClass, thisValue);
@@ -318,6 +328,7 @@ namespace LogParserApp
                 default:
                     break;
             }
+            return skipLines;
         }
 
 

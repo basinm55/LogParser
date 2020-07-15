@@ -35,7 +35,8 @@ namespace Entities
             Hexadecimal = 3,
             Time = 4,
             Enum = 5,
-            Object = 6
+            Object = 6,
+            Data = 7
         }
 
         public enum Visibility

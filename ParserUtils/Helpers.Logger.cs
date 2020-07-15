@@ -1,11 +1,12 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace Helpers
 {
     public abstract class LogBase
     {
-        public abstract void Log(string message, int parsedLineNum = -1);
+        public abstract void Log(string message, int parsedLineNum = -1, [CallerMemberName] string callerName = "");
     }
 
     public class ParserLogger : LogBase
@@ -21,22 +22,22 @@ namespace Helpers
             _isActive = isActive;
         }
 
-        public override void Log(string message, int lineNum = -1) 
+        public override void Log(string message, int lineNum = -1, [CallerMemberName] string callerName = "") 
         {
             if (!_isActive) return;
             
             using (StreamWriter sw = new StreamWriter(File.Open(TargetPath, FileMode.Append)))
             {
                 if (lineNum <= 0)
-                    sw.WriteLine(string.Format("{0}", message));
+                    sw.WriteLine(string.Format("{0}\t (.{1})", message, callerName));
                 else
-                    sw.WriteLine(string.Format("Ln {0}:\t {1}", lineNum, message));
+                    sw.WriteLine(string.Format("Ln {0}:\t {1}\t (.{2})", lineNum, message, callerName));
 
                 sw.Close();
             }
         }
 
-        public void LogStartLoadingStarted()
+        public void LogLoadingStarted()
         {
             if (!_isActive) return;
 
@@ -56,11 +57,11 @@ namespace Helpers
                                 DateTime.Now.ToString("dd/MM/yy HH:mm:ss.fff")));
         }
 
-        public void LogLine(string message, int lineNum)
+        public void LogLine(string message, int lineNum, [CallerMemberName] string callerName = "")
         {
             if (!_isActive) return;
 
-            Log(message, lineNum);
+            Log(message, lineNum, callerName);
 
             ReportedLinesCount++;
         }
