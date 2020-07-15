@@ -32,7 +32,7 @@ namespace Entities
 
         public StateObject ReferenceStateObj { get; set; }
                 
-        public StringBuilder DataBuffer { get; private set; }        
+        public StringBuilder DataBuffer { get; set; }        
 
         //C'tor
         public StateObject(ParserObject parent, StateObject referenceStateObj = null)

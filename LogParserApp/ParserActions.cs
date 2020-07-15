@@ -17,7 +17,7 @@ namespace LogParserApp
 {
     public partial class Parser
     {        
-        private void DoActionNew(XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
+        private void DoActionNew(XElement filter, List<string> list, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
         {
             if (!ValidateProfileDefinition(profilePropDefinition,
                 lineNumber,
@@ -34,7 +34,7 @@ namespace LogParserApp
                 format);           
         }
 
-        private void DoActionAssignToSelf(XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
+        private void DoActionAssignToSelf(XElement filter, List<string> list, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
         {
             if (_currentObj == null || !ValidateProfileDefinition(profilePropDefinition,
                       lineNumber,
@@ -45,7 +45,28 @@ namespace LogParserApp
             _currentObj.SetDynProperty(name, parsedValue, dataType, format);
 
         }
-        private void DoActionLocate(XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
+
+        private void DoActionAssignDataBuffer(XElement filter, List<string> list, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
+        {
+            if (_currentObj == null || !ValidateProfileDefinition(profilePropDefinition,
+                      lineNumber,
+                      out string name,
+                      out PropertyDataType dataType,
+                      out string format)) return;
+
+            _currentObj.SetDynProperty(name, parsedValue, dataType, format);            
+
+            if (name.ToLower() == "buffersize")
+            {
+                var dataBuff = BuildDataBuffer(name, patternIndex, list, lineNumber);
+                //Update DataBuffer
+                var foundStateObjToBufferUpdate = _currentObj.StateCollection.LastOrDefault(x => x.ObjectClass != ObjectClass.Empty && x.ObjectClass != ObjectClass.ViewArrow);
+                if (foundStateObjToBufferUpdate != null)
+                    foundStateObjToBufferUpdate.DataBuffer = new StringBuilder(dataBuff.ToString());
+            }
+
+        }
+        private void DoActionLocate(XElement filter, List<string> list, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
         {
             if (_currentObj == null || !ValidateProfileDefinition(profilePropDefinition,
                       lineNumber,
@@ -58,7 +79,7 @@ namespace LogParserApp
             _locatedObj = ObjectCollection.FirstOrDefault(x => x != null && (string)x.GetDynPropertyValue("this") == (string)searchValue);
         }
 
-        private void DoActionAssign(XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
+        private void DoActionAssign(XElement filter, List<string> list, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
         {
             if (_locatedObj == null || !ValidateProfileDefinition(profilePropDefinition,
                       lineNumber,
@@ -70,31 +91,31 @@ namespace LogParserApp
             _locatedObj = null;
         }
 
-        private void DoActionAssignDataBuffer(List<string> list, StateObject lastStatelObj, XElement filter, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
-        {
-            if (!ValidateProfileDefinition(profilePropDefinition,
-                lineNumber,
-                out string name,
-                out PropertyDataType dataType,
-                out string format)) return;
+        //private void DoActionAssignDataBuffer(List<string> list, StateObject lastStatelObj, XElement filter, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
+        //{
+        //    if (!ValidateProfileDefinition(profilePropDefinition,
+        //        lineNumber,
+        //        out string name,
+        //        out PropertyDataType dataType,
+        //        out string format)) return;
 
-            SetPropertiesByProfile(profilePropDefinition,
-                patternIndex,
-                parsedValue,
-                objectClass,
-                dataType,
-                format);
+        //    SetPropertiesByProfile(profilePropDefinition,
+        //        patternIndex,
+        //        parsedValue,
+        //        objectClass,
+        //        dataType,
+        //        format);
 
-            XElement displayMember = profilePropDefinition.Element("DisplayMember");
-            if (displayMember == null || displayMember.Value == null || !displayMember.Value.ToBoolean()) return;
+        //    XElement displayMember = profilePropDefinition.Element("DisplayMember");
+        //    if (displayMember == null || displayMember.Value == null || !displayMember.Value.ToBoolean()) return;
           
-            var key = profilePropDefinition.Element("Name").Value.ToString();
-            if (!lastStatelObj.VisualDescription.ContainsKey(key))
-                lastStatelObj.VisualDescription.Add(new KeyValuePair<string, string>(key, parsedValue.ToString()));  
+        //    var key = profilePropDefinition.Element("Name").Value.ToString();
+        //    if (!lastStatelObj.VisualDescription.ContainsKey(key))
+        //        lastStatelObj.VisualDescription.Add(new KeyValuePair<string, string>(key, parsedValue.ToString()));  
                 
-        }
+        //}
 
-        private void DoActionDrop(XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
+        private void DoActionDrop(XElement filter, List<string> list, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
         {
             if (_currentObj == null || !ValidateProfileDefinition(profilePropDefinition,
                       lineNumber,
@@ -103,7 +124,7 @@ namespace LogParserApp
                       out string format)) return;         
         }
 
-        private void DoActionDelete(XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
+        private void DoActionDelete(XElement filter, List<string> list, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
         {
             if (_currentObj == null || !ValidateProfileDefinition(profilePropDefinition,
                      lineNumber,
@@ -166,9 +187,10 @@ namespace LogParserApp
             var objState = State.Unknown;
             var objClass = ObjectClass.Unknown;
             ParserObject obj = null;
-            bool isExistingFound = false;            
-           
-            _currentObj = null;
+            bool isExistingFound = false;
+
+            _lastCurrentObject = _currentObj;
+            //_currentObj = null;            
 
             foreach (var prop in filter.XPathSelectElements("Properties/Property"))
             {
@@ -284,6 +306,11 @@ namespace LogParserApp
                     isExistingFound = true;
                 }
                 _currentObj = obj;
+                if (_currentObj == null)
+                {
+                    _currentObj = _lastCurrentObject;
+                    isExistingFound = true;
+                }
             }                            
             return isExistingFound;
         }
@@ -291,6 +318,8 @@ namespace LogParserApp
 
         private void SetObjectDescription(StateObject stateObj, XElement prop, object parsedValue)
         {
+            if (stateObj == null) return;
+
             if (stateObj.State == State.Empty) return;
 
             XElement displayMember = prop.Element("DisplayMember");

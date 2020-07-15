@@ -15,7 +15,7 @@ namespace LogParserApp
         private string[] _baseColorTable;
         private float _colorCorrectionFactorPercent = 0;
         private int _currentBaseColorIndex = 0;
-        public Color _baseColor { get; private set; }
+        public Color BaseColor { get; private set; }
 
         public ParserColorManager()
         {
@@ -27,16 +27,16 @@ namespace LogParserApp
 
                 _baseColorTable = new string[]
                 {
-                "#87cefa", //blue
-                "#F9524A", //red
-                "#37FB02", //green
-                "#FB00FF", //magenta
-                "#EDD2FA", //faux-pale lavende
-                "#D2FAFA", //cyan
+                    "#87cefa", //blue
+                    "#F9524A", //red
+                    "#37FB02", //green
+                    "#FB00FF", //magenta
+                    "#EDD2FA", //faux-pale lavende
+                    "#D2FAFA", //cyan
                 };
             }
 
-            _baseColor = ColorTranslator.FromHtml(_baseColorTable[0]);
+            BaseColor = ColorTranslator.FromHtml(_baseColorTable[0]);
             _colorCorrectionFactorPercent = (float)Utils.GetConfigValue<float>("ColorCorrectionFactorPercent");
             if (_colorCorrectionFactorPercent == 0)
                 _colorCorrectionFactorPercent = 10;
@@ -62,22 +62,22 @@ namespace LogParserApp
         {
             if (_currentBaseColorIndex == _baseColorTable.Length - 1)
             {
-                _baseColor = ColorTranslator.FromHtml(_baseColorTable[0]);
+                BaseColor = ColorTranslator.FromHtml(_baseColorTable[0]);
                 _currentBaseColorIndex = 0;
             }
             else
             {
-                _baseColor = ColorTranslator.FromHtml(_baseColorTable[_currentBaseColorIndex]);
+                BaseColor = ColorTranslator.FromHtml(_baseColorTable[_currentBaseColorIndex]);
                 _currentBaseColorIndex++;
             }
-            return _baseColor;
+            return BaseColor;
         }    
 
         public Color GetColorByState(Color baseColor, State state)
         {
             Color result = baseColor;            
             if (result == Color.Transparent)
-                 result = _baseColor;              
+                 result = BaseColor;              
 
             if (state > 0)
                 result = DarkerColor(baseColor, _colorCorrectionFactorPercent * (int)state);

@@ -32,9 +32,11 @@ namespace Entities
 
         public ParserObject PrevInterruptedObj { get; set; }
 
-        public ParserObject NextContinuedObj { get; set; }      
+        public ParserObject NextContinuedObj { get; set; }
 
-    public bool IsFindable { get; set; }
+        public StringBuilder DataBuffer { get; set; }
+
+        public bool IsFindable { get; set; }
 
 
         //C'tor
@@ -45,7 +47,8 @@ namespace Entities
             ObjectClass = objClass;
             IsFindable = true;
             BaseColor = Color.Transparent;
-            StateCollection = new List<StateObject>();        
+            StateCollection = new List<StateObject>();
+            DataBuffer = new StringBuilder();
         }
 
 
@@ -185,7 +188,7 @@ namespace Entities
             var result = new StateObject(baseObject);
             result.ObjectClass = ObjectClass.ViewArrow;
             result.State = State.ViewArrow;                       
-            result.Color = referenceObject == null ? Color.Transparent : referenceObject.BaseColor;
+            result.Color = referenceObject == null ? Color.White : referenceObject.BaseColor;
             result.Description = null;
             if (referenceObject != null)
                 result.ReferenceStateObj = referenceObject.StateCollection.LastOrDefault(x => x.ObjectClass != ObjectClass.ViewArrow && x.ObjectClass != ObjectClass.Empty);

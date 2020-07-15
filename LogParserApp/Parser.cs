@@ -20,11 +20,12 @@ namespace LogParserApp
     public partial class Parser : IDisposable
     {
         private string _logFileName;
-
+       
         public ManualResetEvent Locker = new ManualResetEvent(true);
 
         public List<ParserObject> ObjectCollection { get; private set; }
-        ParserObject _currentObj, _locatedObj;
+        ParserObject _currentObj, _locatedObj, _lastCurrentObject;
+        StateObject _lastStateObject = null;
 
         private ScanFormatted _sf;
 
@@ -141,8 +142,8 @@ namespace LogParserApp
             bool isParsingSuccess = false;
             var invalisPatterns = new List<string>();
             var invalidPatterns = new List<string>();
-            StringBuilder bufferContainer = null;
-            var lastCurrentObj = _currentObj;
+            StringBuilder bufferContainer = null;            
+            ParserObject lastCurrentObj = _currentObj;
             var filterPatterns = filter.XPathSelectElements("Patterns/Pattern");
             string thisVal = null;
             foreach (var filterPattern in filterPatterns)
@@ -172,8 +173,8 @@ namespace LogParserApp
 
             if (_currentObj == null && filter.Attribute("key") != null)
             {
-                AppLogger.LogLine(string.Format("Profile filter [{0}] cannot be applied.", filter.Attribute("key").Value), lineNumber);
-                return;
+                //AppLogger.LogLine(string.Format("Profile filter [{0}] cannot be applied.", filter.Attribute("key").Value), lineNumber);
+                //return;
             }
 
             bool isVisible = _currentObj != null && ((string)_currentObj.GetDynPropertyValue("IsVisible")).ToBoolean();
@@ -188,8 +189,16 @@ namespace LogParserApp
             if (!string.IsNullOrWhiteSpace(objStateStr))
                 objectState = Enum.IsDefined(typeof(State), objStateStr) ? objStateStr.ToEnum<State>() : State.Unknown;
 
+            StateObject stateObj = null;
             var filterKey = filter.Attribute("key").Value;
-            var stateObj = _currentObj.CreateStateObject(objectState, lineNumber, line, filterKey);
+
+            if (objectState != State.Unknown)
+                stateObj = _currentObj.CreateStateObject(objectState, lineNumber, line, filterKey);
+            else
+                stateObj = _currentObj.CreateStateObject(State.Temporary, lineNumber, line, filterKey);
+
+            _lastStateObject = stateObj;
+
             foreach (var prop in properties)
             {
                 if (prop.Element("PatternIndex") == null || prop.Attribute("i") == null) continue;
@@ -198,20 +207,12 @@ namespace LogParserApp
                 {
                     if (patternIndex < _sf.Results.Count)
                     {
-                        DoObjectAction(filter, prop, lineNumber, patternIndex, _sf.Results[patternIndex], line, _currentObj.ObjectClass.ToString(), _currentObj.GetThis());
-                        var key = prop.Element("Name").Value.ToString();
-
-                        //SetDataBuffer(key, patternIndex, bufferContainer, list, lineNumber, lastCurrentObj);
-
-                        SetObjectDescription(stateObj, prop, _sf.Results[patternIndex]);
+                        DoObjectAction(filter, list, prop, lineNumber, patternIndex, _sf.Results[patternIndex], line, _currentObj.ObjectClass.ToString(), _currentObj.GetThis());
+                        SetObjectDescription(stateObj, prop, _sf.Results[patternIndex]);                                    
                     }
                 }
             }
-            if (lastCurrentObj != null)
-            {
-                //stateObj.DataBuffer = lastCurrentObj.GetDynPropertyValue("DataBuffer"));
-                lastCurrentObj = null;
-            }
+           
 
             stateObj.Color = _colorMng.GetColorByState(_currentObj.BaseColor, stateObj.State);
 
@@ -223,12 +224,15 @@ namespace LogParserApp
                     _currentObj.StateCollection.Add(_currentObj.CreateArrowStateObject(_currentObj.PrevInterruptedObj));
                 }
 
-                _currentObj.StateCollection.Add(stateObj);
+                if (stateObj.State != State.Temporary)
+                {
+                    _currentObj.StateCollection.Add(stateObj);
 
-                if (stateObj.State < State.Completed)
-                {                        
-                    _currentObj.StateCollection.Add(_currentObj.CreateArrowStateObject(_currentObj.NextContinuedObj));
-                }
+                    if (stateObj.State < State.Completed)
+                    {
+                        _currentObj.StateCollection.Add(_currentObj.CreateArrowStateObject(_currentObj.NextContinuedObj));
+                    }
+                }          
             }
 
             if (!isExistingFound)
@@ -243,19 +247,16 @@ namespace LogParserApp
                         if (stObj != null && stObj.State != State.Empty && stObj.State != State.ViewArrow)
                             stObj.Color = _colorMng.GetColorByState(_currentObj.BaseColor, stObj.State);
                     }
-                }
-
-                //if (_currentObj.StateCollection.Count > 0 &&
-                //    _currentObj.StateCollection.Any(x => x != null && x.State == State.Completed))
-                //        _currentObj.IsFindable = false;
+                }              
 
                 ObjectCollection.Add(_currentObj);
             }            
 
         } 
         
-        private void SetDataBuffer(string key, int patternIndex, StringBuilder bufferContainer, List<string> list, int lineNumber, ParserObject lastCurrentObj)
+        private StringBuilder BuildDataBuffer(string key, int patternIndex, List<string> list, int lineNumber)
         {
+            StringBuilder bufferContainer = null;
             if (key == "BufferSize")
             {
                 if (int.TryParse(_sf.Results[patternIndex].ToString(), out int bufferLength))
@@ -266,14 +267,11 @@ namespace LogParserApp
                     {
                         bufferContainer.AppendLine(list[i]);
                     }
-                    lineNumber = lineNumber + readBufferLinesCount - 1;
-                    if (lastCurrentObj != null && bufferContainer != null && !string.IsNullOrEmpty(bufferContainer.ToString()))
-                        lastCurrentObj.SetDynProperty("DataBuffer", bufferContainer.ToString());
+                    lineNumber = lineNumber + readBufferLinesCount - 1;                    
                 }
-            }
-            else if (lastCurrentObj != null)
-                lastCurrentObj.SetDynProperty("DataBuffer", null);
-        }
+            }            
+            return bufferContainer;
+        }       
 
         private bool IsParsingSuccessful(XElement filterPattern)
         {
@@ -288,7 +286,7 @@ namespace LogParserApp
             return true;
         }
 
-        private void DoObjectAction(XElement filter, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
+        private void DoObjectAction(XElement filter, List<string> list, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
         {
             if (profilePropDefinition.Element("Action") == null) return;
             var action = profilePropDefinition.Element("Action").Value.ToEnum<PropertyAction>();           
@@ -296,22 +294,25 @@ namespace LogParserApp
             switch (action)
             {
                 case PropertyAction.New:
-                    DoActionNew(profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine, objectClass, thisValue);
+                    DoActionNew(filter, list, profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine, objectClass, thisValue);
                     break;
                 case PropertyAction.AssignToSelf:
-                    DoActionAssignToSelf(profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine, objectClass, thisValue);
+                    DoActionAssignToSelf(filter, list, profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine, objectClass, thisValue);
+                    break;
+                case PropertyAction.AssignDataBuffer:
+                    DoActionAssignDataBuffer(filter, list, profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine, objectClass, thisValue);
                     break;
                 case PropertyAction.Locate:
-                    DoActionLocate(profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine, objectClass, thisValue);
+                    DoActionLocate(filter, list, profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine, objectClass, thisValue);
                     break;
                 case PropertyAction.Assign:
-                    DoActionAssign(profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine, objectClass, thisValue);
+                    DoActionAssign(filter, list, profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine, objectClass, thisValue);
                     break; 
                 case PropertyAction.Drop:
-                    DoActionDrop(profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine, objectClass, thisValue);
+                    DoActionDrop(filter, list, profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine, objectClass, thisValue);
                     break;
                 case PropertyAction.Delete:
-                    DoActionDelete(profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine, objectClass, thisValue);
+                    DoActionDelete(filter, list, profilePropDefinition, lineNumber, patternIndex, parsedValue, logLine, objectClass, thisValue);
                     break;
 
                 default:

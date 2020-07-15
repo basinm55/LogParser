@@ -46,7 +46,8 @@ namespace Entities
 
         public enum State
         {
-            Unknown = -4,
+            Unknown = -5,
+            Temporary = -4,
             Deleted = -3,
             ViewArrow = -2,
             Empty = -1,

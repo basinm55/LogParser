@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
@@ -16,20 +17,31 @@ namespace LogParserApp
 {
     public partial class ParserView
     {
-        public static bool AllowedForDisplayProperties(string propName)
-        {
-           string[] allowed =
-           {                   
-                "this",
-                "Parent",                
-                "State",
-                "Line",
-                "LineNum",
-                "Port",
-                "ID"
-            };
+        //string[] _displayProperties;
 
-            return allowed.Contains(propName);
+        public static bool AllowedForDisplayProperties(string propName, ref string[] displayInInfoboxProps)
+        {
+            if (displayInInfoboxProps != null && displayInInfoboxProps.Length > 0)
+                return displayInInfoboxProps.Contains(propName);
+
+            var props = ConfigurationManager.AppSettings["DisplayInInfobox"];
+            if (props != null)
+                displayInInfoboxProps = props.Split(',');
+            else
+            {
+                displayInInfoboxProps = new string[]
+                {
+                    "this",
+                    "Parent",
+                    "State",
+                    "Line",
+                    "LineNum",
+                    "Port",
+                    "ID"
+                };
+            }          
+
+            return displayInInfoboxProps.Contains(propName);
         }
 
         public static void CreateGridView(List<ParserObject> data, DataGridView dataGV, string deviceFilter)

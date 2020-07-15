@@ -33,6 +33,7 @@ namespace LogParserApp
         private string _selectedProfileFileName = null;
         private bool _currentFilterHasDataBuffer = false;        
         private Process _externalEditorProcess = null;
+        private string[] _displayInInfoboxProps;
 
         public FrmMain()
         {           
@@ -108,7 +109,7 @@ namespace LogParserApp
 
                 foreach (var prop in baseObj.DynObjectDictionary)
                 {
-                    if (ParserView.AllowedForDisplayProperties(prop.Key) && !ds.Any(x => x.Key == prop.Key))
+                    if (ParserView.AllowedForDisplayProperties(prop.Key, ref _displayInInfoboxProps) && !ds.Any(x => x.Key == prop.Key))
                         ds.Add(new KeyValuePair<string, string>(prop.Key, prop.Value.ToString()));
                 }
 
@@ -128,6 +129,9 @@ namespace LogParserApp
                         }
                     }
                 }
+                if (stateObj.DataBuffer != null && stateObj.DataBuffer.Length > 0)
+                    ds.Add(new KeyValuePair<string, string>("DataBuffer", stateObj.DataBuffer.ToString()));
+
 
                 foreach (var desc in stateObj.VisualDescription)
                 {               
@@ -169,7 +173,7 @@ namespace LogParserApp
 
                 foreach (var prop in parserObj.DynObjectDictionary)
                 {
-                    if (ParserView.AllowedForDisplayProperties(prop.Key) && !ds.Any(x => x.Key == prop.Key))
+                    if (ParserView.AllowedForDisplayProperties(prop.Key, ref _displayInInfoboxProps) && !ds.Any(x => x.Key == prop.Key))
                         ds.Add(new KeyValuePair<string, string>(prop.Key, prop.Value.ToString()));
                 }
 
