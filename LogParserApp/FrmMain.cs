@@ -243,69 +243,12 @@ namespace LogParserApp
 
         private void dataGV_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            SearchInterrupted(e);
-
             //Handle arrow click
-            //if (!(dataGV.Rows[e.RowIndex].Cells[e.ColumnIndex] is DataGridViewImageCell)) return;
-
-            //var clickedCell = (DataGridViewImageCell)dataGV.Rows[e.RowIndex].Cells[e.ColumnIndex];
-
-            //if (clickedCell == null || clickedCell.Tag == null) return;
-
-            //if (clickedCell.Tag is ParserObject)
-            //{
-
-            //    var referenceObj = clickedCell.Tag;
-            //    //Find reference                                
-            //    for (int i = 0; i < dataGV.Rows.Count; i++)
-            //    {
-
-            //        foreach (var cell in dataGV.Rows[i].Cells)
-            //        {
-            //            if ((cell as DataGridViewCell).Value != null &&
-            //                (cell as DataGridViewCell).Value is StateObject &&
-            //                ((cell as DataGridViewCell).Value as StateObject).Parent != null)
-            //            {
-            //                var parentObject = ((cell as DataGridViewCell).Value as StateObject).Parent;
-
-            //                if (parentObject.PrevInterruptedObj == referenceObj ||
-            //                    parentObject.NextContinuedObj == referenceObj)
-            //                {
-            //                    if (dataGV.Rows[i] != dataGV.Rows[(cell as DataGridViewCell).RowIndex])
-            //                    {
-            //                        dataGV.CurrentCell = (cell as DataGridViewCell);//dataGV[(cell as DataGridViewCell).ColumnIndex, iRowIndex];
-            //                        break;
-            //                    }
-            //                }
-            //            }
-            //        }
-
-
-            //        //foreach (var cell in dataGV.Rows[j].Cells)
-            //        //{
-            //        //    if ((cell as DataGridViewCell).Value != null &&
-            //        //        (cell as DataGridViewCell).Value is StateObject &&
-            //        //        ((cell as DataGridViewCell).Value as StateObject).Parent != null)
-            //        //    {
-            //        //        var parentObject = ((cell as DataGridViewCell).Value as StateObject).Parent;
-
-            //        //        if (parentObject.PrevInterruptedObj == referenceObj ||
-            //        //            parentObject.NextContinuedObj == referenceObj)
-            //        //        {
-            //        //            iRowIndex = j;
-            //        //            break;
-            //        //        }
-            //        //    }
-            //        //}                   
-            //        //j--;
-            //        //dataGV.CurrentCell = dataGV[0, 0];               
-            //    }
-            //}
-
+            SearchInterrupted(e);                       
         }
 
         private void SearchInterrupted(DataGridViewCellEventArgs e)
-        {            
+        {
             int rowIndex = 0;
 
             if (!(dataGV.Rows[e.RowIndex].Cells[e.ColumnIndex] is DataGridViewImageCell)) return;
@@ -343,140 +286,22 @@ namespace LogParserApp
                         break;
                     }
                 }
-                
+
                 if (isFound)
                     break;
-               
+
                 rowIndex++;
             }
-
-
-            //foreach (DataGridViewRow row in dataGV.Rows)
-            //{
-            //    if (row.Cells[rowIndex].Value == null) continue;
-
-            //    var stateObj = row.Cells[rowIndex].Value as StateObject;
-
-            //    if (stateObj == null ||
-            //        stateObj.ObjectClass == ObjectClass.ViewArrow ||
-            //        stateObj.ObjectClass == ObjectClass.Empty) continue;
-
-            //    var parentObject = stateObj.Parent;
-
-            //    if (parentObject == referenceObj)
-            //    {
-
-            //    }
-
-            //    List<StateObject> stateCollection = null;
-            //    if (parentObject.NextContinuedObj != null)
-            //        stateCollection = parentObject.NextContinuedObj.StateCollection;
-            //    else if (parentObject.PrevInterruptedObj != null)
-            //        stateCollection = parentObject.PrevInterruptedObj.StateCollection;
-
-            //    if (stateCollection != null)
-            //    {
-            //        foreach (var st in stateCollection)
-            //        {
-            //            if (st.ObjectClass != ObjectClass.ViewArrow && st.ObjectClass != ObjectClass.Empty)
-            //            {
-            //                if (st == referenceStateObj)//stateObj.LineNum)
-            //                {
-            //                    rowIndex = row.Index;
-            //                    dataGV.Rows[rowIndex].Selected = true;
-            //                    break;
-            //                }
-            //            }
-            //        }
-
-            //    }
-            //    //else
-            //    rowIndex++;
-            //}                              
-        }
-
-        //private void dataGV_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
-        //{
-        //    // Ignore if a column or row header is clicked
-        //    if (e.RowIndex != -1 && e.ColumnIndex != -1)
-        //    {
-        //        if (e.Button == MouseButtons.Right)
-        //        {
-        //            DataGridViewCell clickedCell = (sender as DataGridView).Rows[e.RowIndex].Cells[e.ColumnIndex];
-
-        //            if (!(clickedCell.Value is StateObject)) return;
-
-        //            dataGV.CurrentCell = clickedCell;  // Select the clicked cell
-
-        //            // Get mouse position relative to the grid
-        //            var relativeMousePosition = dataGV.PointToClient(Cursor.Position);
-
-        //            // Show the context menu
-        //            showRelatedLogEntryToolStripMenuItem.Enabled =
-        //                (clickedCell.Value as StateObject).State >= 0;
-
-        //            dataBufferToolStripMenuItem.Enabled =
-        //                (clickedCell.Value as StateObject).DataBuffer != null;
-
-        //            gridCmStrip.Show(dataGV, relativeMousePosition);
-        //        }
-        //        else
-        //        {
-
-        //        }
-        //    }
-        //}     
+        }            
 
         private void dataGV_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
-        {          
-            if (e.Value != null && e.Value is StateObject)
-                e.Value = ((StateObject)e.Value).Description;
-        }
-
-
-        private void showRelatedLogEntryToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (dataGV.CurrentCell != null && dataGV.CurrentCell.Value != null && dataGV.CurrentCell.Value is ParserObject)
+            if (e.Value != null)
             {
-                var relatedStateObject = (StateObject)dataGV.CurrentCell.Value;
-                if (relatedStateObject != null)
-                    FlexibleMessageBox.Show(relatedStateObject.LogEntry, "Related Log Entry", MessageBoxButtons.OK);
+                if ((e.Value is StateObject) && (e.Value as StateObject).ObjectClass != ObjectClass.ViewArrow)
+                    e.Value = ((StateObject)e.Value).Description;                          
             }
-
-        }
-
-        private void showPropertiesToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (dataGV.CurrentCell != null && dataGV.CurrentCell.Value != null && dataGV.CurrentCell.Value is ParserObject)
-            {
-                var relatedStateObject = (StateObject)dataGV.CurrentCell.Value;
-                if (relatedStateObject != null && relatedStateObject.Parent != null)
-                {
-                    var properties = new StringBuilder();
-                    foreach (var prop in relatedStateObject.Parent.DynObjectDictionary)
-                    {  
-                        if (prop.Value is DateTime)
-                        {
-                            var dateValue = (DateTime)prop.Value;
-                            properties.AppendLine(prop.Key + " = " + dateValue.ToString("dd/MM/yy HH:mm:ss.fff"));
-                        }
-                        else if (prop.Key != "DataBuffer")
-                            properties.AppendLine(prop.Key + " = " + prop.Value);
-                    }
-
-                    //properties.AppendLine("State = " + relatedParserObject.ObjectState.ToString());
-                    //if (relatedParserObject.LineNum >= 0)
-                    //    properties.AppendLine("LineNum = " + relatedParserObject.LineNum.ToString());                   
-
-                    //FlexibleMessageBox.Show(properties.ToString(),
-                    //    string.Format("Properties of {0}: {1}",
-                    //        relatedParserObject.ObjectClass.ToString(),
-                    //        relatedParserObject.GetDynPropertyValue("this")),
-                    //    MessageBoxButtons.OK);
-                }
-            }
-        }
-
+        }                
 
         #region Background Worker
 
@@ -529,6 +354,7 @@ namespace LogParserApp
                     if (cmbShowDevice.Items.Count > 0)
                         cmbShowDevice.SelectedIndex = 0;
                     cmbShowDevice.Enabled = true;
+                    lblShowDevice.Enabled = true;
                     chkShowAll.Enabled = true;
                     mnuItemProfile.Enabled = true;
                     mnuItemLoad.Enabled = !string.IsNullOrEmpty(_selectedProfileFileName);
@@ -634,6 +460,7 @@ namespace LogParserApp
         private void chkShowAll_CheckedChanged(object sender, EventArgs e)
         {           
             cmbShowDevice.Enabled = !chkShowAll.Checked && cmbShowDevice.Items.Count > 0;
+            lblShowDevice.Enabled = cmbShowDevice.Enabled;
             if (chkShowAll.Checked)
             {
                 txtHeader.Text = string.Empty;
@@ -652,7 +479,7 @@ namespace LogParserApp
             Application.DoEvents();
             try
             {
-                ParserView.CreateGridView(_parser.ObjectCollection, dataGV, _currentDevice);
+                //ParserView.CreateGridView(_parser.ObjectCollection, dataGV, _currentDevice);
             }
             catch (Exception ex)
             {
@@ -687,7 +514,7 @@ namespace LogParserApp
                 Application.DoEvents();
                 try
                 {
-                    ParserView.CreateGridView(_parser.ObjectCollection, dataGV, _currentDevice);
+                    //ParserView.CreateGridView(_parser.ObjectCollection, dataGV, _currentDevice);
                 }
                 catch (Exception ex)
                 {
@@ -759,12 +586,12 @@ namespace LogParserApp
 
         private void cmbThis_SelectedIndexChanged(object sender, EventArgs e)
         {    
-            SetFilters();
+            //SetFilters();
         }
 
         private void cmbState_SelectedIndexChanged(object sender, EventArgs e)
         {            
-            SetFilters();
+            //SetFilters();
         }
 
         private void SetFilters()
@@ -809,6 +636,7 @@ namespace LogParserApp
             btnStopLoading.Visible = false;
             cmbShowDevice.SelectedIndex = -1;
             cmbShowDevice.Enabled = false;
+            lblShowDevice.Enabled = false;
             chkShowAll.Checked = false;
             chkShowAll.Enabled = false;
             gbFilter.Enabled = false;
@@ -890,6 +718,7 @@ namespace LogParserApp
                     calculateLabel.Text = string.Empty;
                     gridLabel.Text = string.Empty;
                     cmbShowDevice.Enabled = false;
+                    lblShowDevice.Enabled = false;
                     chkShowAll.Checked = false;
                     chkShowAll.Enabled = false;
                     cmbShowDevice.SelectedIndex = -1;
@@ -945,7 +774,7 @@ namespace LogParserApp
         private void chkHasDataBuffer_CheckedChanged(object sender, EventArgs e)
         {
             _currentFilterHasDataBuffer = chkHasDataBuffer.Checked;
-            SetFilters();
+            //SetFilters();
         }
 
         private void dataBufferToolStripMenuItem_Click(object sender, EventArgs e)
@@ -980,10 +809,18 @@ namespace LogParserApp
                 var tag = dataGV.Rows[e.RowIndex].Cells[e.ColumnIndex].Tag;
                 if (tag is ParserObject &&
                     ((tag as ParserObject).NextContinuedObj != null || (tag as ParserObject).PrevInterruptedObj != null))
+                {
                     (sender as DataGridView).Cursor = Cursors.Hand;
+
+                    if ((tag as ParserObject).NextContinuedObj != null)
+                        dataGV.Rows[e.RowIndex].Cells[e.ColumnIndex].ToolTipText = "<- to PREVIOUS state";
+                    else if ((tag as ParserObject).PrevInterruptedObj != null)
+                        dataGV.Rows[e.RowIndex].Cells[e.ColumnIndex].ToolTipText = "to NEXT state ->";
+                }
                 return;
             }
             
+
 
             var stateObj = (dataGV.Rows[e.RowIndex].Cells[e.ColumnIndex].Value as StateObject);            
 

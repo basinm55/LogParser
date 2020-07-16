@@ -42,7 +42,7 @@
             this.calculateLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.gridLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.bkgWorkerLoad = new System.ComponentModel.BackgroundWorker();
-            this.label1 = new System.Windows.Forms.Label();
+            this.lblShowDevice = new System.Windows.Forms.Label();
             this.cmbShowDevice = new System.Windows.Forms.ComboBox();
             this.chkShowAll = new System.Windows.Forms.CheckBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
@@ -177,14 +177,14 @@
             this.bkgWorkerLoad.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bkgWorkerLoad_ProgressChanged);
             this.bkgWorkerLoad.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bkgWorkerLoad_RunWorkerCompleted);
             // 
-            // label1
+            // lblShowDevice
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(17, 45);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(44, 13);
-            this.label1.TabIndex = 8;
-            this.label1.Text = "Device:";
+            this.lblShowDevice.AutoSize = true;
+            this.lblShowDevice.Location = new System.Drawing.Point(17, 45);
+            this.lblShowDevice.Name = "lblShowDevice";
+            this.lblShowDevice.Size = new System.Drawing.Size(44, 13);
+            this.lblShowDevice.TabIndex = 8;
+            this.lblShowDevice.Text = "Device:";
             // 
             // cmbShowDevice
             // 
@@ -335,6 +335,7 @@
             // 
             // mnuItemLoad
             // 
+            this.mnuItemLoad.Image = global::LogParserApp.Properties.Resources.log;
             this.mnuItemLoad.Name = "mnuItemLoad";
             this.mnuItemLoad.Size = new System.Drawing.Size(147, 22);
             this.mnuItemLoad.Text = "Load LOG File";
@@ -430,7 +431,7 @@
             this.Controls.Add(this.gbFilter);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.chkShowAll);
-            this.Controls.Add(this.label1);
+            this.Controls.Add(this.lblShowDevice);
             this.Controls.Add(this.cmbShowDevice);
             this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.mnuStripMain);
@@ -466,7 +467,7 @@
         public System.ComponentModel.BackgroundWorker bkgWorkerLoad;
         private System.Windows.Forms.ToolStripProgressBar progressBar;
         private System.Windows.Forms.ToolStripStatusLabel calculateLabel;        
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label lblShowDevice;
         private System.Windows.Forms.ComboBox cmbShowDevice;
         private System.Windows.Forms.CheckBox chkShowAll;
         private System.Windows.Forms.ToolStripSplitButton btnStopLoading;
