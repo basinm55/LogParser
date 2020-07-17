@@ -1,0 +1,40 @@
+1. Line numbering from 1 (DONE)
+
+2. Remove "Dropped", in all the rows the order should reflect natural order in the log.
+	Broken chain contains "->" or "..." which is a link to the next line of this item.
+	Such a way EACH column (not only first one) is ordered on time line. (DONE)
+
+3. Filtering is currently per 'this' and per 'State'. Both are not needed.
+	Filtering is from profile. Really needed currently are 'address' & 'Status' (WAITING FOR DEVELOPMENT)
+
+4. The "Findable" will not be defined in profile.
+	This is a base property which marks the end of life cycle for after the request was destroyed.(DONE)
+	After that "this" will not findable by generic object create/find existing procedure. (DONE)
+
+5. View log - run application defined in config file (typically notepad++) (DONE)
+
+6. Assigned property should be visible in all states of the object that owns the property.
+	Please show the list of properties on the right of the app window (not from context menu).
+	Click on the state -> updated property list of the object + properties of the state (line number, line ...).
+	Makes sense to keep in the state NOT a copy of the object, but the reference of the object
+	(so the state has several state-specific things + all the things of the object) (DONE)
+
+7. What to show in the square of the "state" should be defined in the profile for this state.
+	This is NOT limited by fields that were updated when this specific state is read from the log file.(WAITING FOR DEVELOPMENT)
+
+8. "Properties" -> "Request = " is a bug, it has different values for different states (DONE)
+
+9. Menu or command-line for selection of profile (load profile). (DONE)
+
+10. "CPort::BindUsbDevice port 4 CUsbDevice 0000000000000000" somehow creates
+	device with this = 000000... , when should not. (DONE)
+
+11. Document the syntax of format parsing (*, length etc) (DONE)
+
+12. Application log - dropped/not recognized lines, ... (DONE partly. Discussion about "dropped" lines required)
+
+13. Base Color of the object is currently selected randomly.
+	The key for color selection should be some property of the object (from profile).
+	Same key = Same color, different keys - different colors when possible.
+	The best thing is concatenation of one or more properties of the object.
+	Less best is one property of the object. (DONE partly. Additional discussion about states colorizing required) 

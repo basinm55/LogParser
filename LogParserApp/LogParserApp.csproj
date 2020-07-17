@@ -70,6 +70,16 @@
       <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="LogFilesForTest\ECG-then-Spirometer-final-candidate.log" />
+    <None Include="LogFilesForTest\MyTest.log" />
+    <None Include="LogFilesForTest\MyTest2.log" />
+    <None Include="LogFilesForTest\MyTest3.log" />
+    <None Include="LogFilesForTest\MyTest4.log" />
+    <None Include="LogFilesForTest\MyTest5.log" />
+    <None Include="LogFilesForTest\MyTest6.log" />
+    <None Include="LogFilesForTest\MyTest7.log" />
+    <None Include="LogFilesForTest\MyTest8.log" />
+    <None Include="LogFilesForTest\MyTest9.log" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -90,6 +100,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App.ico" />
+    <Content Include="Documents\Presentation 05.06.20 Summary.txt" />
+    <Content Include="Documents\ScanFormatted syntax.txt" />
     <None Include="forward_arrow.png" />
     <None Include="Resources\forward_arrow.bmp" />
     <None Include="log.png" />
