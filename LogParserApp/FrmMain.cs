@@ -255,10 +255,10 @@ namespace LogParserApp
 
             var clickedCell = (DataGridViewImageCell)dataGV.Rows[e.RowIndex].Cells[e.ColumnIndex];
 
-            if (clickedCell == null || clickedCell.Tag == null || !(clickedCell.Tag is ParserObject)) return;
+            if (clickedCell == null || clickedCell.Tag == null || !(clickedCell.Tag is TagArrowInfo)) return;
 
-            var referenceObj = clickedCell.Tag;
-            if (!(referenceObj is ParserObject)) return;
+            var referenceObj = (clickedCell.Tag as TagArrowInfo).refObj;
+            if (referenceObj == null) return;
 
             StateObject referenceStateObj = null;
 
@@ -802,26 +802,50 @@ namespace LogParserApp
             }
         }
 
+
+        private bool IsArrowClickable(TagArrowInfo tag)
+        {
+
+            if (tag != null)
+            {                
+                if (tag.refObj is ParserObject &&
+                    (tag.refObj.NextContinuedObj != null || tag.refObj.PrevInterruptedObj != null))
+                {
+                    int idx = tag.stateObj.Parent.StateCollection.IndexOf(tag.stateObj);
+                    if (idx > 0 && idx < tag.stateObj.Parent.StateCollection.Count)
+                    {
+                        var nextState = idx < tag.stateObj.Parent.StateCollection.Count - 1 ?
+                            tag.stateObj.Parent.StateCollection[idx + 1] : null;
+                        var prevState = tag.stateObj.Parent.StateCollection[idx - 1];
+                        if (nextState == null || nextState.ObjectClass == ObjectClass.Empty || prevState.ObjectClass == ObjectClass.Empty)
+                            return true;
+                    }
+                }
+            }
+            return false;
+        }
+
         private void dataGV_CellMouseMove(object sender, DataGridViewCellMouseEventArgs e)
         {
             if (dataGV.Rows[e.RowIndex].Cells[e.ColumnIndex] is DataGridViewImageCell)
             {
                 var tag = dataGV.Rows[e.RowIndex].Cells[e.ColumnIndex].Tag;
-                if (tag is ParserObject &&
-                    ((tag as ParserObject).NextContinuedObj != null || (tag as ParserObject).PrevInterruptedObj != null))
-                {
-                    (sender as DataGridView).Cursor = Cursors.Hand;
+                if (tag != null && tag is TagArrowInfo)
+                { 
+                    var ti = tag as TagArrowInfo;
+                    if (IsArrowClickable(ti))                   
+                    {
+                        (sender as DataGridView).Cursor = Cursors.Hand;
 
-                    if ((tag as ParserObject).NextContinuedObj != null)
-                        dataGV.Rows[e.RowIndex].Cells[e.ColumnIndex].ToolTipText = "<- to PREVIOUS state";
-                    else if ((tag as ParserObject).PrevInterruptedObj != null)
-                        dataGV.Rows[e.RowIndex].Cells[e.ColumnIndex].ToolTipText = "to NEXT state ->";
+                        if (ti.refObj.NextContinuedObj != null)
+                            dataGV.Rows[e.RowIndex].Cells[e.ColumnIndex].ToolTipText = "To PREVIOUS state...";
+                        else if (ti.refObj.PrevInterruptedObj != null)
+                            dataGV.Rows[e.RowIndex].Cells[e.ColumnIndex].ToolTipText = "To NEXT state...";
+                    }
                 }
                 return;
             }
             
-
-
             var stateObj = (dataGV.Rows[e.RowIndex].Cells[e.ColumnIndex].Value as StateObject);            
 
             if (stateObj != null)

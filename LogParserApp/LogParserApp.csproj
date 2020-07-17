@@ -94,6 +94,7 @@
     <None Include="Resources\forward_arrow.bmp" />
     <None Include="log.png" />
     <None Include="applog.png" />
+    <None Include="backward_arrow.png" />
     <Content Include="cancel.png" />
     <None Include="clearfilter.png" />
     <Content Include="DefaultProfile.xml">

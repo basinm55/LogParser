@@ -15,6 +15,12 @@ using Helpers;
 
 namespace LogParserApp
 {
+    public class TagArrowInfo
+    {
+        public StateObject stateObj { get; set; }
+        public ParserObject refObj { get; set; }
+    }
+
     public partial class ParserView
     {
         //string[] _displayProperties;
@@ -131,17 +137,21 @@ namespace LogParserApp
             if (nextContinuedObj != null)
             {
                 cell.Value = ImageExt.ColorReplace(Properties.Resources.forward_arrow, Color.White, nextContinuedObj.BaseColor);
-                cell.Tag = nextContinuedObj;
+                cell.Tag = new TagArrowInfo{ refObj = nextContinuedObj, stateObj = stateObj };
             }
             else if (prevInterruptedObj != null)
             {
-                cell.Value = ImageExt.ColorReplace(Properties.Resources.forward_arrow, Color.White, prevInterruptedObj.BaseColor);
-                cell.Tag = prevInterruptedObj;
+                var selfIdx = stateObj.Parent.StateCollection.IndexOf(stateObj);
+                if (selfIdx > 0 && stateObj.Parent.StateCollection[selfIdx - 1].ObjectClass == Enums.ObjectClass.Empty)
+                    cell.Value = ImageExt.ColorReplace(Properties.Resources.backward_arrow, Color.White, prevInterruptedObj.BaseColor);
+                else
+                    cell.Value = ImageExt.ColorReplace(Properties.Resources.forward_arrow, Color.White, prevInterruptedObj.BaseColor);
+                cell.Tag = new TagArrowInfo { refObj = prevInterruptedObj, stateObj = stateObj };
             }
             else
             {
                 cell.Value = Properties.Resources.forward_arrow;
-                cell.Tag = null;
+                cell.Tag = new TagArrowInfo { refObj = null, stateObj = stateObj }; ;
             }
 
             row.Cells[cellIndex] = cell;
