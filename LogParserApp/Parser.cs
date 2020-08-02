@@ -27,6 +27,8 @@ namespace LogParserApp
         ParserObject _currentObj, _locatedObj, _lastCurrentObject;
         StateObject _lastStateObject = null;
 
+        public IDictionary<string, List<object>> PropertyFilter { get; private set; }
+
         private ScanFormatted _sf;
 
         private ParserColorManager _colorMng;
@@ -49,6 +51,7 @@ namespace LogParserApp
                 _logFileName = logFileName;
                 _colorMng = new ParserColorManager();
                 ObjectCollection = new List<ParserObject>();
+                PropertyFilter = new Dictionary<string, List<object>>();
                 InitLogger();              
             }
 
@@ -68,6 +71,13 @@ namespace LogParserApp
             _sf = new ScanFormatted();
 
             ObjectCollection.Clear();
+            foreach (var prop in PropertyFilter)
+            {
+                if (prop.Value != null)
+                    prop.Value.Clear();
+            }
+            PropertyFilter.Clear();
+
             var list = ReadLogFileToList();
             TotalLogLines = list.Count;                       
             int skipLines;
@@ -110,6 +120,14 @@ namespace LogParserApp
                 }
                 
             }
+
+            //Sorting PropertyFilter values
+            foreach (var prop in PropertyFilter)
+            {
+                if (prop.Value != null)
+                    prop.Value.Sort();
+            }
+
             if (!e.Cancel)
                 worker.ReportProgress(100);
 
@@ -215,7 +233,8 @@ namespace LogParserApp
                     if (patternIndex < _sf.Results.Count)
                     {
                         skipLines = skipLines + DoObjectAction(filter, list, prop, lineNumber, patternIndex, _sf.Results[patternIndex], line, _currentObj.ObjectClass.ToString(), _currentObj.GetThis());
-                        SetObjectDescription(stateObj, prop, _sf.Results[patternIndex]);                                    
+                        SetObjectDescription(stateObj, prop, _sf.Results[patternIndex]);
+                        AddFilterValue(prop, _sf.Results[patternIndex]);
                     }
                 }
             }

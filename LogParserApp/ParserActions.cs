@@ -328,6 +328,27 @@ namespace LogParserApp
                 else
                     stateObj.VisualDescription.Add(new KeyValuePair<string, string>(key, parsedValue.ToString()));
             }
-        }     
+        }
+
+        private void AddFilterValue(XElement prop, object parsedValue)
+        {           
+            XElement filterMember = prop.Element("FilterMember");
+            if (filterMember == null || filterMember.Value == null || !filterMember.Value.ToBoolean())
+                return;          
+           
+            var key = prop.Element("Name").Value.ToString();
+            if (PropertyFilter.ContainsKey(key))
+            {
+                var values = PropertyFilter[key];
+                if (!values.Contains(parsedValue))
+                    values.Add(parsedValue);                
+            }
+            else
+            {
+                var listOfValues = new List<object>();
+                listOfValues.Add(parsedValue);
+                PropertyFilter.Add(new KeyValuePair<string, List<object>>(key, listOfValues));
+            }
+        }
     }
 }

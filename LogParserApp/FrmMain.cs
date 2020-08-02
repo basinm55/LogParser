@@ -36,7 +36,7 @@ namespace LogParserApp
         private string[] _displayInInfoboxProps;
 
         public FrmMain()
-        {           
+        {            
             InitializeComponent();
             bkgWorkerLoad.WorkerReportsProgress = true;
             bkgWorkerLoad.WorkerSupportsCancellation = true;
@@ -343,12 +343,7 @@ namespace LogParserApp
                     CreateComboDeviceDataSource();
                     Application.DoEvents();
 
-                    progressBar.Value = 40;
-                    CreateFilterThisComboDataSource();
-                    Application.DoEvents();
-
-                    progressBar.Value = 60;
-                    CreateFilterStateComboDataSource();
+                    progressBar.Value = 60; ;
                     Application.DoEvents();
 
                     if (cmbShowDevice.Items.Count > 0)
@@ -365,7 +360,9 @@ namespace LogParserApp
 
                     progressBar.Value = 80;                    
                     Application.DoEvents();
-                    
+                    RefreshGridView(_parser.ObjectCollection);
+
+
                 }
                 finally
                 {
@@ -438,24 +435,7 @@ namespace LogParserApp
                 cmbShowDevice.ValueMember = "Value";
             }
         }
-
-        private void CreateFilterThisComboDataSource()
-        {
-            var ds = _parser.ObjectCollection.Where(o => o.GetParent() != null).
-                                Select(o => o.GetThis()).Distinct().
-                                ToList();
-
-            ds.Insert(0, "All...");
-            cmbThis.DataSource = ds;                     
-        }
-
-        private void CreateFilterStateComboDataSource()
-        {
-            var ds = Enum.GetNames(typeof(State)).Where(x => x != "Unknown").ToList();
-
-            ds.Insert(0, "All...");
-            cmbState.DataSource = ds;
-        }
+             
 
         private void chkShowAll_CheckedChanged(object sender, EventArgs e)
         {           
@@ -574,14 +554,11 @@ namespace LogParserApp
         }
 
         private void btnClearFilter_Click(object sender, EventArgs e)
-        {
-            cmbThis.SelectedIndex = 0;
-            cmbState.SelectedIndex = 0;
-            chkHasDataBuffer.Checked = false;
+        {          
             _currentFilterThis = null;
             _currentFilterState = null;
             _currentFilterHasDataBuffer = false;
-            SetFilters();
+            //SetFilters();
         }
 
         private void cmbThis_SelectedIndexChanged(object sender, EventArgs e)
@@ -596,10 +573,7 @@ namespace LogParserApp
 
         private void SetFilters()
         {           
-            gbFilter.Enabled = false;
-            _currentFilterThis = cmbThis.SelectedIndex > 0 ? (string)cmbThis.SelectedItem : null;
-            _currentFilterState = cmbState.SelectedIndex > 0 ? (string)cmbState.SelectedItem : null;
-            _currentFilterHasDataBuffer = chkHasDataBuffer.Checked;
+            gbFilter.Enabled = false;     
             
             var filteredCollection = _currentFilterThis != null ?
                      _parser.ObjectCollection.Where(x => x.GetThis() == _currentFilterThis).ToList() :
@@ -613,23 +587,40 @@ namespace LogParserApp
                     filteredCollection.Where(x => x != null && x.StateCollection.Any(y => y != null && !string.IsNullOrWhiteSpace(y.DataBuffer.ToString()))).ToList() :
                    filteredCollection;
 
+            RefreshGridView(filteredCollection);
+            //Cursor.Current = Cursors.WaitCursor;            
+            //Application.DoEvents();
+            //gbFilter.Enabled = false;
+            //try
+            //{
+            //    ParserView.CreateGridView(filteredCollection, dataGV, _currentDevice);
+            //}
+            //finally
+            //{
+            //    Cursor.Current = Cursors.Default;
+            //    gridLabel.Text = string.Format("  Total view rows: {0}", dataGV.Rows.Count.ToString());
+            //    gbFilter.Enabled = true;               
+            //}
 
-            Cursor.Current = Cursors.WaitCursor;            
+        }
+       
+
+        private void RefreshGridView(List<ParserObject> data)
+        {
+            Cursor.Current = Cursors.WaitCursor;
             Application.DoEvents();
             gbFilter.Enabled = false;
             try
             {
-                ParserView.CreateGridView(filteredCollection, dataGV, _currentDevice);
+                ParserView.CreateGridView(data, dataGV, _currentDevice);
             }
             finally
             {
                 Cursor.Current = Cursors.Default;
                 gridLabel.Text = string.Format("  Total view rows: {0}", dataGV.Rows.Count.ToString());
-                gbFilter.Enabled = true;               
+                gbFilter.Enabled = true;
             }
-
         }
-       
 
         private void FrmMain_Shown(object sender, EventArgs e)
         {
@@ -769,13 +760,7 @@ namespace LogParserApp
             patternValidatorForm.Show();
         }
 
-        #endregion TopMenu
-
-        private void chkHasDataBuffer_CheckedChanged(object sender, EventArgs e)
-        {
-            _currentFilterHasDataBuffer = chkHasDataBuffer.Checked;
-            //SetFilters();
-        }
+        #endregion TopMenu       
 
         private void dataBufferToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -895,6 +880,13 @@ namespace LogParserApp
             Size size = TextRenderer.MeasureText(txtBox.Text, txtBox.Font);
             txtBox.Width = size.Width;
             txtBox.Height = size.Height;
-        }       
+        }
+
+        private void btnSetFilter_Click(object sender, EventArgs e)
+        {
+            var frmFilter = new FrmFilter();           
+            frmFilter.PropertyFilter = _parser.PropertyFilter;
+            frmFilter.ShowDialog(this);
+        }
     }
 }

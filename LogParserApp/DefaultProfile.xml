@@ -138,6 +138,7 @@
 						<DataType>string</DataType>
 						<Action>Assign</Action>
 						<DisplayMember>1</DisplayMember>
+						<FilterMember>1</FilterMember>
 					</Property>
 					<Property i="3">
 						<PatternIndex>3</PatternIndex>
@@ -230,6 +231,7 @@
 						<DataType>string</DataType>
 						<Action>Assign</Action>
 						<DisplayMember>1</DisplayMember>
+						<FilterMember>1</FilterMember>
 					</Property>				
 				</Properties>
 			</Filter>
