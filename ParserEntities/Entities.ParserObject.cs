@@ -139,7 +139,7 @@ namespace Entities
         {
             GetDynPropertyValue(propertyName, out object propertyValue);
             return propertyValue;
-        }      
+        }     
 
         public void Dispose()
         {

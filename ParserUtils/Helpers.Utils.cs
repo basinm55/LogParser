@@ -77,7 +77,7 @@ namespace Helpers
 
     public static class WindowHelper
     {
-        public static Process ViewFileInExternalEditor(string externalEditorExecutablePath, string fileToOpen, bool isModal = false)
+        public static Process ViewFileInExternalEditor(string externalEditorExecutablePath, string fileToOpen, string arguments = null, bool isModal = false)
         {
             if (!File.Exists(fileToOpen)) return null;
 
@@ -86,7 +86,7 @@ namespace Helpers
             {
                 UseShellExecute = true,
                 FileName = externalEditorExecutablePath,
-                Arguments = fileToOpen
+                Arguments = arguments == null ? fileToOpen : fileToOpen + " " + arguments
             };
 
             process.Start();

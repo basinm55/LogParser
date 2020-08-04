@@ -569,7 +569,7 @@ namespace LogParserApp
         private void cmbState_SelectedIndexChanged(object sender, EventArgs e)
         {            
             //SetFilters();
-        }
+        }      
 
         private void SetFilters()
         {           
@@ -639,9 +639,25 @@ namespace LogParserApp
         {         
             if (_externalEditorProcess == null || _externalEditorProcess.HasExited)
             {
+                string arguments = null;
+                if (Path.GetFileName(_externalEditorExecutablePath) == "notepad++.exe"
+                    && dataGV.SelectedCells.Count > 0)
+                {
+                    var selectedCell = dataGV.SelectedCells[0];                    
+                    if (selectedCell != null || selectedCell.Value != null && selectedCell.Value is StateObject)
+                    {
+                        var selectedStateObj = selectedCell.Value as StateObject;
+                        if (selectedStateObj.LineNum > 0)
+                            arguments = "-ro -nosession -notabbar -n" + selectedStateObj.LineNum.ToString();
+
+                    }
+                    else
+                        arguments = "-ro -nosession -notabbar";
+
+                }
                 try
                 {
-                    _externalEditorProcess = WindowHelper.ViewFileInExternalEditor(_externalEditorExecutablePath, _loadedLogFileName);
+                    _externalEditorProcess = WindowHelper.ViewFileInExternalEditor(_externalEditorExecutablePath, _loadedLogFileName, arguments);
                 }
                 catch
                 {
@@ -882,11 +898,18 @@ namespace LogParserApp
             txtBox.Height = size.Height;
         }
 
-        private void btnSetFilter_Click(object sender, EventArgs e)
+        private void btnCustomFilter_Click(object sender, EventArgs e)
         {
             var frmFilter = new FrmFilter();           
             frmFilter.PropertyFilter = _parser.PropertyFilter;
             frmFilter.ShowDialog(this);
+            //TestFilter();
+            if (frmFilter.DialogResult == DialogResult.OK)
+            {                                             
+                var filteredData = DataFilterHelper.GetFilteredData(_parser.ObjectCollection, frmFilter.FilterExpression);               
+                RefreshGridView(filteredData.Cast<ParserObject>().ToList());
+                btnCustomFilter.ForeColor = Color.Red;
+            }
         }
     }
 }
