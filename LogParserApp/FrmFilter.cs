@@ -7,14 +7,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Entities;
 
 namespace LogParserApp
 {
     public partial class FrmFilter : Form
     {
-        public IDictionary<string, List<object>> PropertyFilter { get; set; }
+        private bool _isClearAll;
+        public IDictionary<string, List<object>> PropertyFilter { get; set; }        
 
-        public string FilterExpression { get; private set; }
+        public FilterObject CurrentFilter { get; set; }
 
         public FrmFilter()
         {
@@ -29,6 +31,9 @@ namespace LogParserApp
             cmbProps.DisplayMember = "Key";
             //cmbProps.ValueMember = "Value";
             cmbProps.SelectedIndex = -1;
+
+            if (CurrentFilter != null)
+                PopulateCurrentFilter();
         }
 
         private void CreateGridColumns()
@@ -89,7 +94,7 @@ namespace LogParserApp
 
         private void btnApply_Click(object sender, EventArgs e)
         {
-            FilterExpression = FilterToLambdaExpression();
+            SaveCurrentFilter();
             DialogResult = DialogResult.OK;
             Close();
         }
@@ -97,8 +102,7 @@ namespace LogParserApp
         private void lsbValues_SelectedIndexChanged(object sender, EventArgs e)
         {
             btnAdd.Enabled = lsbValues.SelectedIndex >= 0;
-            gbOperator.Enabled = lsbValues.SelectedIndex >= 0;
-            //string value = lsbValues.SelectedIndex >= 0 ? lsbValues.SelectedItem.ToString() : null;
+            gbOperator.Enabled = lsbValues.SelectedIndex >= 0;           
         }
 
         private void btnAdd_Click(object sender, EventArgs e)
@@ -112,11 +116,12 @@ namespace LogParserApp
                 connect = rbOr.Checked ? "[or]" : "[and]";
 
             var name = ((KeyValuePair<string, List<object>>)cmbProps.SelectedItem).Key;
-            var operat = rbNotEqual.Checked ? "Not equals" : "Equals";
+            var operat = rbNotEqual.Checked ? "Not equal" : "Equal";
             string value = lsbValues.SelectedIndex >= 0 ? lsbValues.SelectedItem.ToString() : null;
             AddGridRow(connect, name, operat, value);
 
-            btnApply.Enabled = dgvFilter.Enabled && dgvFilter.Rows.Count > 0;
+            _isClearAll = dgvFilter.Rows.Count == 0;
+            btnApply.Enabled = _isClearAll || (dgvFilter.Enabled && dgvFilter.Rows.Count > 0);
         }
 
         private void lsbValues_MouseDoubleClick(object sender, MouseEventArgs e)
@@ -130,11 +135,12 @@ namespace LogParserApp
                 connect = rbOr.Checked ? "[or]" : "[and]";
 
             var name = ((KeyValuePair<string, List<object>>)cmbProps.SelectedItem).Key;
-            var operat = rbNotEqual.Checked ? "Not equals" : "Equals";
+            var operat = rbNotEqual.Checked ? "Not equal" : "Equal";
             string value = lsbValues.SelectedIndex >= 0 ? lsbValues.SelectedItem.ToString() : null;
             AddGridRow(connect, name, operat, value);
 
-            btnApply.Enabled = dgvFilter.Enabled && dgvFilter.Rows.Count > 0;
+            _isClearAll = dgvFilter.Rows.Count == 0;
+            btnApply.Enabled = _isClearAll || (dgvFilter.Enabled && dgvFilter.Rows.Count > 0);
         }
 
         private void dgvFilter_SelectionChanged(object sender, EventArgs e)
@@ -156,27 +162,48 @@ namespace LogParserApp
             {
                 dgvFilter.Rows.RemoveAt(row.Index);
             }
-            btnApply.Enabled = dgvFilter.Enabled && dgvFilter.Rows.Count > 0;
+            _isClearAll = dgvFilter.Rows.Count == 0;
+            btnApply.Enabled = _isClearAll || (dgvFilter.Enabled && dgvFilter.Rows.Count > 0);
         }
 
         private void btnClearAll_Click(object sender, EventArgs e)
-        {
-            dgvFilter.Rows.Clear();
+        {            
+            dgvFilter.Rows.Clear();           
             lsbValues.Items.Clear();
             cmbProps.SelectedIndex = -1;
             rbAnd.Checked = true;
             rbEqual.Checked = true;
             gbConnect.Enabled = false;
-            gbOperator.Enabled = false;
-            btnApply.Enabled = false;
+            gbOperator.Enabled = false;            
             btnAdd.Enabled = false;
             btnRemove.Enabled = false;
+            btnApply.Enabled = true;
+            _isClearAll = dgvFilter.Rows.Count == 0;
         }
 
-
-        private string FilterToLambdaExpression()
+        private void PopulateCurrentFilter()
         {
-            string result = null;
+            foreach (var fltDef in CurrentFilter.Definitions)
+            {                              
+                AddGridRow(fltDef.Connector, fltDef.Property, fltDef.Operator, fltDef.Value);               
+            }
+            dgvFilter.Enabled = true;
+            btnApply.Enabled = dgvFilter.Enabled && dgvFilter.Rows.Count > 0;
+        }
+       
+        private void SaveCurrentFilter()
+        {
+            if (_isClearAll && CurrentFilter != null)
+            {
+                CurrentFilter.Clear();
+                return;
+            }                
+
+            if (CurrentFilter == null)
+                CurrentFilter = new FilterObject();
+            else            
+                CurrentFilter.Clear();          
+
             var bld = new StringBuilder();
             bld.Append("data.Where(x => x != null && ");
             foreach (DataGridViewRow row in dgvFilter.Rows)
@@ -185,17 +212,25 @@ namespace LogParserApp
                 var prop = row.Cells["Property"].Value.ToString();               
                 var oper = row.Cells["Operator"].Value.ToString();
                 var val = row.Cells["Value"].Value.ToString();
+
+                CurrentFilter.Definitions.Add(new FilterDefinition()
+                {
+                    Connector = connect,
+                    Property = prop,
+                    Operator = oper,
+                    Value = val
+                });
+
+
                 bld.Append(string.Format("{0} {1} {2} {3}",
                     connect == string.Empty ? string.Empty : connect.ToLower() == "[and]" ? " && " : " || ",
                     "(string)(x.GetDynPropertyValue(\"" + prop+ "\"))",
-                    oper.ToLower()=="equals" ? "==" : "!=",
+                    oper.ToLower()=="equal" ? "==" : "!=",
                     "\"" + val+ "\""));                              
             }
             bld.Append(")");
 
-            result = bld.ToString();
-
-            return result;
+            CurrentFilter.FilterExpression = bld.ToString();
         } 
     }
 }

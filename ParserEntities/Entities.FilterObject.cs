@@ -17,6 +17,12 @@ namespace Entities
         {
             Definitions = new List<FilterDefinition>();
         }
+
+        public void Clear()
+        {
+            Definitions.Clear();
+            FilterExpression = null;
+        }
     }
 
     public class FilterDefinition
@@ -24,6 +30,6 @@ namespace Entities
         public string Connector { get; set; }
         public string Property { get; set; }
         public string Operator { get; set; }
-        public string Value { get; set; }
+        public string Value { get; set; }       
     }
 }

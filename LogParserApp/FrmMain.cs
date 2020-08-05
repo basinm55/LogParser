@@ -34,6 +34,8 @@ namespace LogParserApp
         private bool _currentFilterHasDataBuffer = false;        
         private Process _externalEditorProcess = null;
         private string[] _displayInInfoboxProps;
+        private FilterObject _currentFilter = null;
+        private ToolTip _ttFilter;
 
         public FrmMain()
         {            
@@ -57,6 +59,20 @@ namespace LogParserApp
             btnViewAppLog.Enabled = false;
             btnViewAppLog.Enabled = false;
             progressBar.Visible = false;
+
+            _ttFilter = new ToolTip();
+            _ttFilter.AutoPopDelay = 32767;//5000;
+            _ttFilter.InitialDelay = 1000;
+            _ttFilter.ReshowDelay = 500;
+            _ttFilter.ToolTipTitle = "Current Filter:";
+            _ttFilter.UseFading = true;
+            _ttFilter.UseAnimation = true;
+            _ttFilter.IsBalloon = true;
+            _ttFilter.ShowAlways = true;
+                                    
+            _ttFilter.SetToolTip(btnCustomFilter, _currentFilter == null ||
+                string.IsNullOrWhiteSpace(_currentFilter.FilterExpression) ? "No filter. Click to set." :
+                StringExt.Wrap(_currentFilter.FilterExpression, 70));
         }
   
 
@@ -558,7 +574,11 @@ namespace LogParserApp
             _currentFilterThis = null;
             _currentFilterState = null;
             _currentFilterHasDataBuffer = false;
-            //SetFilters();
+
+            if (_currentFilter != null)
+                _currentFilter.Clear();            
+            RefreshGridView(_parser.ObjectCollection);
+            UpdateCustomFilterExists(false);
         }
 
         private void cmbThis_SelectedIndexChanged(object sender, EventArgs e)
@@ -902,14 +922,43 @@ namespace LogParserApp
         {
             var frmFilter = new FrmFilter();           
             frmFilter.PropertyFilter = _parser.PropertyFilter;
+            frmFilter.CurrentFilter = _currentFilter;
             frmFilter.ShowDialog(this);
             //TestFilter();
             if (frmFilter.DialogResult == DialogResult.OK)
-            {                                             
-                var filteredData = DataFilterHelper.GetFilteredData(_parser.ObjectCollection, frmFilter.FilterExpression);               
-                RefreshGridView(filteredData.Cast<ParserObject>().ToList());
-                btnCustomFilter.ForeColor = Color.Red;
+                
+            {
+                if (frmFilter.CurrentFilter != null && frmFilter.CurrentFilter.FilterExpression != null)
+                {
+                    var filteredData = DataFilterHelper.GetFilteredData(_parser.ObjectCollection, frmFilter.CurrentFilter.FilterExpression);
+                    _currentFilter = frmFilter.CurrentFilter;
+                    RefreshGridView(filteredData.Cast<ParserObject>().ToList());
+                    UpdateCustomFilterExists(_currentFilter != null && _currentFilter.FilterExpression != null);
+                }
+                else
+                {
+                    RefreshGridView(_parser.ObjectCollection);
+                    UpdateCustomFilterExists(false);
+                }
             }
+        }
+
+        private void UpdateCustomFilterExists(bool isFilterExists = false)
+        {
+            if (isFilterExists)
+            {
+                btnCustomFilter.ForeColor = Color.Red;
+                btnClearFilter.Enabled = true;
+            }
+            else
+            {
+                btnCustomFilter.ForeColor = Color.Black;
+                btnClearFilter.Enabled = false;
+            }
+            _ttFilter.SetToolTip(btnCustomFilter, _currentFilter == null ||
+                string.IsNullOrWhiteSpace(_currentFilter.FilterExpression) ? "No filter. Click to set." :
+                StringExt.Wrap(_currentFilter.FilterExpression, 70));
+
         }
     }
 }

@@ -260,6 +260,7 @@
             // btnClearFilter
             // 
             this.btnClearFilter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnClearFilter.Enabled = false;
             this.btnClearFilter.Image = global::LogParserApp.Properties.Resources.clearfilter;
             this.btnClearFilter.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnClearFilter.Location = new System.Drawing.Point(169, 25);
