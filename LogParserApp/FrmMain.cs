@@ -392,7 +392,7 @@ namespace LogParserApp
                     if (_parser.AppLogIsActive && _parser.AppLogger.ReportedLinesCount > 0)
                     {
                         if (MessageBox.Show(string.Format("Hi, Yuri!"
-                            + Environment.NewLine + " There are {0} parsing errors/warnings reported while loading."
+                            + Environment.NewLine + "There are {0} parsing errors/warnings reported while loading."
                             + Environment.NewLine
                             + "Do you want to open Application Log now?",
                             _parser.AppLogger.ReportedLinesCount),

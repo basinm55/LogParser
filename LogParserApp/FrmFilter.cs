@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,7 +15,9 @@ namespace LogParserApp
     public partial class FrmFilter : Form
     {
         private bool _isClearAll;
-        public IDictionary<string, List<object>> PropertyFilter { get; set; }        
+
+        private string _loadedFilter;
+        public IDictionary<string, List<object>> PropertyFilter { get; set; }
 
         public FilterObject CurrentFilter { get; set; }
 
@@ -94,7 +97,7 @@ namespace LogParserApp
 
         private void btnApply_Click(object sender, EventArgs e)
         {
-            SaveCurrentFilter();
+            ApplyCurrentFilter();
             DialogResult = DialogResult.OK;
             Close();
         }
@@ -102,7 +105,7 @@ namespace LogParserApp
         private void lsbValues_SelectedIndexChanged(object sender, EventArgs e)
         {
             btnAdd.Enabled = lsbValues.SelectedIndex >= 0;
-            gbOperator.Enabled = lsbValues.SelectedIndex >= 0;           
+            gbOperator.Enabled = lsbValues.SelectedIndex >= 0;
         }
 
         private void btnAdd_Click(object sender, EventArgs e)
@@ -116,12 +119,19 @@ namespace LogParserApp
                 connect = rbOr.Checked ? "[or]" : "[and]";
 
             var name = ((KeyValuePair<string, List<object>>)cmbProps.SelectedItem).Key;
-            var operat = rbNotEqual.Checked ? "Not equal" : "Equal";
+            var operat = rbNotEqual.Checked ? "Not equal" : "equal";
             string value = lsbValues.SelectedIndex >= 0 ? lsbValues.SelectedItem.ToString() : null;
+
+            if (IsDuplicatedCriteria(name, operat, value))
+                return;
+
             AddGridRow(connect, name, operat, value);
+            _loadedFilter = null;
+            UpdateFormTitle();
 
             _isClearAll = dgvFilter.Rows.Count == 0;
             btnApply.Enabled = _isClearAll || (dgvFilter.Enabled && dgvFilter.Rows.Count > 0);
+            saveFilterToolStripMenuItem.Enabled = btnApply.Enabled;
         }
 
         private void lsbValues_MouseDoubleClick(object sender, MouseEventArgs e)
@@ -135,12 +145,18 @@ namespace LogParserApp
                 connect = rbOr.Checked ? "[or]" : "[and]";
 
             var name = ((KeyValuePair<string, List<object>>)cmbProps.SelectedItem).Key;
-            var operat = rbNotEqual.Checked ? "Not equal" : "Equal";
+            var operat = rbNotEqual.Checked ? "Not equal" : "equal";
             string value = lsbValues.SelectedIndex >= 0 ? lsbValues.SelectedItem.ToString() : null;
+
+            if (IsDuplicatedCriteria(name, operat, value))
+                return;
+
             AddGridRow(connect, name, operat, value);
 
             _isClearAll = dgvFilter.Rows.Count == 0;
             btnApply.Enabled = _isClearAll || (dgvFilter.Enabled && dgvFilter.Rows.Count > 0);
+            _loadedFilter = null;
+            UpdateFormTitle();
         }
 
         private void dgvFilter_SelectionChanged(object sender, EventArgs e)
@@ -164,19 +180,23 @@ namespace LogParserApp
             }
             _isClearAll = dgvFilter.Rows.Count == 0;
             btnApply.Enabled = _isClearAll || (dgvFilter.Enabled && dgvFilter.Rows.Count > 0);
+            saveFilterToolStripMenuItem.Enabled = btnApply.Enabled;
+            _loadedFilter = null;
+            UpdateFormTitle();
         }
 
         private void btnClearAll_Click(object sender, EventArgs e)
-        {            
-            dgvFilter.Rows.Clear();           
+        {
+            dgvFilter.Rows.Clear();
             lsbValues.Items.Clear();
             cmbProps.SelectedIndex = -1;
             rbAnd.Checked = true;
             rbEqual.Checked = true;
             gbConnect.Enabled = false;
-            gbOperator.Enabled = false;            
+            gbOperator.Enabled = false;
             btnAdd.Enabled = false;
             btnRemove.Enabled = false;
+            saveFilterToolStripMenuItem.Enabled = false;
             btnApply.Enabled = true;
             _isClearAll = dgvFilter.Rows.Count == 0;
         }
@@ -184,32 +204,33 @@ namespace LogParserApp
         private void PopulateCurrentFilter()
         {
             foreach (var fltDef in CurrentFilter.Definitions)
-            {                              
-                AddGridRow(fltDef.Connector, fltDef.Property, fltDef.Operator, fltDef.Value);               
+            {
+                AddGridRow(fltDef.Connector, fltDef.Property, fltDef.Operator, fltDef.Value);
             }
             dgvFilter.Enabled = true;
             btnApply.Enabled = dgvFilter.Enabled && dgvFilter.Rows.Count > 0;
+            saveFilterToolStripMenuItem.Enabled = btnApply.Enabled;
         }
-       
-        private void SaveCurrentFilter()
+
+        private void ApplyCurrentFilter()
         {
             if (_isClearAll && CurrentFilter != null)
             {
                 CurrentFilter.Clear();
                 return;
-            }                
+            }
 
             if (CurrentFilter == null)
                 CurrentFilter = new FilterObject();
-            else            
-                CurrentFilter.Clear();          
+            else
+                CurrentFilter.Clear();
 
             var bld = new StringBuilder();
             bld.Append("data.Where(x => x != null && ");
             foreach (DataGridViewRow row in dgvFilter.Rows)
-            {                
+            {
                 var connect = row.Cells["Connect"].Value.ToString();
-                var prop = row.Cells["Property"].Value.ToString();               
+                var prop = row.Cells["Property"].Value.ToString();
                 var oper = row.Cells["Operator"].Value.ToString();
                 var val = row.Cells["Value"].Value.ToString();
 
@@ -224,13 +245,116 @@ namespace LogParserApp
 
                 bld.Append(string.Format("{0} {1} {2} {3}",
                     connect == string.Empty ? string.Empty : connect.ToLower() == "[and]" ? " && " : " || ",
-                    "(string)(x.GetDynPropertyValue(\"" + prop+ "\"))",
-                    oper.ToLower()=="equal" ? "==" : "!=",
-                    "\"" + val+ "\""));                              
+                    "(string)(x.GetDynPropertyValue(\"" + prop + "\"))",
+                    oper.ToLower() == "equal" ? "==" : "!=",
+                    "\"" + val + "\""));
             }
             bld.Append(")");
 
             CurrentFilter.FilterExpression = bld.ToString();
-        } 
+        }
+
+        private bool IsDuplicatedCriteria(string name, string operat, string value)
+        {
+            var result = dgvFilter.Rows
+                                    .Cast<DataGridViewRow>()
+                                    .Any(r => r.Cells["Property"].Value.ToString().Equals(name) &&
+                                                r.Cells["Operator"].Value.ToString().Equals(operat) &&
+                                                r.Cells["Value"].Value.ToString().Equals(value));
+            if (result)
+            {
+                MessageBox.Show("Hi, Yuri!" + Environment.NewLine +
+                    "This criteria already exists in the filter!",
+                    "Duplicated filter criteria", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            return result;
+        }
+
+        private void loadFilterToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            dlgLoadFilter.Filter = "Flt files (*.flt)|*.flt";
+            dlgLoadFilter.DefaultExt = "*.flt";
+            if (dlgLoadFilter.ShowDialog() != DialogResult.Cancel)
+            {
+                var filterFileName = dlgLoadFilter.FileName;
+                var fltList = File.ReadLines(filterFileName).ToList();
+                if (CurrentFilter == null)
+                    CurrentFilter = new FilterObject();
+                else
+                    CurrentFilter.Clear();
+
+                dgvFilter.Rows.Clear();
+
+                foreach (var line in fltList)
+                {
+                    var split = line.Split(',');
+                    var connect = split[0];
+                    var prop = split[1];
+                    var oper = split[2];
+                    var val = split[3];
+                    CurrentFilter.Definitions.Add(new FilterDefinition()
+                    {
+                        Connector = connect,
+                        Property = prop,
+                        Operator = oper,
+                        Value = val
+                    });
+
+                }
+                PopulateCurrentFilter();
+                _loadedFilter = dlgLoadFilter.FileName;
+                UpdateFormTitle();
+            }
+            else
+            {
+                _loadedFilter = null;
+                UpdateFormTitle();
+            }
+
+        }
+
+        private void saveFilterToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            dlgSaveFilter.Filter = "Flt files (*.flt)|*.flt";
+            dlgSaveFilter.DefaultExt = "*.flt";
+            if (dlgSaveFilter.ShowDialog() != DialogResult.Cancel)
+            {
+
+                using (StreamWriter file = new StreamWriter(dlgSaveFilter.FileName))
+                {                 
+                    foreach (DataGridViewRow row in dgvFilter.Rows)
+                    {
+                        var connect = row.Cells["Connect"].Value.ToString();
+                        var prop = row.Cells["Property"].Value.ToString();
+                        var oper = row.Cells["Operator"].Value.ToString();
+                        var val = row.Cells["Value"].Value.ToString();
+
+                        file.WriteLine(connect + "," +
+                            prop + "," +
+                            oper + "," +
+                            val);
+                    }
+                }
+
+            }
+        }
+
+        private void cancelToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DialogResult = DialogResult.Cancel;
+            Close();
+        }
+
+        private void UpdateFormTitle()
+        {
+            if (!string.IsNullOrWhiteSpace(_loadedFilter))
+            {
+                Text = string.Format("Custom Filter: [{0}]", Path.GetFileName(_loadedFilter));             
+            }
+            else
+            {
+                Text = "Custom Filter";
+            }
+        }
     }
 }
