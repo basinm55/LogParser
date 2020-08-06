@@ -409,7 +409,7 @@ namespace LogParserApp
                                 }
                                 catch
                                 {
-                                    MessageBox.Show("Hi, Yuri! Unfortunately you can't launch the external editor " + _externalEditorExecutablePath);
+                                    MessageBox.Show("Hi, Yuri!" + Environment.NewLine + "Unfortunately you can't launch the external editor " + _externalEditorExecutablePath);
                                     _externalEditorProcess = WindowHelper.ViewFileInExternalEditor("notepad.exe", _parser.AppLogger.TargetPath);
 
                                 }

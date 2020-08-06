@@ -178,6 +178,10 @@ namespace LogParserApp
             {
                 dgvFilter.Rows.RemoveAt(row.Index);
             }
+            //remove first connection if need
+            if (dgvFilter.Rows.Count > 0 && dgvFilter.Rows[0] != null)
+                dgvFilter.Rows[0].Cells[0].Value = string.Empty;
+
             _isClearAll = dgvFilter.Rows.Count == 0;
             btnApply.Enabled = _isClearAll || (dgvFilter.Enabled && dgvFilter.Rows.Count > 0);
             saveFilterToolStripMenuItem.Enabled = btnApply.Enabled;
@@ -264,7 +268,8 @@ namespace LogParserApp
             if (result)
             {
                 MessageBox.Show("Hi, Yuri!" + Environment.NewLine +
-                    "This criteria already exists in the filter!",
+                    "The same criteria is already exists in the filter!" + Environment.NewLine +
+                    "Please select another criteria.",
                     "Duplicated filter criteria", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             return result;

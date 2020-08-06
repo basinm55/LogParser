@@ -181,7 +181,7 @@
 						<PatternIndex>2</PatternIndex>
 						<Name>Serial</Name>
 						<DataType>string</DataType>
-						<Action>Assign</Action>
+						<Action>AssignToSelf</Action>
 						<DisplayMember>1</DisplayMember>
 						<FilterMember>1</FilterMember>
 					</Property>
@@ -189,13 +189,13 @@
 						<PatternIndex>5</PatternIndex>
 						<Name>MaxLen</Name>
 						<DataType>decimal</DataType>
-						<Action>Assign</Action>
+						<Action>AssignToSelf</Action>
 					</Property>
 					<Property i="4">
 						<PatternIndex>5</PatternIndex>
 						<Name>Len</Name>
 						<DataType>decimal</DataType>
-						<Action>Assign</Action>
+						<Action>AssignToSelf</Action>
 						<DisplayMember>1</DisplayMember>
 					</Property>					
 				</Properties>
@@ -225,13 +225,13 @@
 						<PatternIndex>2</PatternIndex>
 						<Name>Len</Name>
 						<DataType>decimal</DataType>
-						<Action>Assign</Action>
+						<Action>AssignToSelf</Action>
 					</Property>
 					<Property i="3">
 						<PatternIndex>3</PatternIndex>
 						<Name>Status</Name>
 						<DataType>string</DataType>
-						<Action>Assign</Action>
+						<Action>AssignToSelf</Action>
 						<DisplayMember>1</DisplayMember>
 						<FilterMember>1</FilterMember>
 					</Property>				
