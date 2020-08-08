@@ -165,9 +165,7 @@ namespace LogParserApp
         {
             int skipLines = 0;
             bool isExistingFound = false;
-            bool isParsingSuccess = false;
-            var invalisPatterns = new List<string>();
-            var invalidPatterns = new List<string>();                       
+            bool isParsingSuccess = false;                                  
             ParserObject lastCurrentObj = _currentObj;
             var filterPatterns = filter.XPathSelectElements("Patterns/Pattern");
             string thisVal = null;
@@ -175,10 +173,7 @@ namespace LogParserApp
             {               
 
                 _sf.Parse(line, filterPattern.Value);
-                isParsingSuccess = IsParsingSuccessful(filterPattern);
-                if (!isParsingSuccess)
-                    invalidPatterns.Add(filterPattern.Value);                                    
-
+                isParsingSuccess = IsParsingSuccessful(filterPattern);                                   
                 if (isParsingSuccess)
                 {
                     isExistingFound = FindOrCreateParserObject(lineNumber, line, filter, _sf.Results, out string objectClass, out string thisValue, out string stateStr);
@@ -187,20 +182,9 @@ namespace LogParserApp
                 }
             }
 
-            if (!isParsingSuccess)
-            {
-                foreach (var pattern in invalidPatterns)
-                {
-                    AppLogger.LogLine("Invalid pattern(s) detected: " + pattern, lineNumber);
-                }               
-            }
-            invalidPatterns.Clear();
-
-            if (_currentObj == null && filter.Attribute("key") != null)
-            {
-                //AppLogger.LogLine(string.Format("Profile filter [{0}] cannot be applied.", filter.Attribute("key").Value), lineNumber);
-                //return skipLines;;
-            }
+            if (!isParsingSuccess)              
+                AppLogger.LogLine("Unrecognized log entry: " + line, lineNumber);
+ 
 
             bool isVisible = _currentObj != null && ((string)_currentObj.GetDynPropertyValue("IsVisible")).ToBoolean();
 

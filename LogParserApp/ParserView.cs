@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Entities;
 using Helpers;
+using static Entities.Enums;
 
 namespace LogParserApp
 {
@@ -19,6 +20,7 @@ namespace LogParserApp
     {
         public StateObject stateObj { get; set; }
         public ParserObject refObj { get; set; }
+        public bool IsClickable { get; set; }
     }
 
     public partial class ParserView
@@ -124,8 +126,42 @@ namespace LogParserApp
             
         }
 
+        //private static void CreateForwardImadeCell(StateObject stateObj, DataGridViewRow row, int cellIndex, ParserObject nextContinuedObj, ParserObject prevInterruptedObj)
+        //{            
+        //    var cell = new DataGridViewImageCell();
+
+        //    if (stateObj == null)
+        //    {
+        //        row.Cells[cellIndex] = cell;
+        //        return;
+        //    }
+
+        //    if (nextContinuedObj != null)
+        //    {
+        //        cell.Value = ImageExt.ColorReplace(Properties.Resources.forward_arrow, Color.White, nextContinuedObj.BaseColor);
+        //        cell.Tag = new TagArrowInfo{ refObj = nextContinuedObj, stateObj = stateObj };
+        //    }
+        //    else if (prevInterruptedObj != null)
+        //    {
+        //        var selfIdx = stateObj.Parent.StateCollection.IndexOf(stateObj);
+        //        if (selfIdx > 0 && stateObj.Parent.StateCollection[selfIdx - 1].ObjectClass == Enums.ObjectClass.Empty)
+        //            cell.Value = ImageExt.ColorReplace(Properties.Resources.forward_arrow, Color.White, prevInterruptedObj.BaseColor);
+        //        else
+        //            cell.Value = ImageExt.ColorReplace(Properties.Resources.forward_arrow, Color.White, prevInterruptedObj.BaseColor);
+        //        cell.Tag = new TagArrowInfo { refObj = prevInterruptedObj, stateObj = stateObj };
+        //    }
+        //    else
+        //    {
+        //        cell.Value = Properties.Resources.forward_arrow;
+        //        cell.Tag = new TagArrowInfo { refObj = null, stateObj = stateObj }; ;
+        //    }
+
+        //    row.Cells[cellIndex] = cell;
+        //}
+
+
         private static void CreateForwardImadeCell(StateObject stateObj, DataGridViewRow row, int cellIndex, ParserObject nextContinuedObj, ParserObject prevInterruptedObj)
-        {            
+        {
             var cell = new DataGridViewImageCell();
 
             if (stateObj == null)
@@ -135,27 +171,76 @@ namespace LogParserApp
             }
 
             if (nextContinuedObj != null)
-            {
-                cell.Value = ImageExt.ColorReplace(Properties.Resources.forward_arrow, Color.White, nextContinuedObj.BaseColor);
-                cell.Tag = new TagArrowInfo{ refObj = nextContinuedObj, stateObj = stateObj };
+            {  
+                var tag = new TagArrowInfo { refObj = nextContinuedObj, stateObj = stateObj };
+                if (IsArrowClickable(tag))
+                {                    
+                    cell.Value = ImageExt.ColorReplace(Properties.Resources.forward_arrow, Color.White, nextContinuedObj.BaseColor);
+                    tag.IsClickable = true;
+                    cell.Tag = tag;
+                }
+                else
+                {
+                    cell.Value = Properties.Resources.forward_arrow;
+                    tag.IsClickable = false;
+                    cell.Tag = new TagArrowInfo { refObj = null, stateObj = stateObj };
+                }
+
             }
             else if (prevInterruptedObj != null)
             {
-                var selfIdx = stateObj.Parent.StateCollection.IndexOf(stateObj);
-                if (selfIdx > 0 && stateObj.Parent.StateCollection[selfIdx - 1].ObjectClass == Enums.ObjectClass.Empty)
-                    cell.Value = ImageExt.ColorReplace(Properties.Resources.backward_arrow, Color.White, prevInterruptedObj.BaseColor);
-                else
+                var tag = new TagArrowInfo { refObj = prevInterruptedObj, stateObj = stateObj };
+                if (IsArrowClickable(tag))
+                {
                     cell.Value = ImageExt.ColorReplace(Properties.Resources.forward_arrow, Color.White, prevInterruptedObj.BaseColor);
-                cell.Tag = new TagArrowInfo { refObj = prevInterruptedObj, stateObj = stateObj };
+                    tag.IsClickable = true;
+                    cell.Tag = tag;
+                }
+                else
+                {
+                    cell.Value = Properties.Resources.forward_arrow;
+                    tag.IsClickable = false;
+                    cell.Tag = new TagArrowInfo { refObj = null, stateObj = stateObj };
+                }
+
+                //    var selfIdx = stateObj.Parent.StateCollection.IndexOf(stateObj);
+                //if (selfIdx > 0 && stateObj.Parent.StateCollection[selfIdx - 1].ObjectClass == Enums.ObjectClass.Empty)
+                //    cell.Value = ImageExt.ColorReplace(Properties.Resources.forward_arrow, Color.White, prevInterruptedObj.BaseColor);
+                //else
+                //    cell.Value = ImageExt.ColorReplace(Properties.Resources.forward_arrow, Color.White, prevInterruptedObj.BaseColor);
+                //cell.Tag = new TagArrowInfo { refObj = prevInterruptedObj, stateObj = stateObj };
             }
             else
             {
                 cell.Value = Properties.Resources.forward_arrow;
-                cell.Tag = new TagArrowInfo { refObj = null, stateObj = stateObj }; ;
+                cell.Tag = new TagArrowInfo { refObj = null, stateObj = stateObj };
             }
 
             row.Cells[cellIndex] = cell;
         }
+
+        private static bool IsArrowClickable(TagArrowInfo tag)
+        {
+
+            if (tag != null)
+            {
+                if (tag.refObj is ParserObject &&
+                    (tag.refObj.NextContinuedObj != null || tag.refObj.PrevInterruptedObj != null))
+                {
+                    int idx = tag.stateObj.Parent.StateCollection.IndexOf(tag.stateObj);
+                    if (idx > 0 && idx < tag.stateObj.Parent.StateCollection.Count)
+                    {
+                        var nextState = idx < tag.stateObj.Parent.StateCollection.Count - 1 ?
+                            tag.stateObj.Parent.StateCollection[idx + 1] : null;
+                        var prevState = tag.stateObj.Parent.StateCollection[idx - 1];
+                        if (nextState == null || nextState.ObjectClass == ObjectClass.Empty || prevState.ObjectClass == ObjectClass.Empty)
+                            return true;
+                    }
+                }
+            }
+            return false;
+        }
+
 
         private static void CreateGridCell(StateObject stateObj, DataGridViewRow row, int cellIndex, int maxDescLength)
         {                     

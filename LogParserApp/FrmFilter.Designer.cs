@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmFilter));
-            this.btnApply = new System.Windows.Forms.Button();
             this.btnClearAll = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
             this.lsbValues = new System.Windows.Forms.ListBox();
@@ -49,25 +48,15 @@
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadFilterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveFilterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.cancelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.dlgLoadFilter = new System.Windows.Forms.OpenFileDialog();
             this.dlgSaveFilter = new System.Windows.Forms.SaveFileDialog();
-            this.cancelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnApply = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvFilter)).BeginInit();
             this.gbOperator.SuspendLayout();
             this.gbConnect.SuspendLayout();
             this.mnuMain.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // btnApply
-            // 
-            this.btnApply.Enabled = false;
-            this.btnApply.Location = new System.Drawing.Point(430, 445);
-            this.btnApply.Name = "btnApply";
-            this.btnApply.Size = new System.Drawing.Size(75, 23);
-            this.btnApply.TabIndex = 0;
-            this.btnApply.Text = "Apply";
-            this.btnApply.UseVisualStyleBackColor = true;
-            this.btnApply.Click += new System.EventHandler(this.btnApply_Click);
             // 
             // btnClearAll
             // 
@@ -94,7 +83,7 @@
             this.lsbValues.FormattingEnabled = true;
             this.lsbValues.Location = new System.Drawing.Point(12, 111);
             this.lsbValues.Name = "lsbValues";
-            this.lsbValues.Size = new System.Drawing.Size(148, 316);
+            this.lsbValues.Size = new System.Drawing.Size(148, 355);
             this.lsbValues.TabIndex = 3;
             this.lsbValues.SelectedIndexChanged += new System.EventHandler(this.lsbValues_SelectedIndexChanged);
             this.lsbValues.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lsbValues_MouseDoubleClick);
@@ -187,7 +176,7 @@
             // rbNotEqual
             // 
             this.rbNotEqual.AutoSize = true;
-            this.rbNotEqual.Location = new System.Drawing.Point(2, 41);
+            this.rbNotEqual.Location = new System.Drawing.Point(8, 41);
             this.rbNotEqual.Name = "rbNotEqual";
             this.rbNotEqual.Size = new System.Drawing.Size(72, 17);
             this.rbNotEqual.TabIndex = 3;
@@ -198,7 +187,7 @@
             // 
             this.rbEqual.AutoSize = true;
             this.rbEqual.Checked = true;
-            this.rbEqual.Location = new System.Drawing.Point(2, 17);
+            this.rbEqual.Location = new System.Drawing.Point(8, 17);
             this.rbEqual.Name = "rbEqual";
             this.rbEqual.Size = new System.Drawing.Size(52, 17);
             this.rbEqual.TabIndex = 2;
@@ -209,7 +198,7 @@
             // rbOr
             // 
             this.rbOr.AutoSize = true;
-            this.rbOr.Location = new System.Drawing.Point(48, 13);
+            this.rbOr.Location = new System.Drawing.Point(54, 13);
             this.rbOr.Name = "rbOr";
             this.rbOr.Size = new System.Drawing.Size(36, 17);
             this.rbOr.TabIndex = 3;
@@ -220,7 +209,7 @@
             // 
             this.rbAnd.AutoSize = true;
             this.rbAnd.Checked = true;
-            this.rbAnd.Location = new System.Drawing.Point(0, 13);
+            this.rbAnd.Location = new System.Drawing.Point(6, 13);
             this.rbAnd.Name = "rbAnd";
             this.rbAnd.Size = new System.Drawing.Size(44, 17);
             this.rbAnd.TabIndex = 2;
@@ -233,7 +222,7 @@
             this.gbConnect.Controls.Add(this.rbOr);
             this.gbConnect.Controls.Add(this.rbAnd);
             this.gbConnect.Enabled = false;
-            this.gbConnect.Location = new System.Drawing.Point(169, 40);
+            this.gbConnect.Location = new System.Drawing.Point(169, 43);
             this.gbConnect.Name = "gbConnect";
             this.gbConnect.Size = new System.Drawing.Size(96, 34);
             this.gbConnect.TabIndex = 23;
@@ -262,7 +251,7 @@
             // loadFilterToolStripMenuItem
             // 
             this.loadFilterToolStripMenuItem.Name = "loadFilterToolStripMenuItem";
-            this.loadFilterToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.loadFilterToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
             this.loadFilterToolStripMenuItem.Text = "Load filter...";
             this.loadFilterToolStripMenuItem.Click += new System.EventHandler(this.loadFilterToolStripMenuItem_Click);
             // 
@@ -270,7 +259,7 @@
             // 
             this.saveFilterToolStripMenuItem.Enabled = false;
             this.saveFilterToolStripMenuItem.Name = "saveFilterToolStripMenuItem";
-            this.saveFilterToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveFilterToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
             this.saveFilterToolStripMenuItem.Text = "Save filter...";
             this.saveFilterToolStripMenuItem.Click += new System.EventHandler(this.saveFilterToolStripMenuItem_Click);
             // 
@@ -280,6 +269,17 @@
             this.cancelToolStripMenuItem.Size = new System.Drawing.Size(55, 20);
             this.cancelToolStripMenuItem.Text = "Cancel";
             this.cancelToolStripMenuItem.Click += new System.EventHandler(this.cancelToolStripMenuItem_Click);
+            // 
+            // btnApply
+            // 
+            this.btnApply.Enabled = false;
+            this.btnApply.Location = new System.Drawing.Point(430, 445);
+            this.btnApply.Name = "btnApply";
+            this.btnApply.Size = new System.Drawing.Size(75, 23);
+            this.btnApply.TabIndex = 0;
+            this.btnApply.Text = "Apply";
+            this.btnApply.UseVisualStyleBackColor = true;
+            this.btnApply.Click += new System.EventHandler(this.btnApply_Click);
             // 
             // FrmFilter
             // 

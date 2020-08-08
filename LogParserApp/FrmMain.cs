@@ -271,7 +271,8 @@ namespace LogParserApp
 
             var clickedCell = (DataGridViewImageCell)dataGV.Rows[e.RowIndex].Cells[e.ColumnIndex];
 
-            if (clickedCell == null || clickedCell.Tag == null || !(clickedCell.Tag is TagArrowInfo)) return;
+            if (clickedCell == null || clickedCell.Tag == null || !(clickedCell.Tag is TagArrowInfo) ||
+                !(clickedCell.Tag as TagArrowInfo).IsClickable) return;
 
             var referenceObj = (clickedCell.Tag as TagArrowInfo).refObj;
             if (referenceObj == null) return;
@@ -294,7 +295,7 @@ namespace LogParserApp
             {
                 foreach (var cell in row.Cells)
                 {
-                    var stateObj = ((cell as DataGridViewCell).Value) as StateObject;
+                    var stateObj = (cell as DataGridViewCell).Value as StateObject;
                     if (stateObj == referenceStateObj)
                     {
                         isFound = true;
@@ -405,11 +406,16 @@ namespace LogParserApp
                             {
                                 try
                                 {
-                                    _externalEditorProcess = WindowHelper.ViewFileInExternalEditor(_externalEditorExecutablePath, _parser.AppLogger.TargetPath);
+                                    string arguments = null;
+                                    if (Path.GetFileName(_externalEditorExecutablePath) == "notepad++.exe")
+                                        arguments = "-ro -nosession -notabbar";                                        
+                                    _externalEditorProcess = WindowHelper.ViewFileInExternalEditor(_externalEditorExecutablePath, _parser.AppLogger.TargetPath, arguments);
                                 }
                                 catch
                                 {
-                                    MessageBox.Show("Hi, Yuri!" + Environment.NewLine + "Unfortunately you can't launch the external editor " + _externalEditorExecutablePath);
+                                    MessageBox.Show("Hi, Yuri!" + Environment.NewLine + "Unfortunately you can't launch the external editor " +
+                                        _externalEditorExecutablePath + Environment.NewLine +
+                                        "Current external editor has been reset to the default (Notepad.exe)");
                                     _externalEditorProcess = WindowHelper.ViewFileInExternalEditor("notepad.exe", _parser.AppLogger.TargetPath);
 
                                 }
@@ -681,7 +687,9 @@ namespace LogParserApp
                 }
                 catch
                 {
-                    MessageBox.Show("Hi, Youri! Unfortunately you can't launch the external editor " + _externalEditorExecutablePath);
+                    MessageBox.Show("Hi, Youri!" + Environment.NewLine +
+                        "Unfortunately you can't launch the external editor " + _externalEditorExecutablePath + Environment.NewLine +
+                                        "Current external editor has been reset to the default (Notepad.exe)");
                     _externalEditorProcess = WindowHelper.ViewFileInExternalEditor("notepad.exe", _loadedLogFileName);
                 }
             }
@@ -693,7 +701,8 @@ namespace LogParserApp
         {
             if (!_parser.AppLogIsActive)
             {
-                MessageBox.Show("Hi, Youri! Unfortunately, the application log is not active!" +
+                MessageBox.Show("Hi, Youri!" + Environment.NewLine +
+                    "Unfortunately, the application log is not active!" +
                                 Environment.NewLine +
                                 "Please activate it via configuration file.",
                                 "Application log",
@@ -711,7 +720,9 @@ namespace LogParserApp
                 }
                 catch
                 {
-                    MessageBox.Show("Hi, Youri! Unfortunately you can't launch the external editor " + _externalEditorExecutablePath);
+                    MessageBox.Show("Hi, Youri!" + Environment.NewLine +  
+                        "Unfortunately you can't launch the external editor " + _externalEditorExecutablePath + Environment.NewLine +
+                                        "Current external editor has been reset to the default (Notepad.exe)");
                     _externalEditorProcess = WindowHelper.ViewFileInExternalEditor("notepad.exe", _parser.AppLogger.TargetPath);
 
                 }
@@ -822,30 +833,7 @@ namespace LogParserApp
                 }
             }
         }
-
-
-        private bool IsArrowClickable(TagArrowInfo tag)
-        {
-
-            if (tag != null)
-            {                
-                if (tag.refObj is ParserObject &&
-                    (tag.refObj.NextContinuedObj != null || tag.refObj.PrevInterruptedObj != null))
-                {
-                    int idx = tag.stateObj.Parent.StateCollection.IndexOf(tag.stateObj);
-                    if (idx > 0 && idx < tag.stateObj.Parent.StateCollection.Count)
-                    {
-                        var nextState = idx < tag.stateObj.Parent.StateCollection.Count - 1 ?
-                            tag.stateObj.Parent.StateCollection[idx + 1] : null;
-                        var prevState = tag.stateObj.Parent.StateCollection[idx - 1];
-                        if (nextState == null || nextState.ObjectClass == ObjectClass.Empty || prevState.ObjectClass == ObjectClass.Empty)
-                            return true;
-                    }
-                }
-            }
-            return false;
-        }
-
+  
         private void dataGV_CellMouseMove(object sender, DataGridViewCellMouseEventArgs e)
         {
             if (dataGV.Rows[e.RowIndex].Cells[e.ColumnIndex] is DataGridViewImageCell)
@@ -854,20 +842,19 @@ namespace LogParserApp
                 if (tag != null && tag is TagArrowInfo)
                 { 
                     var ti = tag as TagArrowInfo;
-                    if (IsArrowClickable(ti))                   
+                    if (ti.IsClickable)
                     {
                         (sender as DataGridView).Cursor = Cursors.Hand;
-
                         if (ti.refObj.NextContinuedObj != null)
                             dataGV.Rows[e.RowIndex].Cells[e.ColumnIndex].ToolTipText = "To PREVIOUS state...";
                         else if (ti.refObj.PrevInterruptedObj != null)
                             dataGV.Rows[e.RowIndex].Cells[e.ColumnIndex].ToolTipText = "To NEXT state...";
-                    }
+                    }          
                 }
                 return;
             }
             
-            var stateObj = (dataGV.Rows[e.RowIndex].Cells[e.ColumnIndex].Value as StateObject);            
+            var stateObj = dataGV.Rows[e.RowIndex].Cells[e.ColumnIndex].Value as StateObject;            
 
             if (stateObj != null)
                 (sender as DataGridView).Cursor = Cursors.Hand;
