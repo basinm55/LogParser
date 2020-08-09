@@ -51,6 +51,7 @@ namespace LogParserApp
             TryImportProfile();
             
             mnuItemLoad.Enabled = !string.IsNullOrEmpty(_selectedProfileFileName);
+            mnuItemEditCurrentProfile.Enabled = !string.IsNullOrEmpty(_selectedProfileFileName);
 
             btnViewLoadedLog.Enabled = false;
             btnViewAppLog.Enabled = false;
@@ -368,7 +369,7 @@ namespace LogParserApp
                         cmbShowDevice.SelectedIndex = 0;
                     cmbShowDevice.Enabled = true;
                     lblShowDevice.Enabled = true;                   
-                    mnuItemProfile.Enabled = true;
+                    mnuItemImportProfile.Enabled = true;
                     mnuItemLoad.Enabled = !string.IsNullOrEmpty(_selectedProfileFileName);
 
                     btnViewLoadedLog.Enabled = true;
@@ -712,7 +713,7 @@ namespace LogParserApp
 
                     // Start the asynchronous operation.
                     mnuItemLoad.Enabled = false;
-                    mnuItemProfile.Enabled = false;
+                    mnuItemImportProfile.Enabled = false;
                     btnStopLoading.Visible = true;
                     calculateLabel.Text = string.Empty;
                     gridLabel.Text = string.Empty;
@@ -730,7 +731,7 @@ namespace LogParserApp
         }
 
 
-        private void mnuItemProfile_Click(object sender, EventArgs e)
+        private void mnuItemImportProfile_Click(object sender, EventArgs e)
         {
             dlgProfile.Filter = "Xml files (*.xml)|*.xml";
             dlgProfile.DefaultExt = "*.xml";
@@ -752,6 +753,7 @@ namespace LogParserApp
                 }
             }
             mnuItemLoad.Enabled = !string.IsNullOrEmpty(_selectedProfileFileName);
+            mnuItemEditCurrentProfile.Enabled = !string.IsNullOrEmpty(_selectedProfileFileName);
         }
         private void mnuItemPatternValidator_Click(object sender, EventArgs e)
         {
@@ -927,5 +929,30 @@ namespace LogParserApp
                 StringExt.Wrap(_currentFilter.FilterExpression, 70));
 
         }
-    }
+      
+
+        private void mnuItemEditCurrentProfile_Click(object sender, EventArgs e)
+        {
+            if (_externalEditorProcess == null || _externalEditorProcess.HasExited)
+            {
+                try
+                {
+                    string arguments = null;
+                    if (Path.GetFileName(_externalEditorExecutablePath) == "notepad++.exe")
+                        arguments = "-ro -nosession -notabbar";
+                    _externalEditorProcess = WindowHelper.ViewFileInExternalEditor(_externalEditorExecutablePath, _selectedProfileFileName, arguments);
+                }
+                catch
+                {
+                    MessageBox.Show("Hi, Yuri!" + Environment.NewLine + "Unfortunately you can't launch the external editor " +
+                        _externalEditorExecutablePath + Environment.NewLine +
+                        "Current external editor has been reset to the default (Notepad.exe)");
+                    _externalEditorProcess = WindowHelper.ViewFileInExternalEditor("notepad.exe", _selectedProfileFileName);
+
+                }
+            }
+            else
+                WindowHelper.BringProcessToFront(_externalEditorProcess);
+        }
+    }    
 }

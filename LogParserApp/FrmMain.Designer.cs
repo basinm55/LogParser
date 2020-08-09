@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmMain));
             this.dataGV = new System.Windows.Forms.DataGridView();
             this.dlgLoadLog = new System.Windows.Forms.OpenFileDialog();
@@ -54,7 +54,8 @@
             this.mnuItemLoad = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuItemExit = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuItemTools = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuItemProfile = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuItemImportProfile = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuItemEditCurrentProfile = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuItemPatternValidator = new System.Windows.Forms.ToolStripMenuItem();
             this.dlgProfile = new System.Windows.Forms.OpenFileDialog();
             this.dgvInfo = new System.Windows.Forms.DataGridView();
@@ -89,8 +90,8 @@
             this.dataGV.ReadOnly = true;
             this.dataGV.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             this.dataGV.RowHeadersVisible = false;
-            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.dataGV.RowsDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.dataGV.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dataGV.RowTemplate.Height = 66;
             this.dataGV.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
             this.dataGV.Size = new System.Drawing.Size(1062, 587);
@@ -297,18 +298,26 @@
             // mnuItemTools
             // 
             this.mnuItemTools.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mnuItemProfile,
+            this.mnuItemImportProfile,
+            this.mnuItemEditCurrentProfile,
             this.mnuItemPatternValidator});
             this.mnuItemTools.Name = "mnuItemTools";
             this.mnuItemTools.Size = new System.Drawing.Size(46, 20);
             this.mnuItemTools.Text = "Tools";
             // 
-            // mnuItemProfile
+            // mnuItemImportProfile
             // 
-            this.mnuItemProfile.Name = "mnuItemProfile";
-            this.mnuItemProfile.Size = new System.Drawing.Size(186, 22);
-            this.mnuItemProfile.Text = "Import profile";
-            this.mnuItemProfile.Click += new System.EventHandler(this.mnuItemProfile_Click);
+            this.mnuItemImportProfile.Name = "mnuItemImportProfile";
+            this.mnuItemImportProfile.Size = new System.Drawing.Size(186, 22);
+            this.mnuItemImportProfile.Text = "Import profile...";
+            this.mnuItemImportProfile.Click += new System.EventHandler(this.mnuItemImportProfile_Click);
+            // 
+            // mnuItemEditCurrentProfile
+            // 
+            this.mnuItemEditCurrentProfile.Name = "mnuItemEditCurrentProfile";
+            this.mnuItemEditCurrentProfile.Size = new System.Drawing.Size(186, 22);
+            this.mnuItemEditCurrentProfile.Text = "Edit current profile";
+            this.mnuItemEditCurrentProfile.Click += new System.EventHandler(this.mnuItemEditCurrentProfile_Click);
             // 
             // mnuItemPatternValidator
             // 
@@ -428,10 +437,11 @@
         private System.Windows.Forms.ToolStripMenuItem dataBufferToolStripMenuItem;
         private System.Windows.Forms.Button btnViewAppLog;
         private System.Windows.Forms.OpenFileDialog dlgProfile;
-        private System.Windows.Forms.ToolStripMenuItem mnuItemProfile;
+        private System.Windows.Forms.ToolStripMenuItem mnuItemImportProfile;
         private System.Windows.Forms.DataGridView dgvInfo;
         private System.Windows.Forms.TextBox txtHeader;
         private System.Windows.Forms.Button btnCustomFilter;
+        private System.Windows.Forms.ToolStripMenuItem mnuItemEditCurrentProfile;
     }
 }
 
