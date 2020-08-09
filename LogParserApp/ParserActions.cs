@@ -330,24 +330,25 @@ namespace LogParserApp
             }
         }
 
-        private void AddFilterValue(XElement prop, object parsedValue)
-        {           
+        private void AddFilterValue(string parent, XElement prop, object parsedValue)
+        {              
             XElement filterMember = prop.Element("FilterMember");
-            if (filterMember == null || filterMember.Value == null || !filterMember.Value.ToBoolean())
+            if (parent == null || filterMember == null || filterMember.Value == null || !filterMember.Value.ToBoolean())
                 return;          
            
             var key = prop.Element("Name").Value.ToString();
             if (PropertyFilter.ContainsKey(key))
             {
                 var values = PropertyFilter[key];
-                if (!values.Contains(parsedValue))
-                    values.Add(parsedValue);                
+                var searchPair = new KeyValuePair<object, string>(parsedValue, parent);
+                if (!values.Contains(searchPair))
+                    values.Add(searchPair);                
             }
             else
             {
-                var listOfValues = new List<object>();
-                listOfValues.Add(parsedValue);
-                PropertyFilter.Add(new KeyValuePair<string, List<object>>(key, listOfValues));
+                var listOfValues = new List<KeyValuePair<object, string>>();
+                listOfValues.Add(new KeyValuePair<object, string>(parsedValue, parent));
+                PropertyFilter.Add(new KeyValuePair<string, List<KeyValuePair<object, string>>>(key, listOfValues));           
             }
         }
     }

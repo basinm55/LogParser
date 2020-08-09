@@ -32,7 +32,7 @@ namespace LogParserApp
         private Process _externalEditorProcess = null;
         private string[] _displayInInfoboxProps;
         private FilterObject _currentFilter = null;
-        private ToolTip _ttFilter;
+        private ToolTip _ttFilterInfo;
 
         public FrmMain()
         {            
@@ -55,20 +55,23 @@ namespace LogParserApp
             btnViewLoadedLog.Enabled = false;
             btnViewAppLog.Enabled = false;
             btnViewAppLog.Enabled = false;
-            progressBar.Visible = false;
+            progressBar.Visible = false;            
+
             txtHeader.Text = string.Empty;
 
-            _ttFilter = new ToolTip();
-            _ttFilter.AutoPopDelay = 32767;//5000;
-            _ttFilter.InitialDelay = 1000;
-            _ttFilter.ReshowDelay = 500;
-            _ttFilter.ToolTipTitle = "Current Filter:";
-            _ttFilter.UseFading = true;
-            _ttFilter.UseAnimation = true;
-            _ttFilter.IsBalloon = true;
-            _ttFilter.ShowAlways = true;
-                                    
-            _ttFilter.SetToolTip(btnCustomFilter, _currentFilter == null ||
+            _ttFilterInfo = new ToolTip()
+            {
+                AutoPopDelay = 32767,//5000;
+                InitialDelay = 1000,
+                ReshowDelay = 500,
+                ToolTipTitle = "Current Filter:",
+                UseFading = true,
+                UseAnimation = true,
+                IsBalloon = true,
+                ShowAlways = true
+            };
+
+            _ttFilterInfo.SetToolTip(btnCustomFilter, _currentFilter == null ||
                 string.IsNullOrWhiteSpace(_currentFilter.FilterExpression) ? "No filter. Click to set." :
                 StringExt.Wrap(_currentFilter.FilterExpression, 70));
         }
@@ -871,6 +874,7 @@ namespace LogParserApp
             var frmFilter = new FrmFilter();           
             frmFilter.PropertyFilter = _parser.PropertyFilter;
             frmFilter.CurrentFilter = _currentFilter;
+            frmFilter.CurrentDevice = _currentDevice;
             frmFilter.ShowDialog(this);
             //TestFilter();
             if (frmFilter.DialogResult == DialogResult.OK)                
@@ -918,7 +922,7 @@ namespace LogParserApp
                 btnCustomFilter.ForeColor = Color.Black;
                 btnClearFilter.Enabled = false;
             }
-            _ttFilter.SetToolTip(btnCustomFilter, _currentFilter == null ||
+            _ttFilterInfo.SetToolTip(btnCustomFilter, _currentFilter == null ||
                 string.IsNullOrWhiteSpace(_currentFilter.FilterExpression) ? "No filter. Click to set." :
                 StringExt.Wrap(_currentFilter.FilterExpression, 70));
 

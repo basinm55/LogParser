@@ -108,6 +108,7 @@ namespace Helpers
             SetForegroundWindow(handle);
         }
 
+
         const int SW_RESTORE = 9;
 
         [System.Runtime.InteropServices.DllImport("User32.dll")]
@@ -116,7 +117,7 @@ namespace Helpers
         private static extern bool ShowWindow(IntPtr handle, int nCmdShow);
         [System.Runtime.InteropServices.DllImport("User32.dll")]
         private static extern bool IsIconic(IntPtr handle);
-    }
+    }   
 
     public static class Prompt
     {

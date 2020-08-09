@@ -27,9 +27,10 @@ namespace Entities
 
     public class FilterDefinition
     {
+        public string Parent { get; set; }
         public string Connector { get; set; }
         public string Property { get; set; }
         public string Operator { get; set; }
         public string Value { get; set; }       
-    }
+    }    
 }

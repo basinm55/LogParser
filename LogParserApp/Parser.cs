@@ -27,7 +27,7 @@ namespace LogParserApp
         ParserObject _currentObj, _locatedObj, _lastCurrentObject;
         StateObject _lastStateObject = null;
 
-        public IDictionary<string, List<object>> PropertyFilter { get; private set; }
+        public IDictionary<string, List<KeyValuePair<object, string>>> PropertyFilter { get; private set; }
 
         private ScanFormatted _sf;
 
@@ -51,7 +51,7 @@ namespace LogParserApp
                 _logFileName = logFileName;
                 _colorMng = new ParserColorManager();
                 ObjectCollection = new List<ParserObject>();
-                PropertyFilter = new Dictionary<string, List<object>>();
+                PropertyFilter = new Dictionary<string, List<KeyValuePair<object, string>>>();
                 InitLogger();              
             }
 
@@ -121,12 +121,13 @@ namespace LogParserApp
                 
             }
 
+            //MICHAEL TODO;
             //Sorting PropertyFilter values
-            foreach (var prop in PropertyFilter)
-            {
-                if (prop.Value != null)
-                    prop.Value.Sort();
-            }
+            //foreach (var prop in PropertyFilter)
+            //{
+            //    if (prop.Value != null)
+            //        prop.Value.Sort();
+            //}
 
             if (!e.Cancel)
                 worker.ReportProgress(100);
@@ -218,7 +219,7 @@ namespace LogParserApp
                     {
                         skipLines = skipLines + DoObjectAction(filter, list, prop, lineNumber, patternIndex, _sf.Results[patternIndex], line, _currentObj.ObjectClass.ToString(), _currentObj.GetThis());
                         SetObjectDescription(stateObj, prop, _sf.Results[patternIndex]);
-                        AddFilterValue(prop, _sf.Results[patternIndex]);
+                        AddFilterValue(_currentObj.GetParent(), prop, _sf.Results[patternIndex]);
                     }
                 }
             }

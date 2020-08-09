@@ -17,9 +17,11 @@ namespace LogParserApp
         private bool _isClearAll;
 
         private string _loadedFilter;
-        public IDictionary<string, List<object>> PropertyFilter { get; set; }
+        public IDictionary<string, List<KeyValuePair<object, string>>> PropertyFilter { get; set; }
 
         public FilterObject CurrentFilter { get; set; }
+
+        public string CurrentDevice { get; set; }
 
         public FrmFilter()
         {
@@ -77,12 +79,15 @@ namespace LogParserApp
             btnAdd.Enabled = false;
             gbConnect.Enabled = false;
 
-            if (cmbProps.SelectedIndex < 0 || cmbProps.SelectedItem == null || !(cmbProps.SelectedItem is KeyValuePair<string, List<object>>)) return;
+            if (cmbProps.SelectedIndex < 0 || cmbProps.SelectedItem == null || !(cmbProps.SelectedItem is KeyValuePair<string, List<KeyValuePair<object, string>>>)) return;
 
-            var values = PropertyFilter[((KeyValuePair<string, List<object>>)cmbProps.SelectedItem).Key];
+            var values = PropertyFilter[((KeyValuePair<string, List<KeyValuePair<object, string>>>)cmbProps.SelectedItem).Key];
             foreach (var val in values)
             {
-                lsbValues.Items.Add(val);
+                if (CurrentDevice == null && !lsbValues.Items.Contains(val.Key))             
+                    lsbValues.Items.Add(val.Key);
+                else if (val.Value == CurrentDevice && !lsbValues.Items.Contains(val.Key))
+                    lsbValues.Items.Add(val.Key);
             }
 
             gbConnect.Enabled = true;
@@ -112,13 +117,13 @@ namespace LogParserApp
         {
             if (cmbProps.SelectedIndex < 0 ||
                 cmbProps.SelectedItem == null ||
-                !(cmbProps.SelectedItem is KeyValuePair<string, List<object>>)) return;
+                !(cmbProps.SelectedItem is KeyValuePair<string, List<KeyValuePair<object, string>>>)) return;
 
             var connect = string.Empty;
             if (dgvFilter.Rows.Count > 0)
                 connect = rbOr.Checked ? "[or]" : "[and]";
 
-            var name = ((KeyValuePair<string, List<object>>)cmbProps.SelectedItem).Key;
+            var name = ((KeyValuePair<string, List<KeyValuePair<object, string>>>)cmbProps.SelectedItem).Key;
             var operat = rbNotEqual.Checked ? "Not equal" : "equal";
             string value = lsbValues.SelectedIndex >= 0 ? lsbValues.SelectedItem.ToString() : null;
 
@@ -138,13 +143,13 @@ namespace LogParserApp
         {
             if (cmbProps.SelectedIndex < 0 ||
                            cmbProps.SelectedItem == null ||
-                           !(cmbProps.SelectedItem is KeyValuePair<string, List<object>>)) return;
+                           !(cmbProps.SelectedItem is KeyValuePair<string, List<KeyValuePair<object, string>>>)) return;
 
             var connect = string.Empty;
             if (dgvFilter.Rows.Count > 0)
                 connect = rbOr.Checked ? "[or]" : "[and]";
 
-            var name = ((KeyValuePair<string, List<object>>)cmbProps.SelectedItem).Key;
+            var name = ((KeyValuePair<string, List<KeyValuePair<object, string>>>)cmbProps.SelectedItem).Key;
             var operat = rbNotEqual.Checked ? "Not equal" : "equal";
             string value = lsbValues.SelectedIndex >= 0 ? lsbValues.SelectedItem.ToString() : null;
 
