@@ -26,12 +26,9 @@ namespace LogParserApp
         private ProfileManager _profileMng;        
         private XElement _selectedProfile;
         private string _externalEditorExecutablePath;
-        private string _currentDevice = null;
-        private string _currentFilterThis = null;
-        private string _currentFilterState = null;
+        private string _currentDevice = null; 
         private string _loadedLogFileName = null;
-        private string _selectedProfileFileName = null;
-        private bool _currentFilterHasDataBuffer = false;        
+        private string _selectedProfileFileName = null;           
         private Process _externalEditorProcess = null;
         private string[] _displayInInfoboxProps;
         private FilterObject _currentFilter = null;
@@ -59,6 +56,7 @@ namespace LogParserApp
             btnViewAppLog.Enabled = false;
             btnViewAppLog.Enabled = false;
             progressBar.Visible = false;
+            txtHeader.Text = string.Empty;
 
             _ttFilter = new ToolTip();
             _ttFilter.AutoPopDelay = 32767;//5000;
@@ -363,11 +361,10 @@ namespace LogParserApp
                     progressBar.Value = 60; ;
                     Application.DoEvents();
 
-                    if (cmbShowDevice.Items.Count > 0)
+                    if (cmbShowDevice.Items.Count > 1)
                         cmbShowDevice.SelectedIndex = 0;
                     cmbShowDevice.Enabled = true;
-                    lblShowDevice.Enabled = true;
-                    chkShowAll.Enabled = true;
+                    lblShowDevice.Enabled = true;                   
                     mnuItemProfile.Enabled = true;
                     mnuItemLoad.Enabled = !string.IsNullOrEmpty(_selectedProfileFileName);
 
@@ -383,7 +380,6 @@ namespace LogParserApp
                 }
                 finally
                 {
-                    Thread.Sleep(500);
                     resultLabel.Text = ("Ready");
                     progressBar.Value = 100;
                     progressBar.Visible = false;
@@ -393,6 +389,7 @@ namespace LogParserApp
                     if (_parser.AppLogIsActive && _parser.AppLogger.ReportedLinesCount > 0)
                     {
                         if (MessageBox.Show(string.Format("Hi, Yuri!"
+                            + Environment.NewLine + "Loading completed"
                             + Environment.NewLine + "There are {0} parsing errors/warnings reported while loading."
                             + Environment.NewLine
                             + "Do you want to open Application Log now?",
@@ -408,7 +405,7 @@ namespace LogParserApp
                                 {
                                     string arguments = null;
                                     if (Path.GetFileName(_externalEditorExecutablePath) == "notepad++.exe")
-                                        arguments = "-ro -nosession -notabbar";                                        
+                                        arguments = "-ro -nosession -notabbar";
                                     _externalEditorProcess = WindowHelper.ViewFileInExternalEditor(_externalEditorExecutablePath, _parser.AppLogger.TargetPath, arguments);
                                 }
                                 catch
@@ -424,9 +421,11 @@ namespace LogParserApp
                                 WindowHelper.BringProcessToFront(_externalEditorProcess);
                         }
                     }
+                    else
+                        MessageBox.Show("Loading completed.", "LOG loaded", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
-            else
+            else if (e.Error != null)
                 MessageBox.Show(e.Error.ToString());
 
             btnStopLoading.Visible = false;
@@ -443,6 +442,7 @@ namespace LogParserApp
                                 ToList();
 
             var comboSource = new Dictionary<string, ParserObject>();
+            comboSource.Add("All devices...", null);
             foreach (var itm in ds)
             {
                 var thisVal = itm.GetThis();
@@ -450,51 +450,14 @@ namespace LogParserApp
                     comboSource.Add(thisVal, itm);
             }
 
-            if (comboSource.Count > 0)
+            if (comboSource.Count > 1)
             {
                 cmbShowDevice.DataSource = new BindingSource(comboSource, null);
                 cmbShowDevice.DisplayMember = "Key";
                 cmbShowDevice.ValueMember = "Value";
             }
         }
-             
-
-        private void chkShowAll_CheckedChanged(object sender, EventArgs e)
-        {           
-            cmbShowDevice.Enabled = !chkShowAll.Checked && cmbShowDevice.Items.Count > 0;
-            lblShowDevice.Enabled = cmbShowDevice.Enabled;
-            if (chkShowAll.Checked)
-            {
-                txtHeader.Text = string.Empty;
-                _currentDevice = null;
-            }
-
-            else
-            {               
-                UpdateDeviceDetails();
-                if (cmbShowDevice.SelectedIndex >= 0 && cmbShowDevice.SelectedItem != null)
-                    _currentDevice = ((KeyValuePair<string, ParserObject>)cmbShowDevice.SelectedItem).Key;
-            }
-
-            Cursor.Current = Cursors.WaitCursor;
-            gbFilter.Enabled = false;
-            Application.DoEvents();
-            try
-            {
-                //ParserView.CreateGridView(_parser.ObjectCollection, dataGV, _currentDevice);
-            }
-            catch (Exception ex)
-            {
-                _parser.AppLogger.LogException(ex);
-                throw ex;
-            }
-            finally
-            {
-                Cursor.Current = Cursors.Default;
-                gridLabel.Text = string.Format("  Total view rows: {0}", dataGV.Rows.Count.ToString());
-                gbFilter.Enabled = true;
-            }
-        }    
+                   
 
         private void btnStopLoading_ButtonClick(object sender, EventArgs e)
         {
@@ -504,19 +467,29 @@ namespace LogParserApp
 
         private void cmbShowDevice_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (cmbShowDevice.SelectedValue != null)
-            {
+             if (cmbShowDevice.SelectedValue != null || _currentDevice != null)
+             {
                 if (cmbShowDevice.SelectedItem.GetType() != typeof(KeyValuePair<string, ParserObject>)) return;
-                UpdateDeviceDetails();               
+                UpdateDeviceDetails();
 
                 //Filter by selected device
-                _currentDevice = ((KeyValuePair<string, ParserObject>)cmbShowDevice.SelectedItem).Key;
+                if (cmbShowDevice.SelectedIndex == 0)
+                    _currentDevice = null;
+                else
+                    _currentDevice = ((KeyValuePair<string, ParserObject>)cmbShowDevice.SelectedItem).Key;
+
                 gbFilter.Enabled = false;
-                Cursor.Current = Cursors.WaitCursor;               
-                Application.DoEvents();
+                Cursor.Current = Cursors.WaitCursor;                              
                 try
                 {
-                    //ParserView.CreateGridView(_parser.ObjectCollection, dataGV, _currentDevice);
+                    resultLabel.Text = "Prepare data for view...";
+                    progressBar.Value = 60;
+                    progressBar.Visible = true;
+                    Application.DoEvents();
+                    if (_currentFilter != null)
+                        _currentFilter.Clear();
+                    RefreshGridView(_parser.ObjectCollection);
+                    UpdateCustomFilterExists(false);
                 }
                 catch (Exception ex)
                 {
@@ -524,25 +497,28 @@ namespace LogParserApp
                     throw ex;
                 }
                 finally
-                {
+                { 
+                    resultLabel.Text = ("Ready");
+                    progressBar.Value = 100;
+                    progressBar.Visible = false;
+                    Application.DoEvents();
+                    Cursor.Current = Cursors.Default;
                     Cursor.Current = Cursors.Default;
                     gridLabel.Text = string.Format("  Total view rows: {0}", dataGV.Rows.Count.ToString());
-                    gbFilter.Enabled = true;
-                    txtHeader.BackColor = Color.Red;
+                    gbFilter.Enabled = true;        
                 }
             }                       
         }
 
         private void UpdateDeviceDetails()
-        {         
+        {                                        
             if (cmbShowDevice.SelectedItem.GetType() != typeof(KeyValuePair<string, ParserObject>)) return;
 
-            var device = ((KeyValuePair<string, ParserObject>)cmbShowDevice.SelectedItem).Key;
-            var obj = ((KeyValuePair<string, ParserObject>)cmbShowDevice.SelectedItem).Value;
-            var time = string.Format("{0:MM/dd/yyyy-HH:mm:ss.FFF}", obj.GetDynPropertyValue("Time"));                        
-            
+            //var device = ((KeyValuePair<string, ParserObject>)cmbShowDevice.SelectedItem).Key;
+            var obj = ((KeyValuePair<string, ParserObject>)cmbShowDevice.SelectedItem).Value;                                               
             if (obj != null)
             {
+                var time = string.Format("{0:MM/dd/yyyy-HH:mm:ss.FFF}", obj.GetDynPropertyValue("Time"));
                 txtHeader.Tag = obj;
                 txtHeader.Text = string.Format("{0}: {1}   ID: {2} on the port {3}. Created at {4}",
                     obj.ObjectClass.ToString(),
@@ -550,7 +526,15 @@ namespace LogParserApp
                     (string)obj.GetDynPropertyValue("ID"),
                     (string)obj.GetDynPropertyValue("Port"),
                     time);
+                
+                txtHeader.BackColor = Color.Black;
             }
+            else
+            {
+                txtHeader.Text = string.Empty;
+                txtHeader.BackColor = SystemColors.Control;
+            }
+
         }
             
 
@@ -576,58 +560,31 @@ namespace LogParserApp
         }
 
         private void btnClearFilter_Click(object sender, EventArgs e)
-        {          
-            _currentFilterThis = null;
-            _currentFilterState = null;
-            _currentFilterHasDataBuffer = false;
-
+        {            
             if (_currentFilter != null)
                 _currentFilter.Clear();            
             RefreshGridView(_parser.ObjectCollection);
             UpdateCustomFilterExists(false);
         }
+        
 
-        private void cmbThis_SelectedIndexChanged(object sender, EventArgs e)
-        {    
-            //SetFilters();
-        }
-
-        private void cmbState_SelectedIndexChanged(object sender, EventArgs e)
-        {            
-            //SetFilters();
-        }      
-
-        private void SetFilters()
+        private void Old_SetFilters()
         {           
-            gbFilter.Enabled = false;     
+            //gbFilter.Enabled = false;     
             
-            var filteredCollection = _currentFilterThis != null ?
-                     _parser.ObjectCollection.Where(x => x.GetThis() == _currentFilterThis).ToList() :
-                    _parser.ObjectCollection;
+            //var filteredCollection = _currentFilterThis != null ?
+            //         _parser.ObjectCollection.Where(x => x.GetThis() == _currentFilterThis).ToList() :
+            //        _parser.ObjectCollection;
 
-            filteredCollection = _currentFilterState != null ?
-                     filteredCollection.Where(x => x != null && x.StateCollection.Any(y => y != null && y.State.ToString() == _currentFilterState)).ToList() :
-                    filteredCollection;
+            //filteredCollection = _currentFilterState != null ?
+            //         filteredCollection.Where(x => x != null && x.StateCollection.Any(y => y != null && y.State.ToString() == _currentFilterState)).ToList() :
+            //        filteredCollection;
 
-            filteredCollection = _currentFilterHasDataBuffer == true ?
-                    filteredCollection.Where(x => x != null && x.StateCollection.Any(y => y != null && !string.IsNullOrWhiteSpace(y.DataBuffer.ToString()))).ToList() :
-                   filteredCollection;
+            //filteredCollection = _currentFilterHasDataBuffer == true ?
+            //        filteredCollection.Where(x => x != null && x.StateCollection.Any(y => y != null && !string.IsNullOrWhiteSpace(y.DataBuffer.ToString()))).ToList() :
+            //       filteredCollection;
 
-            RefreshGridView(filteredCollection);
-            //Cursor.Current = Cursors.WaitCursor;            
-            //Application.DoEvents();
-            //gbFilter.Enabled = false;
-            //try
-            //{
-            //    ParserView.CreateGridView(filteredCollection, dataGV, _currentDevice);
-            //}
-            //finally
-            //{
-            //    Cursor.Current = Cursors.Default;
-            //    gridLabel.Text = string.Format("  Total view rows: {0}", dataGV.Rows.Count.ToString());
-            //    gbFilter.Enabled = true;               
-            //}
-
+            //RefreshGridView(filteredCollection);    
         }
        
 
@@ -653,9 +610,7 @@ namespace LogParserApp
             btnStopLoading.Visible = false;
             cmbShowDevice.SelectedIndex = -1;
             cmbShowDevice.Enabled = false;
-            lblShowDevice.Enabled = false;
-            chkShowAll.Checked = false;
-            chkShowAll.Enabled = false;
+            lblShowDevice.Enabled = false; 
             gbFilter.Enabled = false;
 
             UpdateFormTitle();
@@ -702,7 +657,7 @@ namespace LogParserApp
             if (!_parser.AppLogIsActive)
             {
                 MessageBox.Show("Hi, Youri!" + Environment.NewLine +
-                    "Unfortunately, the application log is not active!" +
+                    "The application log is not active!" +
                                 Environment.NewLine +
                                 "Please activate it via configuration file.",
                                 "Application log",
@@ -716,7 +671,10 @@ namespace LogParserApp
             {
                 try
                 {
-                    _externalEditorProcess = WindowHelper.ViewFileInExternalEditor(_externalEditorExecutablePath, _parser.AppLogger.TargetPath);
+                    string arguments = null;
+                    if (Path.GetFileName(_externalEditorExecutablePath) == "notepad++.exe")
+                        arguments = "-ro -nosession -notabbar";
+                    _externalEditorProcess = WindowHelper.ViewFileInExternalEditor(_externalEditorExecutablePath, _parser.AppLogger.TargetPath, arguments);                   
                 }
                 catch
                 {
@@ -757,8 +715,6 @@ namespace LogParserApp
                     gridLabel.Text = string.Empty;
                     cmbShowDevice.Enabled = false;
                     lblShowDevice.Enabled = false;
-                    chkShowAll.Checked = false;
-                    chkShowAll.Enabled = false;
                     cmbShowDevice.SelectedIndex = -1;
                     bkgWorkerLoad.RunWorkerAsync();
                 }
@@ -870,8 +826,10 @@ namespace LogParserApp
 
         private void txtHeader_Click(object sender, EventArgs e)
         {
-            dataGV.ClearSelection();
-            var txtBox = sender as TextBox;
+            if (_currentDevice == null) return;
+
+            var txtBox = sender as TextBox;            
+            dataGV.ClearSelection();                        
             var relatedParserObj = txtBox.Tag as ParserObject;
             if (relatedParserObj != null)
             {
@@ -882,27 +840,30 @@ namespace LogParserApp
         }
 
         private void txtHeader_MouseLeave(object sender, EventArgs e)
-        {
+        {            
             txtHeader.Cursor = Cursors.Default;
         }
 
         private void txtHeader_MouseMove(object sender, MouseEventArgs e)
-        {
-            txtHeader.Cursor = Cursors.Hand;
+        {           
+            txtHeader.Cursor = _currentDevice != null ? Cursors.Hand : Cursors.Default;
         }
 
         private void txtHeader_Leave(object sender, EventArgs e)
-        {
-            var txtBox = sender as TextBox;
-            txtBox.BackColor = Color.Red;
+        {            
+            var txtBox = sender as TextBox;            
+            txtBox.BackColor = _currentDevice != null ? Color.Black : SystemColors.Control;
         }
 
         private void txtHeader_TextChanged(object sender, EventArgs e)
         {
-            var txtBox = sender as TextBox;
-            Size size = TextRenderer.MeasureText(txtBox.Text, txtBox.Font);
-            txtBox.Width = size.Width;
-            txtBox.Height = size.Height;
+            //if (_currentDevice == null) return;
+
+            //var txtBox = sender as TextBox;
+            //if (string.IsNullOrEmpty(txtBox.Text)) return;
+            //Size size = TextRenderer.MeasureText(txtBox.Text, txtBox.Font);
+            //txtBox.Width = size.Width;
+            //txtBox.Height = size.Height;
         }
 
         private void btnCustomFilter_Click(object sender, EventArgs e)
@@ -912,20 +873,35 @@ namespace LogParserApp
             frmFilter.CurrentFilter = _currentFilter;
             frmFilter.ShowDialog(this);
             //TestFilter();
-            if (frmFilter.DialogResult == DialogResult.OK)
-                
+            if (frmFilter.DialogResult == DialogResult.OK)                
             {
-                if (frmFilter.CurrentFilter != null && frmFilter.CurrentFilter.FilterExpression != null)
+                resultLabel.Text = "Prepare data for view...";
+                progressBar.Value = 60;
+                progressBar.Visible = true;
+                Application.DoEvents();
+                Cursor.Current = Cursors.WaitCursor;
+                try
                 {
-                    var filteredData = DataFilterHelper.GetFilteredData(_parser.ObjectCollection, frmFilter.CurrentFilter.FilterExpression);
-                    _currentFilter = frmFilter.CurrentFilter;
-                    RefreshGridView(filteredData.Cast<ParserObject>().ToList());
-                    UpdateCustomFilterExists(_currentFilter != null && _currentFilter.FilterExpression != null);
+                    if (frmFilter.CurrentFilter != null && frmFilter.CurrentFilter.FilterExpression != null)
+                    {                                        
+                        var filteredData = DataFilterHelper.GetFilteredData(_parser.ObjectCollection, frmFilter.CurrentFilter.FilterExpression);
+                        _currentFilter = frmFilter.CurrentFilter;
+                        RefreshGridView(filteredData.Cast<ParserObject>().ToList());
+                        UpdateCustomFilterExists(_currentFilter != null && _currentFilter.FilterExpression != null);                    
+                    }
+                    else
+                    {
+                        RefreshGridView(_parser.ObjectCollection);
+                        UpdateCustomFilterExists(false);
+                    }
                 }
-                else
-                {
-                    RefreshGridView(_parser.ObjectCollection);
-                    UpdateCustomFilterExists(false);
+                finally
+                {                    
+                    resultLabel.Text = ("Ready");
+                    progressBar.Value = 100;
+                    progressBar.Visible = false;
+                    Cursor.Current = Cursors.Default;
+                    Application.DoEvents();
                 }
             }
         }

@@ -44,7 +44,6 @@
             this.bkgWorkerLoad = new System.ComponentModel.BackgroundWorker();
             this.lblShowDevice = new System.Windows.Forms.Label();
             this.cmbShowDevice = new System.Windows.Forms.ComboBox();
-            this.chkShowAll = new System.Windows.Forms.CheckBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.txtHeader = new System.Windows.Forms.TextBox();
             this.gbFilter = new System.Windows.Forms.GroupBox();
@@ -176,7 +175,7 @@
             // lblShowDevice
             // 
             this.lblShowDevice.AutoSize = true;
-            this.lblShowDevice.Location = new System.Drawing.Point(17, 45);
+            this.lblShowDevice.Location = new System.Drawing.Point(18, 61);
             this.lblShowDevice.Name = "lblShowDevice";
             this.lblShowDevice.Size = new System.Drawing.Size(44, 13);
             this.lblShowDevice.TabIndex = 8;
@@ -186,22 +185,11 @@
             // 
             this.cmbShowDevice.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbShowDevice.FormattingEnabled = true;
-            this.cmbShowDevice.Location = new System.Drawing.Point(63, 42);
+            this.cmbShowDevice.Location = new System.Drawing.Point(64, 58);
             this.cmbShowDevice.Name = "cmbShowDevice";
             this.cmbShowDevice.Size = new System.Drawing.Size(148, 21);
             this.cmbShowDevice.TabIndex = 7;
             this.cmbShowDevice.SelectedIndexChanged += new System.EventHandler(this.cmbShowDevice_SelectedIndexChanged);
-            // 
-            // chkShowAll
-            // 
-            this.chkShowAll.AutoSize = true;
-            this.chkShowAll.Location = new System.Drawing.Point(20, 72);
-            this.chkShowAll.Name = "chkShowAll";
-            this.chkShowAll.Size = new System.Drawing.Size(106, 17);
-            this.chkShowAll.TabIndex = 9;
-            this.chkShowAll.Text = "Show all devices";
-            this.chkShowAll.UseVisualStyleBackColor = true;
-            this.chkShowAll.CheckedChanged += new System.EventHandler(this.chkShowAll_CheckedChanged);
             // 
             // groupBox1
             // 
@@ -213,7 +201,7 @@
             this.groupBox1.Size = new System.Drawing.Size(1053, 36);
             this.groupBox1.TabIndex = 11;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Parent";
+            this.groupBox1.Text = "Selected device details:";
             // 
             // txtHeader
             // 
@@ -225,7 +213,7 @@
             this.txtHeader.Location = new System.Drawing.Point(20, 120);
             this.txtHeader.Name = "txtHeader";
             this.txtHeader.ReadOnly = true;
-            this.txtHeader.Size = new System.Drawing.Size(1045, 13);
+            this.txtHeader.Size = new System.Drawing.Size(1039, 13);
             this.txtHeader.TabIndex = 7;
             this.txtHeader.Click += new System.EventHandler(this.txtHeader_Click);
             this.txtHeader.TextChanged += new System.EventHandler(this.txtHeader_TextChanged);
@@ -388,7 +376,6 @@
             this.Controls.Add(this.btnViewLoadedLog);
             this.Controls.Add(this.gbFilter);
             this.Controls.Add(this.groupBox1);
-            this.Controls.Add(this.chkShowAll);
             this.Controls.Add(this.lblShowDevice);
             this.Controls.Add(this.cmbShowDevice);
             this.Controls.Add(this.statusStrip);
@@ -426,7 +413,6 @@
         private System.Windows.Forms.ToolStripStatusLabel calculateLabel;        
         private System.Windows.Forms.Label lblShowDevice;
         private System.Windows.Forms.ComboBox cmbShowDevice;
-        private System.Windows.Forms.CheckBox chkShowAll;
         private System.Windows.Forms.ToolStripSplitButton btnStopLoading;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.GroupBox gbFilter;

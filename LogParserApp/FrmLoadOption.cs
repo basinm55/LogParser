@@ -1,0 +1,28 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace LogParserApp
+{
+    public partial class FrmLoadOption : Form
+    {
+        public FrmLoadOption()
+        {
+            InitializeComponent();
+        }
+
+        private void btnOK_Click(object sender, EventArgs e)
+        {
+            if (rbLoadFromCache.Checked)
+                DialogResult = DialogResult.Yes;
+            else if (rbLoadOriginal.Checked)
+                DialogResult = DialogResult.No;
+        }     
+    }
+}
