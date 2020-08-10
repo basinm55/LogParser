@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmMain));
             this.dataGV = new System.Windows.Forms.DataGridView();
             this.dlgLoadLog = new System.Windows.Forms.OpenFileDialog();
@@ -90,8 +90,8 @@
             this.dataGV.ReadOnly = true;
             this.dataGV.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             this.dataGV.RowHeadersVisible = false;
-            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.dataGV.RowsDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.dataGV.RowsDefaultCellStyle = dataGridViewCellStyle1;
             this.dataGV.RowTemplate.Height = 66;
             this.dataGV.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
             this.dataGV.Size = new System.Drawing.Size(1062, 587);
@@ -308,22 +308,22 @@
             // mnuItemImportProfile
             // 
             this.mnuItemImportProfile.Name = "mnuItemImportProfile";
-            this.mnuItemImportProfile.Size = new System.Drawing.Size(186, 22);
+            this.mnuItemImportProfile.Size = new System.Drawing.Size(192, 22);
             this.mnuItemImportProfile.Text = "Import profile...";
             this.mnuItemImportProfile.Click += new System.EventHandler(this.mnuItemImportProfile_Click);
             // 
             // mnuItemEditCurrentProfile
             // 
             this.mnuItemEditCurrentProfile.Name = "mnuItemEditCurrentProfile";
-            this.mnuItemEditCurrentProfile.Size = new System.Drawing.Size(186, 22);
+            this.mnuItemEditCurrentProfile.Size = new System.Drawing.Size(192, 22);
             this.mnuItemEditCurrentProfile.Text = "Edit current profile";
             this.mnuItemEditCurrentProfile.Click += new System.EventHandler(this.mnuItemEditCurrentProfile_Click);
             // 
             // mnuItemPatternValidator
             // 
             this.mnuItemPatternValidator.Name = "mnuItemPatternValidator";
-            this.mnuItemPatternValidator.Size = new System.Drawing.Size(186, 22);
-            this.mnuItemPatternValidator.Text = "Pattern Validator Tool";
+            this.mnuItemPatternValidator.Size = new System.Drawing.Size(192, 22);
+            this.mnuItemPatternValidator.Text = "Pattern Validation Tool";
             this.mnuItemPatternValidator.Click += new System.EventHandler(this.mnuItemPatternValidator_Click);
             // 
             // dgvInfo
