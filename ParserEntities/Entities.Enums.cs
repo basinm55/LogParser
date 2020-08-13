@@ -49,9 +49,9 @@ namespace Entities
         {
             Unknown = -5,
             Temporary = -4,
-            Deleted = -3,
+            Lost = -3,
             ViewArrow = -2,
-            Empty = -1,
+            Blank = -1,
             Created = 0,                                  
             Queued = 1,
             Sent = 2,
@@ -61,9 +61,10 @@ namespace Entities
 
         public enum ObjectClass
         {
-            Unknown = -3,
+            Unknown = -4,
+            Lost = -3,
             ViewArrow = -2,
-            Empty = -1,
+            Blank = -1,
             Device = 0,
             Port = 1,
             Request = 2,

@@ -61,7 +61,7 @@ namespace LogParserApp
                 skipLines = skipLines + BuildDataBuffer(name, patternIndex, list, lineNumber, out StringBuilder dataBuff);
                 //Update DataBuffer
                 var foundStateObjToBufferUpdate = _currentObj.StateCollection.LastOrDefault(
-                    x => x.ObjectClass != ObjectClass.Empty && x.ObjectClass != ObjectClass.ViewArrow);
+                    x => x.ObjectClass != ObjectClass.Blank && x.ObjectClass != ObjectClass.ViewArrow);
 
                 if (foundStateObjToBufferUpdate != null)
                     foundStateObjToBufferUpdate.DataBuffer = dataBuff;
@@ -242,7 +242,7 @@ namespace LogParserApp
                     }
                     else
                     {
-                        foundInterruptedObj = foundExistingObjects.Last();
+                        foundInterruptedObj = foundExistingObjects.LastOrDefault();
                         if (foundInterruptedObj != null)
                         {
                             var foundStateCollection = foundInterruptedObj.StateCollection;
@@ -262,12 +262,13 @@ namespace LogParserApp
                     if (foundInterruptedObj != null )
                     {
                         obj = foundInterruptedObj.CreateObjectClone();
+                        //MB
                         obj.BaseColor = foundInterruptedObj.BaseColor;
                         foundInterruptedObj.NextContinuedObj = obj;
                         obj.PrevInterruptedObj = foundInterruptedObj;                        
                         for (int i = 0; i < foundInterruptedObj.StateCollection.Count; i++)
                         {
-                            obj.StateCollection.Add(obj.CreateEmptyStateObject());                          
+                            obj.StateCollection.Add(obj.CreateBlankStateObject());                          
                         }
                     }
                     else
@@ -305,7 +306,7 @@ namespace LogParserApp
         {
             if (stateObj == null) return;
 
-            if (stateObj.State == State.Empty) return;
+            if (stateObj.State == State.Blank) return;
 
             XElement displayMember = prop.Element("DisplayMember");
             if (displayMember == null || displayMember.Value == null || !displayMember.Value.ToBoolean())
@@ -350,6 +351,18 @@ namespace LogParserApp
                 listOfValues.Add(new KeyValuePair<object, string>(parsedValue, parent));
                 PropertyFilter.Add(new KeyValuePair<string, List<KeyValuePair<object, string>>>(key, listOfValues));           
             }
+        }
+
+        private void AddColorKeyValue(ParserObject obj, XElement prop, object parsedValue)
+        {
+            XElement colorKeysMember = prop.Element("ColorKeysMember");
+            if (obj == null ||
+                colorKeysMember == null || colorKeysMember.Value == null ||
+                !colorKeysMember.Value.ToBoolean())
+                return;
+           
+            if (!obj.ColorKeys.Contains(parsedValue))       
+                obj.ColorKeys.Add((string)parsedValue);
         }
     }
 }

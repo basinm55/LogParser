@@ -53,21 +53,12 @@ namespace LogParserApp
         }
 
         public static void CreateGridView(List<ParserObject> data, DataGridView dataGV, string deviceFilter)
-        {          
-
-            //if (data.Count == 0) return;
+        {                      
             int maxDescLength = (int)Utils.GetConfigValue<int>("MaxVisualDescriptionLength");
             maxDescLength = maxDescLength == 0 ? 30 : maxDescLength;
 
             dataGV.AutoGenerateColumns = false;            
-            dataGV.Columns.Clear();
-
-            //foreach (var o in data)
-            //{
-            //    if (o == null) continue;
-            //    var stateCollection = o.StateCollection;
-            //    stateCollection.RemoveAll((x) => x == null);
-            //}
+            dataGV.Columns.Clear();       
             
             var columnsCount = data.Count > 0 ? data.Max(x => x.StateCollection.Count()): 0;           
 
@@ -124,41 +115,7 @@ namespace LogParserApp
                 }               
             }        
             
-        }
-
-        //private static void CreateForwardImadeCell(StateObject stateObj, DataGridViewRow row, int cellIndex, ParserObject nextContinuedObj, ParserObject prevInterruptedObj)
-        //{            
-        //    var cell = new DataGridViewImageCell();
-
-        //    if (stateObj == null)
-        //    {
-        //        row.Cells[cellIndex] = cell;
-        //        return;
-        //    }
-
-        //    if (nextContinuedObj != null)
-        //    {
-        //        cell.Value = ImageExt.ColorReplace(Properties.Resources.forward_arrow, Color.White, nextContinuedObj.BaseColor);
-        //        cell.Tag = new TagArrowInfo{ refObj = nextContinuedObj, stateObj = stateObj };
-        //    }
-        //    else if (prevInterruptedObj != null)
-        //    {
-        //        var selfIdx = stateObj.Parent.StateCollection.IndexOf(stateObj);
-        //        if (selfIdx > 0 && stateObj.Parent.StateCollection[selfIdx - 1].ObjectClass == Enums.ObjectClass.Empty)
-        //            cell.Value = ImageExt.ColorReplace(Properties.Resources.forward_arrow, Color.White, prevInterruptedObj.BaseColor);
-        //        else
-        //            cell.Value = ImageExt.ColorReplace(Properties.Resources.forward_arrow, Color.White, prevInterruptedObj.BaseColor);
-        //        cell.Tag = new TagArrowInfo { refObj = prevInterruptedObj, stateObj = stateObj };
-        //    }
-        //    else
-        //    {
-        //        cell.Value = Properties.Resources.forward_arrow;
-        //        cell.Tag = new TagArrowInfo { refObj = null, stateObj = stateObj }; ;
-        //    }
-
-        //    row.Cells[cellIndex] = cell;
-        //}
-
+        }     
 
         private static void CreateForwardImadeCell(StateObject stateObj, DataGridViewRow row, int cellIndex, ParserObject nextContinuedObj, ParserObject prevInterruptedObj)
         {
@@ -201,14 +158,7 @@ namespace LogParserApp
                     cell.Value = Properties.Resources.forward_arrow;
                     tag.IsClickable = false;
                     cell.Tag = new TagArrowInfo { refObj = null, stateObj = stateObj };
-                }
-
-                //    var selfIdx = stateObj.Parent.StateCollection.IndexOf(stateObj);
-                //if (selfIdx > 0 && stateObj.Parent.StateCollection[selfIdx - 1].ObjectClass == Enums.ObjectClass.Empty)
-                //    cell.Value = ImageExt.ColorReplace(Properties.Resources.forward_arrow, Color.White, prevInterruptedObj.BaseColor);
-                //else
-                //    cell.Value = ImageExt.ColorReplace(Properties.Resources.forward_arrow, Color.White, prevInterruptedObj.BaseColor);
-                //cell.Tag = new TagArrowInfo { refObj = prevInterruptedObj, stateObj = stateObj };
+                }       
             }
             else
             {
@@ -233,7 +183,7 @@ namespace LogParserApp
                         var nextState = idx < tag.stateObj.Parent.StateCollection.Count - 1 ?
                             tag.stateObj.Parent.StateCollection[idx + 1] : null;
                         var prevState = tag.stateObj.Parent.StateCollection[idx - 1];
-                        if (nextState == null || nextState.ObjectClass == ObjectClass.Empty || prevState.ObjectClass == ObjectClass.Empty)
+                        if (nextState == null || nextState.ObjectClass == ObjectClass.Blank || prevState.ObjectClass == ObjectClass.Blank)
                             return true;
                     }
                 }
@@ -262,7 +212,7 @@ namespace LogParserApp
             };
 
 
-            if (stateObj.State != Enums.State.Empty)
+            if (stateObj.State != Enums.State.Blank)
             {
                 var stateDescription = CreateVisualDescription(stateObj, maxDescLength);
                 stateObj.Description = stateDescription.ToString();

@@ -52,6 +52,7 @@ namespace LogParserApp
             
             mnuItemLoad.Enabled = !string.IsNullOrEmpty(_selectedProfileFileName);
             mnuItemEditCurrentProfile.Enabled = !string.IsNullOrEmpty(_selectedProfileFileName);
+            mnuItemGoToLine.Enabled = !string.IsNullOrEmpty(_loadedLogFileName);
 
             btnViewLoadedLog.Enabled = false;
             btnViewAppLog.Enabled = false;
@@ -113,7 +114,7 @@ namespace LogParserApp
             var ds = new List<KeyValuePair<string, string>>();
 
 
-            if (stateObj != null && stateObj.State != State.Empty)
+            if (stateObj != null && stateObj.State != State.Blank)
             {
                 var baseObj = stateObj.Parent;                
                 var time = stateObj.Time != DateTime.MinValue ?
@@ -282,9 +283,9 @@ namespace LogParserApp
             StateObject referenceStateObj = null;
 
             if ((referenceObj as ParserObject).PrevInterruptedObj != null)
-                referenceStateObj = (referenceObj as ParserObject).StateCollection.FirstOrDefault(x => x.ObjectClass != ObjectClass.Empty && x.ObjectClass != ObjectClass.ViewArrow);
+                referenceStateObj = (referenceObj as ParserObject).StateCollection.FirstOrDefault(x => x.ObjectClass != ObjectClass.Blank && x.ObjectClass != ObjectClass.ViewArrow);
             else if ((referenceObj as ParserObject).NextContinuedObj != null)
-                referenceStateObj = (referenceObj as ParserObject).StateCollection.LastOrDefault(x => x.ObjectClass != ObjectClass.Empty && x.ObjectClass != ObjectClass.ViewArrow);
+                referenceStateObj = (referenceObj as ParserObject).StateCollection.LastOrDefault(x => x.ObjectClass != ObjectClass.Blank && x.ObjectClass != ObjectClass.ViewArrow);
             else
                 return;
 
@@ -311,7 +312,39 @@ namespace LogParserApp
 
                 rowIndex++;
             }
-        }            
+        }
+
+        private bool SearchLineNumber(int lineNumber)
+        {
+            bool isFound = false;
+            int rowIndex = 0;
+            int colIndex = 0;           
+            foreach (DataGridViewRow row in dataGV.Rows)
+            {
+                colIndex = 0;
+                foreach (var cell in row.Cells)
+                {
+                    var stateObj = (cell as DataGridViewCell).Value as StateObject;
+                    if (stateObj != null && stateObj.LineNum == lineNumber)
+                    {
+                        isFound = true;
+                        break;
+                    }
+
+                    colIndex++;    
+                }
+
+                if (isFound)
+                    break;
+
+                rowIndex++;
+            }
+
+            if (isFound == true)
+                dataGV.CurrentCell = dataGV[colIndex, rowIndex];
+
+            return isFound;
+        }
 
         private void dataGV_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
@@ -371,6 +404,7 @@ namespace LogParserApp
                     lblShowDevice.Enabled = true;                   
                     mnuItemImportProfile.Enabled = true;
                     mnuItemLoad.Enabled = !string.IsNullOrEmpty(_selectedProfileFileName);
+                    mnuItemGoToLine.Enabled = !string.IsNullOrEmpty(_loadedLogFileName);
 
                     btnViewLoadedLog.Enabled = true;
                     btnViewAppLog.Enabled = true;
@@ -714,6 +748,7 @@ namespace LogParserApp
                     // Start the asynchronous operation.
                     mnuItemLoad.Enabled = false;
                     mnuItemImportProfile.Enabled = false;
+                    mnuItemGoToLine.Enabled = false;
                     btnStopLoading.Visible = true;
                     calculateLabel.Text = string.Empty;
                     gridLabel.Text = string.Empty;
@@ -739,6 +774,7 @@ namespace LogParserApp
             {
                 _selectedProfileFileName = dlgProfile.FileName;
                 mnuItemLoad.Enabled = !string.IsNullOrEmpty(_selectedProfileFileName);
+                mnuItemGoToLine.Enabled = !string.IsNullOrEmpty(_loadedLogFileName);
                 _profileMng.ProfilePath = _selectedProfileFileName;
                 _profileMng.LoadXmlFile(_selectedProfileFileName);
                 _selectedProfile = _profileMng.CurrentProfile;
@@ -754,6 +790,7 @@ namespace LogParserApp
             }
             mnuItemLoad.Enabled = !string.IsNullOrEmpty(_selectedProfileFileName);
             mnuItemEditCurrentProfile.Enabled = !string.IsNullOrEmpty(_selectedProfileFileName);
+            mnuItemGoToLine.Enabled = !string.IsNullOrEmpty(_loadedLogFileName);
         }
         private void mnuItemPatternValidator_Click(object sender, EventArgs e)
         {
@@ -953,6 +990,17 @@ namespace LogParserApp
             }
             else
                 WindowHelper.BringProcessToFront(_externalEditorProcess);
+        }
+
+        private void mnuItemGoToLine_Click(object sender, EventArgs e)
+        {
+            var frmGoToLine = new FrmGoToLine();
+            frmGoToLine.ShowDialog(this);
+            if (frmGoToLine.DialogResult == DialogResult.OK)
+            {
+                if (!SearchLineNumber(frmGoToLine.SelectedLineNum))
+                    MessageBox.Show(string.Format("Line number {0} is not found", frmGoToLine.SelectedLineNum), "Not found", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
     }    
 }

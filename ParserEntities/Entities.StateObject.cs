@@ -30,6 +30,8 @@ namespace Entities
 
         public ParserObject Parent { get; private set; }
 
+        public ParserObject ReferenceObj { get; set; }
+
         public StateObject ReferenceStateObj { get; set; }
                 
         public StringBuilder DataBuffer { get; set; }        

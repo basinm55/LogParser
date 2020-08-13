@@ -41,7 +41,7 @@
 						<Name>ID</Name>
 						<DataType>decimal</DataType>
 						<Action>Assign</Action>
-						<Target>ID</Target>
+						<Target>ID</Target>						
 					</Property>
 				</Properties>
 			</Filter>
@@ -79,7 +79,7 @@
 						<Name>this</Name>
 						<DataType>string</DataType>
 						<Action>New</Action>						
-						<DisplayMember>1</DisplayMember>
+						<DisplayMember>1</DisplayMember>						
 					</Property>
 					<Property i="1">
 						<PatternIndex>0</PatternIndex>
@@ -94,6 +94,7 @@
 						<DataType>string</DataType>
 						<Action>AssignToSelf</Action>
 						<Target>Parent</Target>
+						<ColorKeysMember>1</ColorKeysMember>
 					</Property>					
 					<Property i="3">
 						<PatternIndex>1</PatternIndex>
@@ -102,6 +103,7 @@
 						<Action>AssignToSelf</Action>
 						<DisplayMember>1</DisplayMember>
 						<FilterMember>1</FilterMember>
+						<ColorKeysMember>1</ColorKeysMember>
 					</Property>	
 					<Property i="4"> <!--???????-->
 						<PatternIndex>3</PatternIndex>
@@ -140,6 +142,7 @@
 						<Action>Assign</Action>
 						<DisplayMember>1</DisplayMember>
 						<FilterMember>1</FilterMember>
+						<ColorKeysMember>1</ColorKeysMember>
 					</Property>
 					<Property i="3">
 						<PatternIndex>3</PatternIndex>
@@ -233,7 +236,7 @@
 						<DataType>string</DataType>
 						<Action>AssignToSelf</Action>
 						<DisplayMember>1</DisplayMember>
-						<FilterMember>1</FilterMember>
+						<FilterMember>1</FilterMember>						
 					</Property>				
 				</Properties>
 			</Filter>

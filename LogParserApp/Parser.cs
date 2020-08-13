@@ -18,7 +18,7 @@ using System.Threading;
 namespace LogParserApp
 {
     public partial class Parser : IDisposable
-    {
+    {      
         private string _logFileName;
        
         public ManualResetEvent Locker = new ManualResetEvent(true);
@@ -47,7 +47,7 @@ namespace LogParserApp
             if (string.IsNullOrWhiteSpace(logFileName) || !File.Exists(logFileName))
                 MessageBox.Show(string.Format("Hi, Youri! Unfortunately, the Log file: '{0}' does not exists!", logFileName));
             else
-            {
+            {                
                 _logFileName = logFileName;
                 _colorMng = new ParserColorManager();
                 ObjectCollection = new List<ParserObject>();
@@ -121,18 +121,14 @@ namespace LogParserApp
                 
             }
 
-            //MICHAEL TODO;
-            //Sorting PropertyFilter values
-            //foreach (var prop in PropertyFilter)
-            //{
-            //    if (prop.Value != null)
-            //        prop.Value.Sort();
-            //}
-
+            SetColors();
+    
             if (!e.Cancel)
                 worker.ReportProgress(100);
 
             AppLogger.LogLoadingCompleted();
+
+            
         }
 
         private List<string> ReadLogFileToList()
@@ -220,12 +216,10 @@ namespace LogParserApp
                         skipLines = skipLines + DoObjectAction(filter, list, prop, lineNumber, patternIndex, _sf.Results[patternIndex], line, _currentObj.ObjectClass.ToString(), _currentObj.GetThis());
                         SetObjectDescription(stateObj, prop, _sf.Results[patternIndex]);
                         AddFilterValue(_currentObj.GetParent(), prop, _sf.Results[patternIndex]);
+                        AddColorKeyValue(_currentObj, prop, _sf.Results[patternIndex]);
                     }
                 }
-            }
-           
-
-            stateObj.Color = _colorMng.GetColorByState(_currentObj.BaseColor, stateObj.State);
+            }               
 
             if (isVisible)
             {
@@ -237,6 +231,12 @@ namespace LogParserApp
 
                 if (stateObj.State != State.Temporary)
                 {
+                    //if lost states found: MB ToDo:
+                    if ((int)stateObj.State > _currentObj.StateCollection.Count)
+                    {
+
+                    }
+
                     _currentObj.StateCollection.Add(stateObj);
 
                     if (stateObj.State < State.Completed)
@@ -250,14 +250,15 @@ namespace LogParserApp
             {
                 if (isVisible)
                 {
-                    if (_currentObj.PrevInterruptedObj == null)
-                        _currentObj.BaseColor = _colorMng.GetNextBaseColor();
+                    //MB
+                    //if (_currentObj.PrevInterruptedObj == null)
+                    //    _currentObj.BaseColor = _colorMng.GetNextBaseColor();
 
-                    foreach (var stObj in _currentObj.StateCollection)
-                    {
-                        if (stObj != null && stObj.State != State.Empty && stObj.State != State.ViewArrow)
-                            stObj.Color = _colorMng.GetColorByState(_currentObj.BaseColor, stObj.State);
-                    }
+                    //foreach (var stObj in _currentObj.StateCollection)
+                    //{
+                    //    if (stObj != null && stObj.State != State.Empty && stObj.State != State.ViewArrow)
+                    //        stObj.Color = _colorMng.GetColorByState(_currentObj.BaseColor, stObj.State);
+                    //}
                 }
                 
                 ObjectCollection.Add(_currentObj);
@@ -356,12 +357,55 @@ namespace LogParserApp
             AppLogger.LoadingFilePath = _logFileName;
         }
 
+        private void SetColors()
+        {
+            if (ObjectCollection.Count == 0) return;
+
+            //Fill dictionary
+            var IndexToValues = new Dictionary<int, List<string>>();
+            foreach (var obj in ObjectCollection)
+            {
+                var colorKeys = string.Join("_", obj.ColorKeys);
+                IndexToValues[ObjectCollection.IndexOf(obj)] = new List<string>();
+                IndexToValues[ObjectCollection.IndexOf(obj)].Add(colorKeys);
+            }
+            //Reverse dictionary
+            var valueToIndexes = IndexToValues.SelectMany(
+                    pair => pair.Value.Select(val => new { Key = val, Value = pair.Key }))
+                .GroupBy(item => item.Key)
+                .ToDictionary(gr => gr.Key, gr => gr.Select(item => item.Value).ToList());
+
+            //Create Color Table
+            var colorTable = new List<KeyValuePair<Color, List<int>>>();
+            foreach (var val in valueToIndexes)
+            {
+                colorTable.Add(new KeyValuePair<Color, List<int>>(_colorMng.GetNextBaseColor(), val.Value));
+            }
+
+            //Assign colors to objects
+            foreach (var obj in ObjectCollection)
+            {
+                var idx = ObjectCollection.IndexOf(obj);
+                var colorItem = colorTable.FirstOrDefault(x => x.Value != null && x.Value.Contains(idx));
+                if (obj.PrevInterruptedObj != null)
+                    obj.BaseColor = obj.PrevInterruptedObj.BaseColor;
+                else
+                    obj.BaseColor = colorItem.Key;
+
+                foreach (var stateObj in obj.StateCollection)
+                {
+                    if (stateObj.State != State.Blank && stateObj.State != State.ViewArrow)
+                        stateObj.Color = _colorMng.GetColorByState(obj.BaseColor, stateObj.State);        
+                }
+            }
+
+
+        }
+            
         public void Dispose()
         {
             _logFileName = null;
-            ObjectCollection.Clear();
-            //ParserObject _currentObj = null, _locatedObj = null;
-            //ScanFormatted _sf = null;
+            ObjectCollection.Clear();         
             TotalLogLines = 0;
         }
     }

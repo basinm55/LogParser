@@ -11,7 +11,7 @@ using System.Text;
 namespace Entities
 { 
     public class ParserObject : IDisposable
-    {                           
+    {                                 
         public Color BaseColor { get; set; }     
 
         public dynamic DynObject { get; set; }
@@ -38,10 +38,12 @@ namespace Entities
 
         public bool IsFindable { get; set; }
 
+        public List<string> ColorKeys { get; set; }
+
 
         //C'tor
         public ParserObject(ObjectClass objClass)
-        {
+        {           
             DynObject = new ExpandoObject();
             DynObjectDictionary = (IDictionary<string, object>)DynObject;
             ObjectClass = objClass;
@@ -49,6 +51,7 @@ namespace Entities
             BaseColor = Color.Transparent;
             StateCollection = new List<StateObject>();
             DataBuffer = new StringBuilder();
+            ColorKeys = new List<string>();
         }
 
 
@@ -145,6 +148,7 @@ namespace Entities
         {
             DynObjectDictionary.Clear();
             StateCollection.Clear();
+            ColorKeys.Clear();
         }
     }
 
@@ -167,17 +171,28 @@ namespace Entities
             result.LineNum = lineNumber;
             result.LogEntry = line;
             result.State = state;
-            result.Color = baseObject.BaseColor;
+            //result.Color = baseObject.BaseColor;
             result.FilterKey = filterKey;
             result.ObjectClass = baseObject.ObjectClass;                                        
             return result;
         }
 
-        public static StateObject CreateEmptyStateObject(this ParserObject baseObject)
+        public static StateObject CreateBlankStateObject(this ParserObject baseObject)
         {
             var result = new StateObject(baseObject);
-            result.ObjectClass = ObjectClass.Empty;
-            result.State = State.Empty;
+            result.ObjectClass = ObjectClass.Blank;
+            result.State = State.Blank;
+            result.Color = Color.White;
+            result.Description = string.Empty;
+            return result;
+        }
+
+
+        public static StateObject CreateLostStateObject(this ParserObject baseObject)
+        {
+            var result = new StateObject(baseObject);
+            result.ObjectClass = ObjectClass.Lost;
+            result.State = State.Lost;
             result.Color = Color.White;
             result.Description = string.Empty;
             return result;
@@ -187,11 +202,13 @@ namespace Entities
         {
             var result = new StateObject(baseObject);
             result.ObjectClass = ObjectClass.ViewArrow;
-            result.State = State.ViewArrow;                       
-            result.Color = referenceObject == null ? Color.White : referenceObject.BaseColor;
+            result.State = State.ViewArrow;
+            result.ReferenceObj = referenceObject;
+            result.Color = Color.White;
+            //result.Color = referenceObject == null ? Color.White : referenceObject.BaseColor;
             result.Description = null;
             if (referenceObject != null)
-                result.ReferenceStateObj = referenceObject.StateCollection.LastOrDefault(x => x.ObjectClass != ObjectClass.ViewArrow && x.ObjectClass != ObjectClass.Empty);
+                result.ReferenceStateObj = referenceObject.StateCollection.LastOrDefault(x => x.ObjectClass != ObjectClass.ViewArrow && x.ObjectClass != ObjectClass.Blank);
 
             return result;
         }

@@ -82,16 +82,31 @@ namespace LogParserApp
             if (cmbProps.SelectedIndex < 0 || cmbProps.SelectedItem == null || !(cmbProps.SelectedItem is KeyValuePair<string, List<KeyValuePair<object, string>>>)) return;
 
             var values = PropertyFilter[((KeyValuePair<string, List<KeyValuePair<object, string>>>)cmbProps.SelectedItem).Key];
+            values.Sort(CompareValues);
             foreach (var val in values)
             {
                 if (CurrentDevice == null && !lsbValues.Items.Contains(val.Key))             
                     lsbValues.Items.Add(val.Key);
                 else if (val.Value == CurrentDevice && !lsbValues.Items.Contains(val.Key))
                     lsbValues.Items.Add(val.Key);
-            }
-
+            }                    
             gbConnect.Enabled = true;
 
+        }
+
+        private static int CompareValues(KeyValuePair<object, string> a, KeyValuePair<object, string> b)
+        {
+            switch (a.Key)
+            {
+                case string _:
+                    return ((string)a.Key).CompareTo((string)b.Key);
+                case decimal _:
+                    return ((decimal)a.Key).CompareTo((decimal)b.Key);
+                case int _:
+                    return ((int)a.Key).CompareTo((int)b.Key);
+                default:
+                    return 0;
+            }
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
