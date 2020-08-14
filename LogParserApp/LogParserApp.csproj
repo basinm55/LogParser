@@ -88,8 +88,8 @@
       <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="Documents\LogParser 1.0.0.21  development status.docx" />
-    <None Include="Documents\LogParser 1.0.0.21 User Manual.docx" />
+    <None Include="Documents\LogParser 1.1.0.24  development status.docx" />
+    <None Include="Documents\LogParser 1.1.0.24 User Manual.docx" />
     <None Include="LogFilesForTest\ECG-then-Spirometer-final-candidate.log" />
     <None Include="LogFilesForTest\MyTest.log" />
     <None Include="LogFilesForTest\MyTest2.log" />

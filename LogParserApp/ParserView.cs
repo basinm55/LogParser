@@ -53,13 +53,17 @@ namespace LogParserApp
         }
 
         public static void CreateGridView(List<ParserObject> data, DataGridView dataGV, string deviceFilter)
-        {                      
+        {
+            //dataGV.CellBorderStyle = DataGridViewCellBorderStyle.Single;
+            //dataGV.GridColor = SystemColors.ActiveBorder;
+            //dataGV.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.
+
             int maxDescLength = (int)Utils.GetConfigValue<int>("MaxVisualDescriptionLength");
             maxDescLength = maxDescLength == 0 ? 30 : maxDescLength;
 
             dataGV.AutoGenerateColumns = false;            
-            dataGV.Columns.Clear();       
-            
+            dataGV.Columns.Clear();            
+
             var columnsCount = data.Count > 0 ? data.Max(x => x.StateCollection.Count()): 0;           
 
             for (int i = 0; i < columnsCount; i++)
@@ -201,18 +205,22 @@ namespace LogParserApp
                 row.Cells[cellIndex] = cell;
                 return;
             }
-           
+
 
             cell.Style = new DataGridViewCellStyle
             {
-                BackColor = stateObj.Color,   
+                BackColor = stateObj.State == State.Skipped ? Color.Black : stateObj.Color,
+                ForeColor = stateObj.State == State.Skipped ? Color.White : Color.Black,
+                Font = stateObj.State == State.Skipped ?
+                    new Font(Control.DefaultFont, FontStyle.Bold) :
+                    new Font(Control.DefaultFont, FontStyle.Regular),
                 Alignment = DataGridViewContentAlignment.MiddleCenter,
                 Padding = new Padding(5, 5, 5, 5),
                 SelectionBackColor = Color.DarkOrange
             };
 
 
-            if (stateObj.State != Enums.State.Blank)
+            if (stateObj.State != State.Blank)
             {
                 var stateDescription = CreateVisualDescription(stateObj, maxDescLength);
                 stateObj.Description = stateDescription.ToString();
@@ -227,7 +235,8 @@ namespace LogParserApp
         private static StringBuilder CreateVisualDescription(StateObject stateObj, int maxDescLength)
         {
             var stateDescription = new StringBuilder();
-            stateDescription.AppendLine(stateObj.State.ToString());
+            stateDescription.AppendLine(stateObj.State.ToString() 
+                + (stateObj.State == State.Skipped ? "..." : string.Empty));
            
             foreach (var desc in stateObj.VisualDescription)
             {
@@ -245,15 +254,7 @@ namespace LogParserApp
                 }
 
             return stateDescription;
-        }
-
-        private static void CreateGridCell(DataGridViewRow row, int cellIndex)
-        {
-            //Create an empty cell
-            var cell = new DataGridViewTextBoxCell();
-            cell.Value = string.Empty;
-            row.Cells[cellIndex] = cell;           
-        }
+        }      
 
         private static void SetGridParameters(DataGridView dataGV)
         {

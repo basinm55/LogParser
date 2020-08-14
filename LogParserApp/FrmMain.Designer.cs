@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmMain));
             this.dataGV = new System.Windows.Forms.DataGridView();
             this.dlgLoadLog = new System.Windows.Forms.OpenFileDialog();
@@ -37,6 +37,7 @@
             this.dataBufferToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.progressBar = new System.Windows.Forms.ToolStripProgressBar();
+            this.btnStopLoading = new System.Windows.Forms.ToolStripSplitButton();
             this.resultLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.calculateLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.gridLabel = new System.Windows.Forms.ToolStripStatusLabel();
@@ -46,23 +47,22 @@
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.txtHeader = new System.Windows.Forms.TextBox();
             this.gbFilter = new System.Windows.Forms.GroupBox();
+            this.btnCustomFilter = new System.Windows.Forms.Button();
+            this.btnClearFilter = new System.Windows.Forms.Button();
             this.mnuStripMain = new System.Windows.Forms.MenuStrip();
             this.mnuItemFile = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuItemLoad = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuItemExit = new System.Windows.Forms.ToolStripMenuItem();
+            this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuItemGoToLine = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuItemTools = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuItemImportProfile = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuItemEditCurrentProfile = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuItemPatternValidator = new System.Windows.Forms.ToolStripMenuItem();
             this.dlgProfile = new System.Windows.Forms.OpenFileDialog();
             this.dgvInfo = new System.Windows.Forms.DataGridView();
-            this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuItemGoToLine = new System.Windows.Forms.ToolStripMenuItem();
             this.btnViewAppLog = new System.Windows.Forms.Button();
             this.btnViewLoadedLog = new System.Windows.Forms.Button();
-            this.btnCustomFilter = new System.Windows.Forms.Button();
-            this.btnClearFilter = new System.Windows.Forms.Button();
-            this.btnStopLoading = new System.Windows.Forms.ToolStripSplitButton();
-            this.mnuItemLoad = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.dataGV)).BeginInit();
             this.gridCmStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
@@ -92,11 +92,11 @@
             this.dataGV.ReadOnly = true;
             this.dataGV.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             this.dataGV.RowHeadersVisible = false;
-            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.dataGV.RowsDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.dataGV.RowsDefaultCellStyle = dataGridViewCellStyle1;
             this.dataGV.RowTemplate.Height = 66;
             this.dataGV.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
-            this.dataGV.Size = new System.Drawing.Size(1062, 587);
+            this.dataGV.Size = new System.Drawing.Size(1030, 587);
             this.dataGV.TabIndex = 0;
             this.dataGV.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGV_CellClick);
             this.dataGV.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dataGV_CellFormatting);
@@ -137,6 +137,17 @@
             // 
             this.progressBar.Name = "progressBar";
             this.progressBar.Size = new System.Drawing.Size(300, 16);
+            // 
+            // btnStopLoading
+            // 
+            this.btnStopLoading.DropDownButtonWidth = 1;
+            this.btnStopLoading.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnStopLoading.Image = ((System.Drawing.Image)(resources.GetObject("btnStopLoading.Image")));
+            this.btnStopLoading.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnStopLoading.Name = "btnStopLoading";
+            this.btnStopLoading.Size = new System.Drawing.Size(107, 20);
+            this.btnStopLoading.Text = "Stop loading...";
+            this.btnStopLoading.ButtonClick += new System.EventHandler(this.btnStopLoading_ButtonClick);
             // 
             // resultLabel
             // 
@@ -190,7 +201,7 @@
             this.groupBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBox1.Location = new System.Drawing.Point(12, 99);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(1053, 36);
+            this.groupBox1.Size = new System.Drawing.Size(1019, 36);
             this.groupBox1.TabIndex = 11;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Selected device details:";
@@ -205,7 +216,7 @@
             this.txtHeader.Location = new System.Drawing.Point(20, 120);
             this.txtHeader.Name = "txtHeader";
             this.txtHeader.ReadOnly = true;
-            this.txtHeader.Size = new System.Drawing.Size(1039, 13);
+            this.txtHeader.Size = new System.Drawing.Size(1005, 13);
             this.txtHeader.TabIndex = 7;
             this.txtHeader.Click += new System.EventHandler(this.txtHeader_Click);
             this.txtHeader.TextChanged += new System.EventHandler(this.txtHeader_TextChanged);
@@ -217,12 +228,39 @@
             // 
             this.gbFilter.Controls.Add(this.btnCustomFilter);
             this.gbFilter.Controls.Add(this.btnClearFilter);
-            this.gbFilter.Location = new System.Drawing.Point(761, 27);
+            this.gbFilter.Location = new System.Drawing.Point(727, 27);
             this.gbFilter.Name = "gbFilter";
             this.gbFilter.Size = new System.Drawing.Size(304, 74);
             this.gbFilter.TabIndex = 12;
             this.gbFilter.TabStop = false;
             this.gbFilter.Text = "Filter";
+            // 
+            // btnCustomFilter
+            // 
+            this.btnCustomFilter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnCustomFilter.Image = global::LogParserApp.Properties.Resources.filter;
+            this.btnCustomFilter.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnCustomFilter.Location = new System.Drawing.Point(22, 25);
+            this.btnCustomFilter.Name = "btnCustomFilter";
+            this.btnCustomFilter.Size = new System.Drawing.Size(121, 30);
+            this.btnCustomFilter.TabIndex = 15;
+            this.btnCustomFilter.Text = "Custom filter";
+            this.btnCustomFilter.UseVisualStyleBackColor = true;
+            this.btnCustomFilter.Click += new System.EventHandler(this.btnCustomFilter_Click);
+            // 
+            // btnClearFilter
+            // 
+            this.btnClearFilter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnClearFilter.Enabled = false;
+            this.btnClearFilter.Image = global::LogParserApp.Properties.Resources.clearfilter;
+            this.btnClearFilter.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnClearFilter.Location = new System.Drawing.Point(161, 25);
+            this.btnClearFilter.Name = "btnClearFilter";
+            this.btnClearFilter.Size = new System.Drawing.Size(121, 30);
+            this.btnClearFilter.TabIndex = 14;
+            this.btnClearFilter.Text = "Clear filter";
+            this.btnClearFilter.UseVisualStyleBackColor = true;
+            this.btnClearFilter.Click += new System.EventHandler(this.btnClearFilter_Click);
             // 
             // mnuStripMain
             // 
@@ -245,12 +283,38 @@
             this.mnuItemFile.Size = new System.Drawing.Size(37, 20);
             this.mnuItemFile.Text = "File";
             // 
+            // mnuItemLoad
+            // 
+            this.mnuItemLoad.Image = global::LogParserApp.Properties.Resources.log;
+            this.mnuItemLoad.Name = "mnuItemLoad";
+            this.mnuItemLoad.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.L)));
+            this.mnuItemLoad.Size = new System.Drawing.Size(187, 22);
+            this.mnuItemLoad.Text = "Load LOG File";
+            this.mnuItemLoad.Click += new System.EventHandler(this.mnuItemLoad_Click);
+            // 
             // mnuItemExit
             // 
             this.mnuItemExit.Name = "mnuItemExit";
             this.mnuItemExit.Size = new System.Drawing.Size(187, 22);
             this.mnuItemExit.Text = "Exit";
             this.mnuItemExit.Click += new System.EventHandler(this.mnuItemExit_Click);
+            // 
+            // editToolStripMenuItem
+            // 
+            this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.mnuItemGoToLine});
+            this.editToolStripMenuItem.Name = "editToolStripMenuItem";
+            this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
+            this.editToolStripMenuItem.Text = "Edit";
+            // 
+            // mnuItemGoToLine
+            // 
+            this.mnuItemGoToLine.Enabled = false;
+            this.mnuItemGoToLine.Name = "mnuItemGoToLine";
+            this.mnuItemGoToLine.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.G)));
+            this.mnuItemGoToLine.Size = new System.Drawing.Size(176, 22);
+            this.mnuItemGoToLine.Text = "Go to line...";
+            this.mnuItemGoToLine.Click += new System.EventHandler(this.mnuItemGoToLine_Click);
             // 
             // mnuItemTools
             // 
@@ -297,30 +361,13 @@
             this.dgvInfo.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvInfo.ColumnHeadersVisible = false;
             this.dgvInfo.Enabled = false;
-            this.dgvInfo.Location = new System.Drawing.Point(1071, 141);
+            this.dgvInfo.Location = new System.Drawing.Point(1039, 141);
             this.dgvInfo.MultiSelect = false;
             this.dgvInfo.Name = "dgvInfo";
             this.dgvInfo.RowHeadersVisible = false;
             this.dgvInfo.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
-            this.dgvInfo.Size = new System.Drawing.Size(280, 588);
+            this.dgvInfo.Size = new System.Drawing.Size(312, 588);
             this.dgvInfo.TabIndex = 20;
-            // 
-            // editToolStripMenuItem
-            // 
-            this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mnuItemGoToLine});
-            this.editToolStripMenuItem.Name = "editToolStripMenuItem";
-            this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
-            this.editToolStripMenuItem.Text = "Edit";
-            // 
-            // mnuItemGoToLine
-            // 
-            this.mnuItemGoToLine.Enabled = false;
-            this.mnuItemGoToLine.Name = "mnuItemGoToLine";
-            this.mnuItemGoToLine.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.G)));
-            this.mnuItemGoToLine.Size = new System.Drawing.Size(180, 22);
-            this.mnuItemGoToLine.Text = "Go to line...";
-            this.mnuItemGoToLine.Click += new System.EventHandler(this.mnuItemGoToLine_Click);
             // 
             // btnViewAppLog
             // 
@@ -347,53 +394,6 @@
             this.btnViewLoadedLog.Text = "View loaded log";
             this.btnViewLoadedLog.UseVisualStyleBackColor = true;
             this.btnViewLoadedLog.Click += new System.EventHandler(this.btnViewLoadedLog_Click);
-            // 
-            // btnCustomFilter
-            // 
-            this.btnCustomFilter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnCustomFilter.Image = global::LogParserApp.Properties.Resources.filter;
-            this.btnCustomFilter.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnCustomFilter.Location = new System.Drawing.Point(30, 25);
-            this.btnCustomFilter.Name = "btnCustomFilter";
-            this.btnCustomFilter.Size = new System.Drawing.Size(121, 30);
-            this.btnCustomFilter.TabIndex = 15;
-            this.btnCustomFilter.Text = "Custom filter";
-            this.btnCustomFilter.UseVisualStyleBackColor = true;
-            this.btnCustomFilter.Click += new System.EventHandler(this.btnCustomFilter_Click);
-            // 
-            // btnClearFilter
-            // 
-            this.btnClearFilter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnClearFilter.Enabled = false;
-            this.btnClearFilter.Image = global::LogParserApp.Properties.Resources.clearfilter;
-            this.btnClearFilter.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnClearFilter.Location = new System.Drawing.Point(169, 25);
-            this.btnClearFilter.Name = "btnClearFilter";
-            this.btnClearFilter.Size = new System.Drawing.Size(121, 30);
-            this.btnClearFilter.TabIndex = 14;
-            this.btnClearFilter.Text = "Clear filter";
-            this.btnClearFilter.UseVisualStyleBackColor = true;
-            this.btnClearFilter.Click += new System.EventHandler(this.btnClearFilter_Click);
-            // 
-            // btnStopLoading
-            // 
-            this.btnStopLoading.DropDownButtonWidth = 1;
-            this.btnStopLoading.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.btnStopLoading.Image = ((System.Drawing.Image)(resources.GetObject("btnStopLoading.Image")));
-            this.btnStopLoading.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.btnStopLoading.Name = "btnStopLoading";
-            this.btnStopLoading.Size = new System.Drawing.Size(107, 20);
-            this.btnStopLoading.Text = "Stop loading...";
-            this.btnStopLoading.ButtonClick += new System.EventHandler(this.btnStopLoading_ButtonClick);
-            // 
-            // mnuItemLoad
-            // 
-            this.mnuItemLoad.Image = global::LogParserApp.Properties.Resources.log;
-            this.mnuItemLoad.Name = "mnuItemLoad";
-            this.mnuItemLoad.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.L)));
-            this.mnuItemLoad.Size = new System.Drawing.Size(187, 22);
-            this.mnuItemLoad.Text = "Load LOG File";
-            this.mnuItemLoad.Click += new System.EventHandler(this.mnuItemLoad_Click);
             // 
             // FrmMain
             // 

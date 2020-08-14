@@ -230,13 +230,28 @@ namespace LogParserApp
                 }
 
                 if (stateObj.State != State.Temporary)
-                {
-                    //if lost states found: MB ToDo:
-                    if ((int)stateObj.State > _currentObj.StateCollection.Count)
+                {                    
+                    if (_currentObj.PrevInterruptedObj != null)
                     {
+                        var lastInterruptedState = _currentObj.PrevInterruptedObj.StateCollection
+                            .LastOrDefault(x => x.State >= 0).State;
 
+                        State lastCurrentState;
+                        var lastCurrentStateObj = _currentObj.StateCollection.LastOrDefault(x => x.State >= 0);
+                        lastCurrentState = lastCurrentStateObj == null
+                            ? lastInterruptedState
+                            : lastCurrentStateObj.State;
+                        
+                        var diff = (int)stateObj.State - (int)lastCurrentState - 1;
+
+                        //Add skipped state objects
+                        for (int i = 0; i < diff; i++)
+                        {
+                            _currentObj.StateCollection.Add(_currentObj.CreateSkippedStateObject());
+                            _currentObj.StateCollection.Add(_currentObj.CreateArrowStateObject());
+                        }
                     }
-
+                                      
                     _currentObj.StateCollection.Add(stateObj);
 
                     if (stateObj.State < State.Completed)
@@ -394,7 +409,9 @@ namespace LogParserApp
 
                 foreach (var stateObj in obj.StateCollection)
                 {
-                    if (stateObj.State != State.Blank && stateObj.State != State.ViewArrow)
+                    if (stateObj.State != State.Blank &&
+                            stateObj.State != State.Skipped &&
+                            stateObj.State != State.ViewArrow)
                         stateObj.Color = _colorMng.GetColorByState(obj.BaseColor, stateObj.State);        
                 }
             }

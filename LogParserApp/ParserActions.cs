@@ -223,7 +223,7 @@ namespace LogParserApp
                 ParserObject foundInterruptedObj = null;
                 var foundExistingObjects = ObjectCollection.Where(x =>
                                     x.GetThis() == thisVal &&
-                                    x.ObjectClass == objClass &&
+                                    x.ObjectClass == objClass &&                                    
                                     objClass != ObjectClass.Device && //TODO ?????????
                                     x.IsFindable == true);
 
@@ -247,7 +247,7 @@ namespace LogParserApp
                         {
                             var foundStateCollection = foundInterruptedObj.StateCollection;
                             if (foundStateCollection != null && foundStateCollection.Count > 0)
-                            {
+                             {
                                 foundInterruptedLastState = foundStateCollection[foundStateCollection.Count - 1].State;
                                 if (ObjectCollection[ObjectCollection.Count - 1].GetThis() != thisVal ||
                                                             objState < foundInterruptedLastState)                                  
@@ -265,7 +265,8 @@ namespace LogParserApp
                         //MB
                         obj.BaseColor = foundInterruptedObj.BaseColor;
                         foundInterruptedObj.NextContinuedObj = obj;
-                        obj.PrevInterruptedObj = foundInterruptedObj;                        
+                        obj.PrevInterruptedObj = foundInterruptedObj;                  
+
                         for (int i = 0; i < foundInterruptedObj.StateCollection.Count; i++)
                         {
                             obj.StateCollection.Add(obj.CreateBlankStateObject());                          
@@ -288,7 +289,7 @@ namespace LogParserApp
                 }
                 else
                 {                               
-                    obj = foundExistingObjects.Last();
+                    obj = foundExistingObjects.LastOrDefault();
                     isExistingFound = true;
                 }
                 _currentObj = obj;

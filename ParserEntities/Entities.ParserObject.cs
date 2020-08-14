@@ -188,13 +188,12 @@ namespace Entities
         }
 
 
-        public static StateObject CreateLostStateObject(this ParserObject baseObject)
+        public static StateObject CreateSkippedStateObject(this ParserObject baseObject)
         {
             var result = new StateObject(baseObject);
-            result.ObjectClass = ObjectClass.Lost;
-            result.State = State.Lost;
-            result.Color = Color.White;
-            result.Description = string.Empty;
+            result.ObjectClass = ObjectClass.Skipped;
+            result.State = State.Skipped;
+            result.Color = Color.Black;                        
             return result;
         }
 
@@ -204,8 +203,7 @@ namespace Entities
             result.ObjectClass = ObjectClass.ViewArrow;
             result.State = State.ViewArrow;
             result.ReferenceObj = referenceObject;
-            result.Color = Color.White;
-            //result.Color = referenceObject == null ? Color.White : referenceObject.BaseColor;
+            result.Color = Color.White;            
             result.Description = null;
             if (referenceObject != null)
                 result.ReferenceStateObj = referenceObject.StateCollection.LastOrDefault(x => x.ObjectClass != ObjectClass.ViewArrow && x.ObjectClass != ObjectClass.Blank);

@@ -120,17 +120,18 @@ namespace LogParserApp
                 var time = stateObj.Time != DateTime.MinValue ?
                                     string.Format("{0:dd/MM/yyyy-HH:mm:ss.FFF}", stateObj.Time)
                                     : null;
-                
-                ds.Add(new KeyValuePair<string, string>("Class", stateObj.ObjectClass.ToString()));
+                                
                 ds.Add(new KeyValuePair<string, string>("State", stateObj.State.ToString()));
                 ds.Add(new KeyValuePair<string, string>("this", baseObj.GetThis()));
                 ds.Add(new KeyValuePair<string, string>("Time", time));
 
                 foreach (var prop in baseObj.DynObjectDictionary)
                 {
-                    if (ParserView.AllowedForDisplayProperties(prop.Key, ref _displayInInfoboxProps) && !ds.Any(x => x.Key == prop.Key))
+                    //if (ParserView.AllowedForDisplayProperties(prop.Key, ref _displayInInfoboxProps) && !ds.Any(x => x.Key == prop.Key))
+                    if (!ds.Any(x => x.Key == prop.Key))
                         ds.Add(new KeyValuePair<string, string>(prop.Key, prop.Value.ToString()));
                 }
+                ds.Sort(CompareStringValues);
 
                 Type t = typeof(StateObject);
                 var propertyInfo = t.GetProperties(BindingFlags.Public | BindingFlags.Instance);
@@ -143,8 +144,9 @@ namespace LogParserApp
                         prop.PropertyType == typeof(ObjectClass))
                         && prop.Name.ToLower() != "description")
                         {                           
-                            var val = prop.GetValue(stateObj, null).ToString();                            
-                            ds.Add(new KeyValuePair<string, string>(prop.Name, val));
+                            var val = prop.GetValue(stateObj, null);
+                            if (val != null)
+                                ds.Add(new KeyValuePair<string, string>(prop.Name, val.ToString()));
                         }
                     }
                 }
@@ -173,6 +175,10 @@ namespace LogParserApp
             }
         }
 
+        private static int CompareStringValues(KeyValuePair<string, string> a, KeyValuePair<string, string> b)
+        {
+            return a.Key.CompareTo(b.Key);   
+        }
 
         private void UpdateInfoBoxForDevice(ParserObject parserObj)
         {
@@ -353,7 +359,39 @@ namespace LogParserApp
                 if ((e.Value is StateObject) && (e.Value as StateObject).ObjectClass != ObjectClass.ViewArrow)
                     e.Value = ((StateObject)e.Value).Description;                          
             }
-        }                
+        }
+
+        //private void dataGV_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
+        //{
+        //    if (e.ColumnIndex == -1 || e.RowIndex == -1 || e.Value == null || !(e.Value is StateObject)) return;
+
+        //    var stateObj = e.Value as StateObject;
+
+        //    if (stateObj == null || stateObj.State != State.Lost) return;
+         
+        //    using (Brush borderBrush = new SolidBrush(Color.Black))
+        //    {
+        //        using (Pen borderPen = new Pen(borderBrush, 2))
+        //        {
+        //            Rectangle rectDimensions = e.CellBounds;
+        //            rectDimensions.Width -= 12;
+        //            rectDimensions.Height -= 21;
+        //            rectDimensions.X = rectDimensions.Left + 1;
+        //            rectDimensions.Y = rectDimensions.Top + 1;                        
+        //            e.Graphics.DrawRectangle(borderPen, rectDimensions);
+        //            e.Graphics.DrawString(stateObj.Description, e.CellStyle.Font,
+        //                                    Brushes.Crimson, e.CellBounds.X + 2,
+        //                                    e.CellBounds.Y + 2, StringFormat.GenericDefault);
+
+        //            if (dataGV[e.ColumnIndex, e.RowIndex].Selected)
+        //            {
+
+        //            }
+
+        //            e.Handled = true;
+        //        }
+        //    }
+        //}
 
         #region Background Worker
 
@@ -551,8 +589,7 @@ namespace LogParserApp
         private void UpdateDeviceDetails()
         {                                        
             if (cmbShowDevice.SelectedItem.GetType() != typeof(KeyValuePair<string, ParserObject>)) return;
-
-            //var device = ((KeyValuePair<string, ParserObject>)cmbShowDevice.SelectedItem).Key;
+            
             var obj = ((KeyValuePair<string, ParserObject>)cmbShowDevice.SelectedItem).Value;                                               
             if (obj != null)
             {
@@ -967,7 +1004,6 @@ namespace LogParserApp
 
         }
       
-
         private void mnuItemEditCurrentProfile_Click(object sender, EventArgs e)
         {
             if (_externalEditorProcess == null || _externalEditorProcess.HasExited)
@@ -1001,6 +1037,6 @@ namespace LogParserApp
                 if (!SearchLineNumber(frmGoToLine.SelectedLineNum))
                     MessageBox.Show(string.Format("Line number {0} is not found", frmGoToLine.SelectedLineNum), "Not found", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-        }
+        }       
     }    
 }
