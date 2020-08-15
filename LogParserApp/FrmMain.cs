@@ -310,16 +310,16 @@ namespace LogParserApp
 
             StateObject referenceStateObj = null;
 
-            if ((referenceObj as ParserObject).PrevInterruptedObj != null)
-                referenceStateObj = (referenceObj as ParserObject).StateCollection.FirstOrDefault(x => x.ObjectClass != ObjectClass.Blank && x.ObjectClass != ObjectClass.ViewArrow);
-            else if ((referenceObj as ParserObject).NextContinuedObj != null)
-                referenceStateObj = (referenceObj as ParserObject).StateCollection.LastOrDefault(x => x.ObjectClass != ObjectClass.Blank && x.ObjectClass != ObjectClass.ViewArrow);
+            if (referenceObj.PrevInterruptedObj != null)
+                referenceStateObj = referenceObj.StateCollection.FirstOrDefault(x => x.ObjectClass != ObjectClass.Blank && x.ObjectClass != ObjectClass.ViewArrow);
+            else if (referenceObj.NextContinuedObj != null)
+                referenceStateObj = referenceObj.StateCollection.LastOrDefault(x => x.ObjectClass != ObjectClass.Blank && x.ObjectClass != ObjectClass.ViewArrow);
             else
                 return;
 
             if (referenceStateObj == null) return;
 
-            var colIndex = (referenceObj as ParserObject).StateCollection.IndexOf(referenceStateObj);
+            var colIndex = referenceObj.StateCollection.IndexOf(referenceStateObj) + 1; //+1 because the Timeline column presents
 
             bool isFound = false;
             foreach (DataGridViewRow row in dataGV.Rows)
