@@ -317,7 +317,7 @@ namespace LogParserApp
             {
                 if (DateTime.TryParseExact((string)parsedValue, prop.Element("DataType").Attribute("Format").Value, new CultureInfo("en-US"), DateTimeStyles.None, out DateTime dt))
                 {
-                    parsedValue = dt.ToString(_visualDescriptionDateTimeFormat);
+                    parsedValue = dt.ToString(_visualTimeFormat);
                     stateObj.Time = dt;
                 }
             }

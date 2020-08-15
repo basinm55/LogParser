@@ -53,29 +53,36 @@ namespace LogParserApp
         }
 
         public static void CreateGridView(List<ParserObject> data, DataGridView dataGV, string deviceFilter)
-        {
-            //dataGV.CellBorderStyle = DataGridViewCellBorderStyle.Single;
-            //dataGV.GridColor = SystemColors.ActiveBorder;
-            //dataGV.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.
-
+        {  
             int maxDescLength = (int)Utils.GetConfigValue<int>("MaxVisualDescriptionLength");
             maxDescLength = maxDescLength == 0 ? 30 : maxDescLength;
 
             dataGV.AutoGenerateColumns = false;            
             dataGV.Columns.Clear();            
 
-            var columnsCount = data.Count > 0 ? data.Max(x => x.StateCollection.Count()): 0;           
+            var columnsCount = data.Count > 0 ? data.Max(x => x.StateCollection.Count()): 0;
 
-            for (int i = 0; i < columnsCount; i++)
+            //The first column is Timeline column!
+            columnsCount++;
+            var col = new DataGridViewColumn();
+            col.Name = "Timeline";
+            col.CellTemplate = new DataGridViewTextBoxCell();
+            col.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+            col.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+            col.Width = 20;
+            col.DividerWidth = 10;
+            dataGV.Columns.Add(col);
+
+            for (int i = 1; i < columnsCount; i++)
             {
-                var col = new DataGridViewColumn();
+                col = new DataGridViewColumn();
                 col.CellTemplate = new DataGridViewTextBoxCell();
                 col.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;                               
                 col.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
                 col.Width = 100;
                 col.DividerWidth = 10;                
                 dataGV.Columns.Add(col);                      
-            }
+            }            
 
             if (data.Count > 0)
             {
@@ -102,18 +109,20 @@ namespace LogParserApp
 
             var rowIndex = dataGV.Rows.Add();
             var row = dataGV.Rows[rowIndex];
-            
-            for (int i=0; i < dataGV.ColumnCount; i++)
-            {
 
-                if (i < visualStateCollection.Count)
+            CreateTimeLineGridCell(visualStateCollection, row, 0);
+
+            for (int i=1; i < dataGV.ColumnCount; i++)
+            {
+                var j = i - 1;
+                if (j < visualStateCollection.Count)
                 {
-                    if (visualStateCollection[i] != null)
+                    if (visualStateCollection[j] != null)
                     {
-                        if (visualStateCollection[i].State == Enums.State.ViewArrow)
-                            CreateForwardImadeCell(visualStateCollection[i], row, i, obj.NextContinuedObj, obj.PrevInterruptedObj);
-                        else
-                            CreateGridCell(visualStateCollection[i], row, i, maxDescLength);                                              
+                        if (visualStateCollection[j].State == Enums.State.ViewArrow)
+                            CreateForwardImageCell(visualStateCollection[j], row, i, obj.NextContinuedObj, obj.PrevInterruptedObj);
+                        else                          
+                            CreateGridCell(visualStateCollection[j], row, i, maxDescLength);
                     }
 
                 }               
@@ -121,7 +130,7 @@ namespace LogParserApp
             
         }     
 
-        private static void CreateForwardImadeCell(StateObject stateObj, DataGridViewRow row, int cellIndex, ParserObject nextContinuedObj, ParserObject prevInterruptedObj)
+        private static void CreateForwardImageCell(StateObject stateObj, DataGridViewRow row, int cellIndex, ParserObject nextContinuedObj, ParserObject prevInterruptedObj)
         {
             var cell = new DataGridViewImageCell();
 
@@ -230,6 +239,30 @@ namespace LogParserApp
                 cell.Value = null;
 
             row.Cells[cellIndex] = cell;            
+        }
+
+        private static void CreateTimeLineGridCell(List<StateObject> stateCollection, DataGridViewRow row, int cellIndex)
+        {
+            var cell = new DataGridViewTextBoxCell();
+
+            var stateObj = stateCollection.FirstOrDefault(x => x.Time > DateTime.MinValue);
+            if (stateObj == null)
+            {
+                row.Cells[cellIndex] = cell;
+                return;
+            }
+
+            cell.Style = new DataGridViewCellStyle
+            {
+                BackColor = Color.LightGoldenrodYellow,
+                ForeColor = Color.Black,                
+                Alignment = DataGridViewContentAlignment.MiddleCenter,
+                //Font = new Font(FontFamily.GenericSerif.Name, 7F)
+            };                                 
+            var strTime = stateObj.Time.ToString("mm:ss.FFF");
+            cell.Tag = stateObj.Time;
+            cell.Value = strTime.Replace(".", Environment.NewLine + ".");
+            row.Cells[cellIndex] = cell;
         }
 
         private static StringBuilder CreateVisualDescription(StateObject stateObj, int maxDescLength)

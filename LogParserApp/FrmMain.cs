@@ -33,6 +33,7 @@ namespace LogParserApp
         private string[] _displayInInfoboxProps;
         private FilterObject _currentFilter = null;
         private ToolTip _ttFilterInfo;
+        private string _visualTimeFormat, _visualDateTimeFormat;
 
         private bool _loadCompleted = false;
 
@@ -49,6 +50,16 @@ namespace LogParserApp
             _externalEditorExecutablePath = ConfigurationManager.AppSettings["ExternalEditorExecutablePath"].ToString();
             if (string.IsNullOrWhiteSpace(_externalEditorExecutablePath))
                 _externalEditorExecutablePath = "notepad.exe";
+
+            _visualTimeFormat = (string)Utils.GetConfigValue<string>("VisualTimeFormat");
+            _visualTimeFormat = string.IsNullOrWhiteSpace(_visualTimeFormat)
+                ? "HH:mm:ss.FFF"
+                : _visualTimeFormat;
+
+            _visualDateTimeFormat = (string)Utils.GetConfigValue<string>("_visualDateTimeFormat");
+            _visualDateTimeFormat = string.IsNullOrWhiteSpace(_visualDateTimeFormat)
+                ? "{0:dd/MM/yyyy-HH:mm:ss.FFF}"
+                : _visualDateTimeFormat;
 
             TryImportProfile();
             
@@ -368,8 +379,14 @@ namespace LogParserApp
             if (e.Value != null)
             {
                 if ((e.Value is StateObject) && (e.Value as StateObject).ObjectClass != ObjectClass.ViewArrow)
-                    e.Value = ((StateObject)e.Value).Description;                          
-            }
+                    e.Value = ((StateObject)e.Value).Description;
+
+                if (e.ColumnIndex == dataGV.Columns["Timeline"].Index)                  
+                {                   
+                    var cell = dataGV.Rows[e.RowIndex].Cells[e.ColumnIndex];
+                    cell.ToolTipText = string.Format(_visualDateTimeFormat, cell.Tag);
+                }
+            }                       
         }
 
         //private void dataGV_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
