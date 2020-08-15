@@ -264,15 +264,15 @@
 					<Property i="2">
 						<PatternIndex>4</PatternIndex>
 						<Name>TimeToComplete</Name>
-						<DataType>decimal</DataType>
-						<Action>Assign</Action>
+						<DataType Format ="{0} ms.">decimal</DataType>
+						<Action>AssignToSelf</Action>
 						<DisplayMember>1</DisplayMember>
 					</Property>
 					<Property i="3">
 						<PatternIndex>5</PatternIndex>
 						<Name>IrpStatus</Name>
 						<DataType>string</DataType>
-						<Action>Assign</Action>
+						<Action>AssignToSelf</Action>
 					</Property>			
 				</Properties>
 			</Filter>

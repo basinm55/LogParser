@@ -14,7 +14,7 @@ namespace LogParserApp
     {
         private string[] _baseColorTable;
         private float _colorCorrectionFactorPercent = 0;
-        private int _currentBaseColorIndex = 0;
+        private int _currentBaseColorIndex = -1;
         public Color BaseColor { get; private set; }
 
         public ParserColorManager()
@@ -59,8 +59,8 @@ namespace LogParserApp
         }
 
         public Color GetNextBaseColor()
-        {
-            if (_currentBaseColorIndex == _baseColorTable.Length - 1)
+        {           
+            if (_currentBaseColorIndex == -1 || _currentBaseColorIndex == _baseColorTable.Length - 1)
             {
                 BaseColor = ColorTranslator.FromHtml(_baseColorTable[0]);
                 _currentBaseColorIndex = 0;

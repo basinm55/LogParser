@@ -34,6 +34,8 @@ namespace LogParserApp
         private FilterObject _currentFilter = null;
         private ToolTip _ttFilterInfo;
 
+        private bool _loadCompleted = false;
+
         public FrmMain()
         {            
             InitializeComponent();
@@ -109,8 +111,7 @@ namespace LogParserApp
         }
         
         private void UpdateInfoBox(StateObject stateObj)
-        {
-            
+        {          
             var ds = new List<KeyValuePair<string, string>>();
 
 
@@ -120,47 +121,52 @@ namespace LogParserApp
                 var time = stateObj.Time != DateTime.MinValue ?
                                     string.Format("{0:dd/MM/yyyy-HH:mm:ss.FFF}", stateObj.Time)
                                     : null;
-                                
-                ds.Add(new KeyValuePair<string, string>("State", stateObj.State.ToString()));
-                ds.Add(new KeyValuePair<string, string>("this", baseObj.GetThis()));
-                ds.Add(new KeyValuePair<string, string>("Time", time));
 
+                //Add Dynamic properties
                 foreach (var prop in baseObj.DynObjectDictionary)
                 {
-                    //if (ParserView.AllowedForDisplayProperties(prop.Key, ref _displayInInfoboxProps) && !ds.Any(x => x.Key == prop.Key))
-                    if (!ds.Any(x => x.Key == prop.Key))
-                        ds.Add(new KeyValuePair<string, string>(prop.Key, prop.Value.ToString()));
-                }
-                ds.Sort(CompareStringValues);
-
-                Type t = typeof(StateObject);
-                var propertyInfo = t.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-                foreach (var prop in propertyInfo)
-                {
-                    if (!ds.Any(x => x.Key == prop.Name))
+                    if (prop.Key.ToLower() != "state"
+                            && prop.Key.ToLower() != "this"
+                            && prop.Key.ToLower() != "time"
+                            && !ds.Any(x => x.Key == prop.Key))
                     {
-                        if ((prop.PropertyType == typeof(string) ||
-                        prop.PropertyType == typeof(int) ||
-                        prop.PropertyType == typeof(ObjectClass))
-                        && prop.Name.ToLower() != "description")
-                        {                           
-                            var val = prop.GetValue(stateObj, null);
-                            if (val != null)
-                                ds.Add(new KeyValuePair<string, string>(prop.Name, val.ToString()));
-                        }
+                        var val = prop.Value.ToString() + (prop.Key.ToLower() == "timetocomplete" ? " ms." : string.Empty);
+                        ds.Add(new KeyValuePair<string, string>(prop.Key, val));
                     }
                 }
+
+                //Add Static properties(reflection)
+                Type t = typeof(StateObject);
+                var propertyInfo = t.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+                foreach (var prop in propertyInfo.Where(prop => !ds.Any(x => x.Key == prop.Name)).Where(prop => (prop.PropertyType == typeof(string) ||
+                                             prop.PropertyType == typeof(int) ||
+                                             prop.PropertyType == typeof(ObjectClass))
+                                             && prop.Name.ToLower() != "description"))
+                {
+                    var val = prop.GetValue(stateObj, null);
+                    if (val != null)
+                        ds.Add(new KeyValuePair<string, string>(prop.Name, val.ToString()));
+                }
+
+                ds.Sort(CompareStringValues);
+
+                if (baseObj != null && baseObj.ColorKeys != null && baseObj.ColorKeys.Count > 0)
+                    ds.Add(new KeyValuePair<string, string>("ColorKeys", string.Join(", ", baseObj.ColorKeys)));
+
                 if (stateObj.DataBuffer != null && stateObj.DataBuffer.Length > 0)
                     ds.Add(new KeyValuePair<string, string>("DataBuffer", stateObj.DataBuffer.ToString()));
+               
+
+                if (time != null)
+                    ds.Insert(0, new KeyValuePair<string, string>("Time", time));
+                ds.Insert(0, new KeyValuePair<string, string>("this", baseObj.GetThis()));
+                ds.Insert(0, new KeyValuePair<string, string>("State", stateObj.State.ToString()));
+
+                //ds.AddRange(stateObj.VisualDescription
+                //                   .Where(desc => !ds.Any(x => x.Key == desc.Key))
+                //                   .Select(desc => new KeyValuePair<string, string>(desc.Key, desc.Value)));
 
 
-                foreach (var desc in stateObj.VisualDescription)
-                {               
-                    if (!ds.Any(x => x.Key == desc.Key))
-                        ds.Add(new KeyValuePair<string, string>(desc.Key, desc.Value));
-                }                               
-
-                dgvInfo.AutoGenerateColumns = false;
                 dgvInfo.DataSource = ds;               
                 dgvInfo.ClearSelection();
                 dgvInfo.Enabled = true;
@@ -235,10 +241,11 @@ namespace LogParserApp
         }
 
 
-
         private void dataGV_CellStateChanged(object sender, DataGridViewCellStateChangedEventArgs e)
         {
             //Set empty cells unselectable
+            if (!_loadCompleted) return;
+
             if (e.Cell == null || e.StateChanged != DataGridViewElementStates.Selected)
                 return;
             if (e.Cell.Value != null && (e.Cell.Value is StateObject)) return;
@@ -247,6 +254,8 @@ namespace LogParserApp
 
         private void dataGV_SelectionChanged(object sender, EventArgs e)
         {
+            if (!_loadCompleted) return;
+
             if (dataGV.SelectedCells.Count > 0)
             {
                 var selectedCell = dataGV.SelectedCells[0];
@@ -268,6 +277,8 @@ namespace LogParserApp
 
         private void dataGV_CellClick(object sender, DataGridViewCellEventArgs e)
         {
+            if (!_loadCompleted) return;
+
             //Handle arrow click
             SearchInterrupted(e);                       
         }
@@ -426,15 +437,18 @@ namespace LogParserApp
                 btnStopLoading.Visible = false;
                 resultLabel.Text = "Prepare data for view...";
                 closePending = true;
+                _loadCompleted = false;
                 Cursor.Current = Cursors.WaitCursor;
                 try
                 {
                     progressBar.Value = 20;
                     CreateComboDeviceDataSource();
                     Application.DoEvents();
+                    Thread.Sleep(300);
 
                     progressBar.Value = 60; ;
                     Application.DoEvents();
+                    Thread.Sleep(300);
 
                     if (cmbShowDevice.Items.Count > 1)
                         cmbShowDevice.SelectedIndex = 0;
@@ -450,17 +464,19 @@ namespace LogParserApp
 
                     progressBar.Value = 80;                    
                     Application.DoEvents();
+                    Thread.Sleep(300);
                     RefreshGridView(_parser.ObjectCollection);
-
-
                 }
                 finally
                 {
                     resultLabel.Text = ("Ready");
                     progressBar.Value = 100;
-                    progressBar.Visible = false;
                     Application.DoEvents();
+                    Thread.Sleep(500);
+                                        
+                    progressBar.Visible = false;
                     Cursor.Current = Cursors.Default;
+                    _loadCompleted = true;
                     gbFilter.Enabled = true;
                     if (_parser.AppLogIsActive && _parser.AppLogger.ReportedLinesCount > 0)
                     {
@@ -497,8 +513,6 @@ namespace LogParserApp
                                 WindowHelper.BringProcessToFront(_externalEditorProcess);
                         }
                     }
-                    else
-                        MessageBox.Show("Loading completed.", "LOG loaded", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
             else if (e.Error != null)
@@ -543,47 +557,49 @@ namespace LogParserApp
 
         private void cmbShowDevice_SelectedIndexChanged(object sender, EventArgs e)
         {
-             if (cmbShowDevice.SelectedValue != null || _currentDevice != null)
-             {
-                if (cmbShowDevice.SelectedItem.GetType() != typeof(KeyValuePair<string, ParserObject>)) return;
-                UpdateDeviceDetails();
+            if (!_loadCompleted) return;
 
-                //Filter by selected device
-                if (cmbShowDevice.SelectedIndex == 0)
-                    _currentDevice = null;
-                else
-                    _currentDevice = ((KeyValuePair<string, ParserObject>)cmbShowDevice.SelectedItem).Key;
+            if (cmbShowDevice.SelectedValue != null || _currentDevice != null)
+            {
+            if (cmbShowDevice.SelectedItem.GetType() != typeof(KeyValuePair<string, ParserObject>)) return;
+            UpdateDeviceDetails();
 
-                gbFilter.Enabled = false;
-                Cursor.Current = Cursors.WaitCursor;                              
-                try
-                {
-                    resultLabel.Text = "Prepare data for view...";
-                    progressBar.Value = 60;
-                    progressBar.Visible = true;
-                    Application.DoEvents();
-                    if (_currentFilter != null)
-                        _currentFilter.Clear();
-                    RefreshGridView(_parser.ObjectCollection);
-                    UpdateCustomFilterExists(false);
-                }
-                catch (Exception ex)
-                {
-                    _parser.AppLogger.LogException(ex);
-                    throw ex;
-                }
-                finally
-                { 
-                    resultLabel.Text = ("Ready");
-                    progressBar.Value = 100;
-                    progressBar.Visible = false;
-                    Application.DoEvents();
-                    Cursor.Current = Cursors.Default;
-                    Cursor.Current = Cursors.Default;
-                    gridLabel.Text = string.Format("  Total view rows: {0}", dataGV.Rows.Count.ToString());
-                    gbFilter.Enabled = true;        
-                }
-            }                       
+            //Filter by selected device
+            if (cmbShowDevice.SelectedIndex == 0)
+                _currentDevice = null;
+            else
+                _currentDevice = ((KeyValuePair<string, ParserObject>)cmbShowDevice.SelectedItem).Key;
+
+            gbFilter.Enabled = false;
+            Cursor.Current = Cursors.WaitCursor;                              
+            try
+            {
+                resultLabel.Text = "Prepare data for view...";
+                progressBar.Value = 60;
+                progressBar.Visible = true;
+                Application.DoEvents();
+                if (_currentFilter != null)
+                    _currentFilter.Clear();
+                RefreshGridView(_parser.ObjectCollection);
+                UpdateCustomFilterExists(false);
+            }
+            catch (Exception ex)
+            {
+                _parser.AppLogger.LogException(ex);
+                throw ex;
+            }
+            finally
+            { 
+                resultLabel.Text = ("Ready");
+                progressBar.Value = 100;
+                progressBar.Visible = false;
+                Application.DoEvents();
+                Cursor.Current = Cursors.Default;
+                Cursor.Current = Cursors.Default;
+                gridLabel.Text = string.Format("  Total view rows: {0}", dataGV.Rows.Count.ToString());
+                gbFilter.Enabled = true;        
+            }
+        }                       
         }
 
         private void UpdateDeviceDetails()

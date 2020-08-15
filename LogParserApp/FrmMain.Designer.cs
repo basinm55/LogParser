@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmMain));
             this.dataGV = new System.Windows.Forms.DataGridView();
             this.dlgLoadLog = new System.Windows.Forms.OpenFileDialog();
@@ -92,8 +92,8 @@
             this.dataGV.ReadOnly = true;
             this.dataGV.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             this.dataGV.RowHeadersVisible = false;
-            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.dataGV.RowsDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.dataGV.RowsDefaultCellStyle = dataGridViewCellStyle3;
             this.dataGV.RowTemplate.Height = 66;
             this.dataGV.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
             this.dataGV.Size = new System.Drawing.Size(1030, 587);
@@ -374,7 +374,7 @@
             this.btnViewAppLog.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnViewAppLog.Image = global::LogParserApp.Properties.Resources.applog;
             this.btnViewAppLog.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
-            this.btnViewAppLog.Location = new System.Drawing.Point(1189, 71);
+            this.btnViewAppLog.Location = new System.Drawing.Point(1131, 75);
             this.btnViewAppLog.Name = "btnViewAppLog";
             this.btnViewAppLog.Size = new System.Drawing.Size(153, 30);
             this.btnViewAppLog.TabIndex = 17;
@@ -387,7 +387,7 @@
             this.btnViewLoadedLog.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnViewLoadedLog.Image = global::LogParserApp.Properties.Resources.log;
             this.btnViewLoadedLog.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnViewLoadedLog.Location = new System.Drawing.Point(1189, 30);
+            this.btnViewLoadedLog.Location = new System.Drawing.Point(1131, 34);
             this.btnViewLoadedLog.Name = "btnViewLoadedLog";
             this.btnViewLoadedLog.Size = new System.Drawing.Size(153, 30);
             this.btnViewLoadedLog.TabIndex = 15;
