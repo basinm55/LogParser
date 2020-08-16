@@ -307,7 +307,7 @@ namespace LogParserApp
         {
             if (stateObj == null) return;
 
-            if (stateObj.State == State.Blank) return;
+            if (stateObj.ObjectClass == ObjectClass.Blank) return;
 
             XElement displayMember = prop.Element("DisplayMember");
             if (displayMember == null || displayMember.Value == null || !displayMember.Value.ToBoolean())

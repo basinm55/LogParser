@@ -244,10 +244,10 @@ namespace LogParserApp
                         
                         var diff = (int)stateObj.State - (int)lastCurrentState - 1;
 
-                        //Add skipped state objects
+                        //Add missing state objects
                         for (int i = 0; i < diff; i++)
                         {
-                            _currentObj.StateCollection.Add(_currentObj.CreateSkippedStateObject());
+                            _currentObj.StateCollection.Add(_currentObj.CreateMissingStateObject());
                             _currentObj.StateCollection.Add(_currentObj.CreateArrowStateObject());
                         }
                     }
@@ -409,9 +409,9 @@ namespace LogParserApp
 
                 foreach (var stateObj in obj.StateCollection)
                 {
-                    if (stateObj.State != State.Blank &&
-                            stateObj.State != State.Skipped &&
-                            stateObj.State != State.ViewArrow)
+                    if (stateObj.ObjectClass != ObjectClass.Blank &&
+                            stateObj.ObjectClass != ObjectClass.Missing &&
+                            stateObj.ObjectClass != ObjectClass.ViewArrow)
                         stateObj.Color = _colorMng.GetColorByState(obj.BaseColor, stateObj.State);        
                 }
             }

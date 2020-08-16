@@ -49,7 +49,7 @@ namespace Entities
         {
             Unknown = -5,
             Temporary = -4,
-            Skipped = -3,
+            Missing = -3,
             ViewArrow = -2,
             Blank = -1,
             Created = 0,                                  
@@ -62,7 +62,7 @@ namespace Entities
         public enum ObjectClass
         {
             Unknown = -4,
-            Skipped = -3,
+            Missing = -3,
             ViewArrow = -2,
             Blank = -1,
             Device = 0,

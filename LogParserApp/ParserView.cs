@@ -119,7 +119,7 @@ namespace LogParserApp
                 {
                     if (visualStateCollection[j] != null)
                     {
-                        if (visualStateCollection[j].State == Enums.State.ViewArrow)
+                        if (visualStateCollection[j].State == State.ViewArrow)
                             CreateForwardImageCell(visualStateCollection[j], row, i, obj.NextContinuedObj, obj.PrevInterruptedObj);
                         else                          
                             CreateGridCell(visualStateCollection[j], row, i, maxDescLength);
@@ -218,9 +218,9 @@ namespace LogParserApp
 
             cell.Style = new DataGridViewCellStyle
             {
-                BackColor = stateObj.State == State.Skipped ? Color.Black : stateObj.Color,
-                ForeColor = stateObj.State == State.Skipped ? Color.White : Color.Black,
-                Font = stateObj.State == State.Skipped ?
+                BackColor = stateObj.State == State.Missing ? Color.Black : stateObj.Color,
+                ForeColor = stateObj.State == State.Missing ? Color.White : Color.Black,
+                Font = stateObj.State == State.Missing ?
                     new Font(Control.DefaultFont, FontStyle.Bold) :
                     new Font(Control.DefaultFont, FontStyle.Regular),
                 Alignment = DataGridViewContentAlignment.MiddleCenter,
@@ -269,7 +269,7 @@ namespace LogParserApp
         {
             var stateDescription = new StringBuilder();
             stateDescription.AppendLine(stateObj.State.ToString() 
-                + (stateObj.State == State.Skipped ? "..." : string.Empty));
+                + (stateObj.State == State.Missing ? "..." : string.Empty));
            
             foreach (var desc in stateObj.VisualDescription)
             {

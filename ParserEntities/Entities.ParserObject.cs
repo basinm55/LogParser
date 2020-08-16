@@ -188,11 +188,11 @@ namespace Entities
         }
 
 
-        public static StateObject CreateSkippedStateObject(this ParserObject baseObject)
+        public static StateObject CreateMissingStateObject(this ParserObject baseObject)
         {
             var result = new StateObject(baseObject);
-            result.ObjectClass = ObjectClass.Skipped;
-            result.State = State.Skipped;
+            result.ObjectClass = ObjectClass.Missing;
+            result.State = State.Missing;
             result.Color = Color.Black;                        
             return result;
         }

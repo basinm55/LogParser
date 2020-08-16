@@ -126,7 +126,7 @@ namespace LogParserApp
             var ds = new List<KeyValuePair<string, string>>();
 
 
-            if (stateObj != null && stateObj.State != State.Blank)
+            if (stateObj != null && stateObj.ObjectClass != ObjectClass.Blank)
             {
                 var baseObj = stateObj.Parent;                
                 var time = stateObj.Time != DateTime.MinValue ?
