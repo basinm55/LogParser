@@ -25,9 +25,8 @@ namespace LogParserApp
                 out PropertyDataType dataType,
                 out string format))
                 return;
- 
-            SetPropertiesByProfile(profilePropDefinition,
-                patternIndex,
+
+            SetGenericProperties(patternIndex,
                 parsedValue,
                 objectClass,
                 dataType,
@@ -68,7 +67,7 @@ namespace LogParserApp
                 else
                 {
                     if (filter.Attribute("key") != null)                   
-                        AppLogger.LogLine(string.Format("DataBuffer for filter [{0}] cannot be applied.", filter.Attribute("key").Value), lineNumber);
+                        AppLogger.LogLine(string.Format("DataBuffer for entry [{0}] cannot be applied.", filter.Attribute("key").Value), lineNumber);
                 }
             }
             return skipLines;
@@ -85,7 +84,7 @@ namespace LogParserApp
 
             _locatedObj = ObjectCollection.FirstOrDefault(x => x != null && (string)x.GetDynPropertyValue("this") == (string)searchValue);
             if (_locatedObj == null && filter.Attribute("key") != null)
-                AppLogger.LogLine(string.Format("Object [{0}] for filter [{1}] cannot be located.", searchValue, filter.Attribute("key").Value), lineNumber);
+                AppLogger.LogLine(string.Format("Object [{0}] for entry [{1}] cannot be located.", searchValue, filter.Attribute("key").Value), lineNumber);
         }
 
         private void DoActionAssign(XElement filter, List<string> list, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
@@ -152,7 +151,7 @@ namespace LogParserApp
         }
         
 
-        private void SetPropertiesByProfile(XElement profilePropDefinition, int patternIndex, object parsedValue, string name, PropertyDataType dataType, string format)
+        private void SetGenericProperties(int patternIndex, object parsedValue, string name, PropertyDataType dataType, string format)
         {
             if (_currentObj == null) return;
 
@@ -262,7 +261,6 @@ namespace LogParserApp
                     if (foundInterruptedObj != null )
                     {
                         obj = foundInterruptedObj.CreateObjectClone();
-                        //MB
                         obj.BaseColor = foundInterruptedObj.BaseColor;
                         foundInterruptedObj.NextContinuedObj = obj;
                         obj.PrevInterruptedObj = foundInterruptedObj;                  

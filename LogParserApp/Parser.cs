@@ -180,7 +180,7 @@ namespace LogParserApp
             }
 
             if (!isParsingSuccess)              
-                AppLogger.LogLine("Unrecognized log entry: " + line, lineNumber);
+                AppLogger.LogLine("Unrecognized entry: " + line, lineNumber);
  
 
             bool isVisible = _currentObj != null && ((string)_currentObj.GetDynPropertyValue("IsVisible")).ToBoolean();

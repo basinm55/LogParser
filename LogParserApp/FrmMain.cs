@@ -26,6 +26,7 @@ namespace LogParserApp
         private ProfileManager _profileMng;        
         private XElement _selectedProfile;
         private string _externalEditorExecutablePath;
+        private string _externalEditorArguments;
         private string _currentDevice = null; 
         private string _loadedLogFileName = null;
         private string _selectedProfileFileName = null;           
@@ -46,10 +47,23 @@ namespace LogParserApp
 
         private void FrmMain_Load(object sender, EventArgs e)
         {            
-            _profileMng = new ProfileManager();                                                                              
-            _externalEditorExecutablePath = ConfigurationManager.AppSettings["ExternalEditorExecutablePath"].ToString();
-            if (string.IsNullOrWhiteSpace(_externalEditorExecutablePath))
+            _profileMng = new ProfileManager();
+            if (ConfigurationManager.AppSettings["ExternalEditorExecutablePath"] != null)
+            {
+                _externalEditorExecutablePath = ConfigurationManager.AppSettings["ExternalEditorExecutablePath"].ToString();
+                if (string.IsNullOrWhiteSpace(_externalEditorExecutablePath))
+                    _externalEditorExecutablePath = "notepad.exe";
+            }
+            else
                 _externalEditorExecutablePath = "notepad.exe";
+
+            if (ConfigurationManager.AppSettings["ExternalEditorArguments"] != null)
+            {
+                _externalEditorArguments = ConfigurationManager.AppSettings["ExternalEditorArguments"].ToString();
+                if (string.IsNullOrWhiteSpace(_externalEditorArguments))
+                    _externalEditorArguments = null;
+            }           
+
 
             _visualTimeFormat = (string)Utils.GetConfigValue<string>("VisualTimeFormat");
             _visualTimeFormat = string.IsNullOrWhiteSpace(_visualTimeFormat)
@@ -511,11 +525,8 @@ namespace LogParserApp
                             if (_externalEditorProcess == null || _externalEditorProcess.HasExited)
                             {
                                 try
-                                {
-                                    string arguments = null;
-                                    if (Path.GetFileName(_externalEditorExecutablePath) == "notepad++.exe")
-                                        arguments = "-ro -nosession -notabbar";
-                                    _externalEditorProcess = WindowHelper.ViewFileInExternalEditor(_externalEditorExecutablePath, _parser.AppLogger.TargetPath, arguments);
+                                {                                                                      
+                                    _externalEditorProcess = WindowHelper.ViewFileInExternalEditor(_externalEditorExecutablePath, _parser.AppLogger.TargetPath, _externalEditorArguments);
                                 }
                                 catch
                                 {
@@ -729,21 +740,22 @@ namespace LogParserApp
             if (_externalEditorProcess == null || _externalEditorProcess.HasExited)
             {
                 string arguments = null;
-                if (Path.GetFileName(_externalEditorExecutablePath) == "notepad++.exe"
-                    && dataGV.SelectedCells.Count > 0)
+                if (dataGV.SelectedCells.Count > 0)
                 {
                     var selectedCell = dataGV.SelectedCells[0];                    
                     if (selectedCell != null || selectedCell.Value != null && selectedCell.Value is StateObject)
                     {
                         var selectedStateObj = selectedCell.Value as StateObject;
-                        if (selectedStateObj.LineNum > 0)
-                            arguments = "-ro -nosession -notabbar -n" + selectedStateObj.LineNum.ToString();
+                        if (!string.IsNullOrEmpty(_externalEditorArguments) && selectedStateObj.LineNum > 0)
+                            arguments = _externalEditorArguments + " -n" + selectedStateObj.LineNum.ToString();
 
                     }
                     else
-                        arguments = "-ro -nosession -notabbar";
+                        arguments = _externalEditorArguments;
 
                 }
+                else
+                       arguments = _externalEditorArguments;
                 try
                 {
                     _externalEditorProcess = WindowHelper.ViewFileInExternalEditor(_externalEditorExecutablePath, _loadedLogFileName, arguments);
@@ -778,11 +790,8 @@ namespace LogParserApp
             if (_externalEditorProcess == null || _externalEditorProcess.HasExited)
             {
                 try
-                {
-                    string arguments = null;
-                    if (Path.GetFileName(_externalEditorExecutablePath) == "notepad++.exe")
-                        arguments = "-ro -nosession -notabbar";
-                    _externalEditorProcess = WindowHelper.ViewFileInExternalEditor(_externalEditorExecutablePath, _parser.AppLogger.TargetPath, arguments);                   
+                {                                            
+                    _externalEditorProcess = WindowHelper.ViewFileInExternalEditor(_externalEditorExecutablePath, _parser.AppLogger.TargetPath, _externalEditorArguments);                   
                 }
                 catch
                 {
