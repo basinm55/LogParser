@@ -2,14 +2,16 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using static Entities.Enums;
 
 namespace Entities
 {
+    [Serializable]
     public class StateObject : IDisposable
-    {
+    {        
         public State State { get; set; }
 
         public ObjectClass ObjectClass { get; set; }
@@ -26,9 +28,9 @@ namespace Entities
 
         public string FilterKey { get; set; }
 
-        public Color Color { get; set; }
+        public string Color { get; set; }
 
-        public ParserObject Parent { get; private set; }
+        public ParserObject Parent { get; set; }
 
         public ParserObject ReferenceObj { get; set; }
 
@@ -37,10 +39,10 @@ namespace Entities
         public StringBuilder DataBuffer { get; set; }        
 
         //C'tor
-        public StateObject(ParserObject parent, StateObject referenceStateObj = null)
+        public StateObject()
         {
-            Parent = parent;
-            ReferenceStateObj = referenceStateObj;            
+            //Parent = parent;
+            //ReferenceStateObj = referenceStateObj;            
             VisualDescription = new Dictionary<string, string>();
             DataBuffer = new StringBuilder();
         }        
@@ -50,5 +52,24 @@ namespace Entities
             VisualDescription.Clear();
             DataBuffer.Clear();
         }
+
+        //public void GetObjectData(SerializationInfo info, StreamingContext ctxt)
+        //{
+        //    var sw = FastSerializer.Writer;
+        //    sw.Write(State);
+        //    sw.Write(ObjectClass);
+        //    sw.Write(Time);
+        //    sw.Write(Description);
+        //    sw.Write(VisualDescription);
+        //    sw.Write(LogEntry);
+        //    sw.Write(LineNum);
+        //    sw.Write(FilterKey);
+        //    sw.Write(Color);
+        //    sw.Write(Parent);
+        //    sw.Write(ReferenceObj);
+        //    sw.Write(DataBuffer);    
+
+        //    sw.AddToInfo(info);
+        //} 
     }
 }

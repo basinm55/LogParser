@@ -145,7 +145,7 @@ namespace LogParserApp
                 var tag = new TagArrowInfo { refObj = nextContinuedObj, stateObj = stateObj };
                 if (IsArrowClickable(tag))
                 {                    
-                    cell.Value = ImageExt.ColorReplace(Properties.Resources.forward_arrow, Color.White, nextContinuedObj.BaseColor);
+                    cell.Value = ImageExt.ColorReplace(Properties.Resources.forward_arrow, Color.White, ColorTranslator.FromHtml(nextContinuedObj.BaseColor));
                     tag.IsClickable = true;
                     cell.Tag = tag;
                 }
@@ -162,7 +162,7 @@ namespace LogParserApp
                 var tag = new TagArrowInfo { refObj = prevInterruptedObj, stateObj = stateObj };
                 if (IsArrowClickable(tag))
                 {
-                    cell.Value = ImageExt.ColorReplace(Properties.Resources.forward_arrow, Color.White, prevInterruptedObj.BaseColor);
+                    cell.Value = ImageExt.ColorReplace(Properties.Resources.forward_arrow, Color.White, ColorTranslator.FromHtml(prevInterruptedObj.BaseColor));
                     tag.IsClickable = true;
                     cell.Tag = tag;
                 }
@@ -218,7 +218,7 @@ namespace LogParserApp
 
             cell.Style = new DataGridViewCellStyle
             {
-                BackColor = stateObj.State == State.Missing ? Color.Black : stateObj.Color,
+                BackColor = stateObj.State == State.Missing ? Color.Black : ColorTranslator.FromHtml(stateObj.Color),
                 ForeColor = stateObj.State == State.Missing ? Color.White : Color.Black,
                 Font = stateObj.State == State.Missing ?
                     new Font(Control.DefaultFont, FontStyle.Bold) :

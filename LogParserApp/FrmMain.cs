@@ -496,6 +496,11 @@ namespace LogParserApp
                     progressBar.Value = 80;                    
                     Application.DoEvents();
                     Thread.Sleep(300);
+
+                    //MB TODO:
+                    _parser.SerializeObjectCollection();
+
+
                     RefreshGridView(_parser.ObjectCollection);
                 }
                 finally

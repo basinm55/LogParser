@@ -8,9 +8,10 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>LogParserApp</RootNamespace>
     <AssemblyName>LogParserApp</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -147,6 +148,10 @@
     <ProjectReference Include="..\PatternValidator\PatternValidator.csproj">
       <Project>{da7021a5-29b4-401c-b052-fa8eeeb9e706}</Project>
       <Name>PatternValidator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SharpSerializer\SharpSerializer.csproj">
+      <Project>{5382da51-59d3-4634-aa42-f84f7c11ac9b}</Project>
+      <Name>SharpSerializer</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Dynamic;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms.VisualStyles;
@@ -15,7 +16,7 @@ using static Entities.Enums;
 
 namespace LogParserApp
 {
-    public partial class Parser
+    public partial class Parser : IDisposable
     {        
         private void DoActionNew(XElement filter, List<string> list, XElement profilePropDefinition, int lineNumber, int patternIndex, object parsedValue, string logLine, string objectClass, string thisValue)
         {
@@ -276,7 +277,8 @@ namespace LogParserApp
                         bool isVisible = true;
                         if (filter.Attribute("IsVisible") != null)
                             isVisible = filter.Attribute("IsVisible").Value.ToBoolean();
-                        obj = new ParserObject(objClass);
+                        obj = new ParserObject();
+                        obj.ObjectClass = objClass;
                         obj.SetDynProperty("this", thisValue);
                         obj.SetDynProperty("FilterKey", filterKey);
                         obj.SetDynProperty("IsVisible", isVisible);

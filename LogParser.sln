@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParserEntities", "ParserEnt
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PatternValidator", "PatternValidator\PatternValidator.csproj", "{DA7021A5-29B4-401C-B052-FA8EEEB9E706}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpSerializer", "SharpSerializer\SharpSerializer.csproj", "{5382DA51-59D3-4634-AA42-F84F7C11AC9B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -105,6 +107,26 @@ Global
 		{DA7021A5-29B4-401C-B052-FA8EEEB9E706}.Release|x64.Build.0 = Release|Any CPU
 		{DA7021A5-29B4-401C-B052-FA8EEEB9E706}.Release|x86.ActiveCfg = Release|Any CPU
 		{DA7021A5-29B4-401C-B052-FA8EEEB9E706}.Release|x86.Build.0 = Release|Any CPU
+		{5382DA51-59D3-4634-AA42-F84F7C11AC9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5382DA51-59D3-4634-AA42-F84F7C11AC9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5382DA51-59D3-4634-AA42-F84F7C11AC9B}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{5382DA51-59D3-4634-AA42-F84F7C11AC9B}.Debug|ARM.Build.0 = Debug|Any CPU
+		{5382DA51-59D3-4634-AA42-F84F7C11AC9B}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{5382DA51-59D3-4634-AA42-F84F7C11AC9B}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{5382DA51-59D3-4634-AA42-F84F7C11AC9B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{5382DA51-59D3-4634-AA42-F84F7C11AC9B}.Debug|x64.Build.0 = Debug|Any CPU
+		{5382DA51-59D3-4634-AA42-F84F7C11AC9B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5382DA51-59D3-4634-AA42-F84F7C11AC9B}.Debug|x86.Build.0 = Debug|Any CPU
+		{5382DA51-59D3-4634-AA42-F84F7C11AC9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5382DA51-59D3-4634-AA42-F84F7C11AC9B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5382DA51-59D3-4634-AA42-F84F7C11AC9B}.Release|ARM.ActiveCfg = Release|Any CPU
+		{5382DA51-59D3-4634-AA42-F84F7C11AC9B}.Release|ARM.Build.0 = Release|Any CPU
+		{5382DA51-59D3-4634-AA42-F84F7C11AC9B}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{5382DA51-59D3-4634-AA42-F84F7C11AC9B}.Release|ARM64.Build.0 = Release|Any CPU
+		{5382DA51-59D3-4634-AA42-F84F7C11AC9B}.Release|x64.ActiveCfg = Release|Any CPU
+		{5382DA51-59D3-4634-AA42-F84F7C11AC9B}.Release|x64.Build.0 = Release|Any CPU
+		{5382DA51-59D3-4634-AA42-F84F7C11AC9B}.Release|x86.ActiveCfg = Release|Any CPU
+		{5382DA51-59D3-4634-AA42-F84F7C11AC9B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

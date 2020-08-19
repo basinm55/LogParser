@@ -7,12 +7,14 @@ using Helpers;
 using System.Linq;
 using System.Drawing;
 using System.Text;
+using System.Runtime.Serialization;
 
 namespace Entities
-{ 
+{
+    [Serializable]
     public class ParserObject : IDisposable
-    {                                 
-        public Color BaseColor { get; set; }     
+    {        
+        public string BaseColor { get; set; }
 
         public dynamic DynObject { get; set; }
 
@@ -22,7 +24,7 @@ namespace Entities
 
         public int LineNum { get; set; }
 
-        public List<StateObject> StateCollection { get; set; }        
+        public List<StateObject> StateCollection { get; set; }
 
         public ObjectClass ObjectClass { get; set; }
 
@@ -42,13 +44,14 @@ namespace Entities
 
 
         //C'tor
-        public ParserObject(ObjectClass objClass)
-        {           
+       
+        public ParserObject()
+        {            
             DynObject = new ExpandoObject();
             DynObjectDictionary = (IDictionary<string, object>)DynObject;
-            ObjectClass = objClass;
+            //ObjectClass = objClass;
             IsFindable = true;
-            BaseColor = Color.Transparent;
+            BaseColor = ColorTranslator.ToHtml(Color.Transparent);
             StateCollection = new List<StateObject>();
             DataBuffer = new StringBuilder();
             ColorKeys = new List<string>();
@@ -98,7 +101,7 @@ namespace Entities
                             return enumValue;
                         else
                             return null;
-                    }                      
+                    }
                     else
                         return null;
 
@@ -106,7 +109,7 @@ namespace Entities
                     return value;
             }
         }
-    
+
 
         public void SetDynProperty(string propertyName, object propertyValue, PropertyDataType propertyDataType = PropertyDataType.String, string format = null, Type enumType = null)
         {
@@ -135,14 +138,14 @@ namespace Entities
 
         public bool GetDynPropertyValue(string propertyName, out object propertyValue)
         {
-            return DynObjectDictionary.TryGetValue(propertyName, out propertyValue); 
+            return DynObjectDictionary.TryGetValue(propertyName, out propertyValue);
         }
 
         public object GetDynPropertyValue(string propertyName)
         {
             GetDynPropertyValue(propertyName, out object propertyValue);
             return propertyValue;
-        }     
+        }
 
         public void Dispose()
         {
@@ -150,9 +153,30 @@ namespace Entities
             StateCollection.Clear();
             ColorKeys.Clear();
         }
+
+        //public void GetObjectData(SerializationInfo info, StreamingContext ctxt)
+        //{
+        //    var sw = FastSerializer.Writer;
+        //    sw.Write(BaseColor);
+        //    sw.Write(DynObjectDictionary);
+        //    sw.Write(DynObject);
+        //    sw.Write(LogEntry);
+        //    sw.Write(LineNum);
+        //    sw.Write(StateCollection);
+        //    sw.Write(ObjectClass);
+        //    sw.Write(Time);
+        //    sw.Write(FilterKey);
+        //    sw.Write(PrevInterruptedObj);
+        //    sw.Write(NextContinuedObj);
+        //    sw.Write(DataBuffer);
+        //    sw.Write(IsFindable);
+        //    sw.Write(ColorKeys);
+
+        //    sw.AddToInfo(info);
+        //}
     }
 
-    public static class Extensions
+        public static class Extensions
     {      
         public static string GetThis(this ParserObject item)
         {
@@ -167,7 +191,8 @@ namespace Entities
 
         public static StateObject CreateStateObject(this ParserObject baseObject, State state, int lineNumber, string line, string filterKey)
         {
-            var result = new StateObject(baseObject);
+            var result = new StateObject();
+            result.Parent = baseObject;
             result.LineNum = lineNumber;
             result.LogEntry = line;
             result.State = state;
@@ -179,10 +204,11 @@ namespace Entities
 
         public static StateObject CreateBlankStateObject(this ParserObject baseObject)
         {
-            var result = new StateObject(baseObject);
+            var result = new StateObject();
+            result.Parent = baseObject;
             result.ObjectClass = ObjectClass.Blank;
             result.State = State.Blank;
-            result.Color = Color.White;
+            result.Color = ColorTranslator.ToHtml(Color.White);
             result.Description = string.Empty;
             return result;
         }
@@ -190,20 +216,22 @@ namespace Entities
 
         public static StateObject CreateMissingStateObject(this ParserObject baseObject)
         {
-            var result = new StateObject(baseObject);
+            var result = new StateObject();
+            result.Parent = baseObject;
             result.ObjectClass = ObjectClass.Missing;
             result.State = State.Missing;
-            result.Color = Color.Black;                        
+            result.Color = ColorTranslator.ToHtml(Color.Black);                        
             return result;
         }
 
         public static StateObject CreateArrowStateObject(this ParserObject baseObject, ParserObject referenceObject = null)
         {
-            var result = new StateObject(baseObject);
+            var result = new StateObject();
+            result.Parent = baseObject;
             result.ObjectClass = ObjectClass.ViewArrow;
             result.State = State.ViewArrow;
             result.ReferenceObj = referenceObject;
-            result.Color = Color.White;            
+            result.Color = ColorTranslator.ToHtml(Color.White);            
             result.Description = null;
             if (referenceObject != null)
                 result.ReferenceStateObj = referenceObject.StateCollection.LastOrDefault(x => x.ObjectClass != ObjectClass.ViewArrow && x.ObjectClass != ObjectClass.Blank);
@@ -214,7 +242,8 @@ namespace Entities
 
         public static ParserObject CreateObjectClone(this ParserObject original)
         {
-            var result = new ParserObject(original.ObjectClass);
+            var result = new ParserObject();
+            result.ObjectClass = original.ObjectClass;
 
             result.DynObject = DeepClone(original.DynObject);
             result.DynObjectDictionary = (IDictionary<string, object>)result.DynObject;            

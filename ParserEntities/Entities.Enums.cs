@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace Entities
 {
+    [Serializable]
     public class Enums
     {
-
+        [Serializable]
         public enum PropertyAction
         {
             Unrecognized = 0,
@@ -21,12 +22,14 @@ namespace Entities
             Delete = 7
         }
 
+        [Serializable]
         public enum Shape
         {
             Rectangle = 0,
             Circle = 1
         }
 
+        [Serializable]
         public enum PropertyDataType
         {
             String = 0,
@@ -39,12 +42,14 @@ namespace Entities
             Data = 7
         }
 
+        [Serializable]
         public enum Visibility
         {
             Visible = 0,
             Hidden = 1
         }
 
+        [Serializable]
         public enum State
         {
             Unknown = -5,
@@ -59,6 +64,7 @@ namespace Entities
             Completed = 4,                        
         }
 
+        [Serializable]
         public enum ObjectClass
         {
             Unknown = -4,

@@ -3,18 +3,23 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using Entities;
 using Helpers;
 using static Entities.Enums;
 
 namespace LogParserApp
 {
+    [Serializable]
     public class ParserColorManager
-    {
+    {        
+
         private string[] _baseColorTable;
         private float _colorCorrectionFactorPercent = 0;
         private int _currentBaseColorIndex = -1;
+
         public Color BaseColor { get; private set; }
 
         public ParserColorManager()
@@ -84,5 +89,7 @@ namespace LogParserApp
 
             return result;
         }
+
+      
     }
 }

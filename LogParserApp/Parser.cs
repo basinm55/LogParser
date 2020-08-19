@@ -14,11 +14,12 @@ using System.ComponentModel;
 using System.Configuration;
 using System.Text;
 using System.Threading;
+using Polenter.Serialization;
 
 namespace LogParserApp
-{
+{    
     public partial class Parser : IDisposable
-    {      
+    {       
         private string _logFileName;
        
         public ManualResetEvent Locker = new ManualResetEvent(true);
@@ -54,6 +55,48 @@ namespace LogParserApp
                 PropertyFilter = new Dictionary<string, List<KeyValuePair<object, string>>>();
                 InitLogger();              
             }
+        }
+
+        public void SerializeObjectCollection()
+        {
+            //FastSerializer.Writer = SerializationWriter.GetWriter();
+            //FastSerializer.Writer.Write(ObjectCollection);
+            //using (var stream1 = new MemoryStream())
+            //{
+            //    BinaryFormatter formatter = new BinaryFormatter();
+            //    formatter.Serialize(stream1, ObjectCollection);
+            //    stream1.Position = 0;
+
+            //    var deserialize = formatter.Deserialize(stream1) as List<ParserObject>;
+
+            //}
+            var settings = new SharpSerializerBinarySettings(BinarySerializationMode.Burst);
+            var serializer = new SharpSerializer(settings);
+            var filename = "sharpSerializerExample.burst.txt";
+
+            // serialize
+
+            using (Stream stream = new FileStream(filename, FileMode.Create, FileAccess.Write))
+            {
+                serializer.Serialize(ObjectCollection, stream);
+            }
+
+            using (var stream = new FileStream(filename, FileMode.Open, FileAccess.Read))
+            {
+                var x = (List<ParserObject>)serializer.Deserialize(stream);
+                //foreach (var e in x)
+                //{
+                //    e.DynObject = e.DynObjectDictionary.ToExpando();
+                //}
+            }
+            
+
+            //var filename = "sharpSerializerExample.burst.txt";
+            //using (Stream stream = new FileStream(filename, FileMode.Create, FileAccess.Write))
+            //{            
+            //    BinaronConvert.Serialize(ObjectCollection, stream, new SerializerOptions { SkipNullValues = true });
+            //    stream.Position = 0;
+            //}
 
         }
 
@@ -262,22 +305,8 @@ namespace LogParserApp
             }
 
             if (!isExistingFound && stateObj.State != State.Temporary)
-            {
-                if (isVisible)
-                {
-                    //MB
-                    //if (_currentObj.PrevInterruptedObj == null)
-                    //    _currentObj.BaseColor = _colorMng.GetNextBaseColor();
-
-                    //foreach (var stObj in _currentObj.StateCollection)
-                    //{
-                    //    if (stObj != null && stObj.State != State.Empty && stObj.State != State.ViewArrow)
-                    //        stObj.Color = _colorMng.GetColorByState(_currentObj.BaseColor, stObj.State);
-                    //}
-                }
-                
                 ObjectCollection.Add(_currentObj);
-            }
+
             return skipLines;
         } 
         
@@ -405,14 +434,14 @@ namespace LogParserApp
                 if (obj.PrevInterruptedObj != null)
                     obj.BaseColor = obj.PrevInterruptedObj.BaseColor;
                 else
-                    obj.BaseColor = colorItem.Key;
+                    obj.BaseColor = ColorTranslator.ToHtml(colorItem.Key);
 
                 foreach (var stateObj in obj.StateCollection)
                 {
                     if (stateObj.ObjectClass != ObjectClass.Blank &&
                             stateObj.ObjectClass != ObjectClass.Missing &&
-                            stateObj.ObjectClass != ObjectClass.ViewArrow)
-                        stateObj.Color = _colorMng.GetColorByState(obj.BaseColor, stateObj.State);        
+                            stateObj.ObjectClass != ObjectClass.ViewArrow)                      
+                        stateObj.Color = ColorTranslator.ToHtml(_colorMng.GetColorByState(ColorTranslator.FromHtml(obj.BaseColor), stateObj.State));
                 }
             }
 
