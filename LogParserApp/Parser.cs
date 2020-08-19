@@ -84,6 +84,7 @@ namespace LogParserApp
             using (var stream = new FileStream(filename, FileMode.Open, FileAccess.Read))
             {
                 var x = (List<ParserObject>)serializer.Deserialize(stream);
+
                 //foreach (var e in x)
                 //{
                 //    e.DynObject = e.DynObjectDictionary.ToExpando();
