@@ -15,10 +15,9 @@ namespace Entities
     public class ParserObject : IDisposable
     {        
         public string BaseColor { get; set; }
+       
 
-        public dynamic DynObject { get; set; }
-
-        public IDictionary<string, object> DynObjectDictionary;
+        public Dictionary<string, object> DynObjectDictionary { get; set; }
 
         public string LogEntry { get; set; }
 
@@ -46,9 +45,8 @@ namespace Entities
         //C'tor
        
         public ParserObject()
-        {            
-            DynObject = new ExpandoObject();
-            DynObjectDictionary = (IDictionary<string, object>)DynObject;
+        {
+            DynObjectDictionary = new Dictionary<string, object>();
             //ObjectClass = objClass;
             IsFindable = true;
             BaseColor = ColorTranslator.ToHtml(Color.Transparent);
@@ -245,8 +243,8 @@ namespace Entities
             var result = new ParserObject();
             result.ObjectClass = original.ObjectClass;
 
-            result.DynObject = DeepClone(original.DynObject);
-            result.DynObjectDictionary = (IDictionary<string, object>)result.DynObject;            
+           
+            result.DynObjectDictionary = new Dictionary<string, object>(original.DynObjectDictionary);            
             result.ObjectClass = original.ObjectClass;
             result.BaseColor = original.BaseColor;
             return result;

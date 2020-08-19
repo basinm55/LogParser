@@ -70,26 +70,26 @@ namespace LogParserApp
             //    var deserialize = formatter.Deserialize(stream1) as List<ParserObject>;
 
             //}
-            var settings = new SharpSerializerBinarySettings(BinarySerializationMode.Burst);
-            var serializer = new SharpSerializer(settings);
-            var filename = "sharpSerializerExample.burst.txt";
+            //var settings = new SharpSerializerBinarySettings(BinarySerializationMode.Burst);
+            //var serializer = new SharpSerializer(settings);
+            //var filename = "sharpSerializerExample.burst.txt";
 
             // serialize
 
-            using (Stream stream = new FileStream(filename, FileMode.Create, FileAccess.Write))
-            {
-                serializer.Serialize(ObjectCollection, stream);
-            }
+            //using (Stream stream = new FileStream(filename, FileMode.Create, FileAccess.Write))
+            //{
+            //    serializer.Serialize(ObjectCollection, stream);
+            //}
 
-            using (var stream = new FileStream(filename, FileMode.Open, FileAccess.Read))
-            {
-                var x = (List<ParserObject>)serializer.Deserialize(stream);
+            //using (var stream = new FileStream(filename, FileMode.Open, FileAccess.Read))
+            //{
+            //    var x = (List<ParserObject>)serializer.Deserialize(stream);
 
-                //foreach (var e in x)
-                //{
-                //    e.DynObject = e.DynObjectDictionary.ToExpando();
-                //}
-            }
+            //    //foreach (var e in x)
+            //    //{
+            //    //    e.DynObject = e.DynObjectDictionary.ToExpando();
+            //    //}
+            //}
             
 
             //var filename = "sharpSerializerExample.burst.txt";
