@@ -510,9 +510,10 @@ namespace LogParserApp
                 {
                     resultLabel.Text = ("Ready");
                     progressBar.Value = 100;
-                    Application.DoEvents();
+                    Application.DoEvents();                    
+                    _parser.AppLogger.LogLoadingCompleted();
                     Thread.Sleep(500);
-                                        
+
                     progressBar.Visible = false;
                     progressBar.Value = 0;
                     Cursor.Current = Cursors.Default;

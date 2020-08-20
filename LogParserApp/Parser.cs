@@ -182,11 +182,7 @@ namespace LogParserApp
             SetColors();
     
             if (!e.Cancel)
-                worker.ReportProgress(100);
-
-            AppLogger.LogLoadingCompleted();
-
-            
+                worker.ReportProgress(100);                        
         }
 
         private List<string> ReadLogFileToList()
