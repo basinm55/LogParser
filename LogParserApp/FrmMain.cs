@@ -492,6 +492,7 @@ namespace LogParserApp
 
                     btnViewLoadedLog.Enabled = true;
                     btnViewAppLog.Enabled = true;
+                    btnCustomFilter.Enabled = true;
                     UpdateFormTitle();
 
                     progressBar.Value = 80;                    
@@ -513,6 +514,7 @@ namespace LogParserApp
                     Thread.Sleep(500);
                                         
                     progressBar.Visible = false;
+                    progressBar.Value = 0;
                     Cursor.Current = Cursors.Default;
                     _loadCompleted = true;
                     gbFilter.Enabled = true;
@@ -582,13 +584,15 @@ namespace LogParserApp
 
             btnViewLoadedLog.Enabled = true;
             btnViewAppLog.Enabled = true;
+            btnCustomFilter.Enabled = true;
 
             UpdateFormTitle(true);
 
             progressBar.Value = 80;
             Application.DoEvents();
-            Thread.Sleep(300);                
+            Thread.Sleep(300);
 
+            resultLabel.Text = "Prepare data for view...";
             RefreshGridView(_parser.ObjectCollection);
             UpdateCustomFilterExists(false);
         }
@@ -666,7 +670,7 @@ namespace LogParserApp
                 progressBar.Visible = false;
                 Application.DoEvents();
                 Cursor.Current = Cursors.Default;
-                Cursor.Current = Cursors.Default;
+                progressBar.Value = 0;
                 gridLabel.Text = string.Format("  Total view rows: {0}", dataGV.Rows.Count.ToString());
                 gbFilter.Enabled = true;        
             }
@@ -924,6 +928,7 @@ namespace LogParserApp
                         Thread.Sleep(500);
 
                         progressBar.Visible = false;
+                        progressBar.Value = 0;
                         Cursor.Current = Cursors.Default;
                         _loadCompleted = true;
                         gbFilter.Enabled = true;
@@ -1141,6 +1146,7 @@ namespace LogParserApp
                     resultLabel.Text = ("Ready");
                     progressBar.Value = 100;
                     progressBar.Visible = false;
+                    progressBar.Value = 0;
                     Cursor.Current = Cursors.Default;
                     Application.DoEvents();
                 }
@@ -1298,6 +1304,7 @@ namespace LogParserApp
             btnCustomFilter.Enabled = false;
             btnStopLoading.Visible = false;
             txtHeader.Text = string.Empty;
+            progressBar.Value = 0;
             progressBar.Visible = false;
             UpdateFormTitle();
 

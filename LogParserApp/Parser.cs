@@ -33,7 +33,7 @@ namespace LogParserApp
         ParserObject _currentObj, _locatedObj, _lastCurrentObject;
         StateObject _lastStateObject = null;
 
-        public IDictionary<string, List<KeyValuePair<object, string>>> PropertyFilter { get; set; }
+        public List<PropertyFilter> PropertyFilter { get; set; }
 
         private ScanFormatted _sf;
 
@@ -59,7 +59,7 @@ namespace LogParserApp
                 LogFileName = logFileName;
                 _colorMng = new ParserColorManager();
                 ObjectCollection = new List<ParserObject>();
-                PropertyFilter = new Dictionary<string, List<KeyValuePair<object, string>>>();
+                PropertyFilter = new List<PropertyFilter>();
                 InitLogger();              
             }
         }
@@ -68,7 +68,7 @@ namespace LogParserApp
         {                
             _colorMng = new ParserColorManager();
             ObjectCollection = new List<ParserObject>();
-            PropertyFilter = new Dictionary<string, List<KeyValuePair<object, string>>>();
+            PropertyFilter = new List<PropertyFilter>();
             InitLogger();
         }
        
@@ -131,8 +131,8 @@ namespace LogParserApp
             ObjectCollection.Clear();
             foreach (var prop in PropertyFilter)
             {
-                if (prop.Value != null)
-                    prop.Value.Clear();
+                if (prop != null)
+                    prop.Clear();
             }
             PropertyFilter.Clear();
 

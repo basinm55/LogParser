@@ -338,19 +338,20 @@ namespace LogParserApp
             if (parent == null || filterMember == null || filterMember.Value == null || !filterMember.Value.ToBoolean())
                 return;          
            
-            var key = prop.Element("Name").Value.ToString();
-            if (PropertyFilter.ContainsKey(key))
+            var key = prop.Element("Name").Value.ToString();           
+            var item = PropertyFilter.FirstOrDefault(x => x.PropertyName == key);
+            if (item != null)
             {
-                var values = PropertyFilter[key];
-                var searchPair = new KeyValuePair<object, string>(parsedValue, parent);
-                if (!values.Contains(searchPair))
-                    values.Add(searchPair);                
+                var valList = item.Values;                             
+                var valuePair = new PropertyFilterValue { Value = parsedValue, Parent = parent };
+                if (!valList.Contains(valuePair))
+                    valList.Add(valuePair);                
             }
             else
             {
-                var listOfValues = new List<KeyValuePair<object, string>>();
-                listOfValues.Add(new KeyValuePair<object, string>(parsedValue, parent));
-                PropertyFilter.Add(new KeyValuePair<string, List<KeyValuePair<object, string>>>(key, listOfValues));           
+                var valList = new List<PropertyFilterValue>();
+                valList.Add(new PropertyFilterValue { Value = parsedValue, Parent = parent });
+                PropertyFilter.Add(new PropertyFilter {PropertyName = key, Values = valList });           
             }
         }
 
