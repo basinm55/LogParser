@@ -126,7 +126,7 @@ namespace LogParserApp
             {                                              
                 Text = string.Format("LogParser - Profile: [{0}]", Path.GetFileName(_selectedProfileFileName));
                 if (!string.IsNullOrWhiteSpace(_loadedLogFileName))                  
-                    Text = Text + "   " +string.Format("Log File: [{0}] {1}", Path.GetFileName(_loadedLogFileName),
+                    Text = Text + "   " +string.Format("Log File: [{0} {1}]]", Path.GetFileName(_loadedLogFileName),
                         isFromCache ? "(from cache)" : string.Empty);
                 
             }
@@ -499,6 +499,8 @@ namespace LogParserApp
                     Thread.Sleep(300);
                     
                     _parser.SaveToCache();
+                    mnuItemCacheClearCurrent.Enabled = !string.IsNullOrEmpty(_parser.CacheFilePath);
+                    mnuItemCacheClearAll.Enabled = !string.IsNullOrEmpty(_parser.CacheFilePath);
 
                     RefreshGridView(_parser.ObjectCollection);
                     UpdateCustomFilterExists(false);
@@ -575,9 +577,12 @@ namespace LogParserApp
             mnuItemImportProfile.Enabled = true;
             mnuItemLoad.Enabled = !string.IsNullOrEmpty(_selectedProfileFileName);
             mnuItemGoToLine.Enabled = !string.IsNullOrEmpty(_loadedLogFileName);
+            mnuItemCacheClearCurrent.Enabled = !string.IsNullOrEmpty(_parser.CacheFilePath);
+            mnuItemCacheClearAll.Enabled = !string.IsNullOrEmpty(_parser.CacheFilePath);
 
             btnViewLoadedLog.Enabled = true;
             btnViewAppLog.Enabled = true;
+
             UpdateFormTitle(true);
 
             progressBar.Value = 80;
@@ -860,11 +865,22 @@ namespace LogParserApp
                     return;
                 }
 
+                //Get cache file path if exists
+                string cacheFolder = null;
+                if (ConfigurationManager.AppSettings["CachePoolPath"] != null)
+                    cacheFolder = ConfigurationManager.AppSettings["CachePoolPath"].ToString();
+                if (string.IsNullOrWhiteSpace(cacheFolder))
+                    cacheFolder = Path.GetDirectoryName(Application.ExecutablePath);
+                var cacheFilePath = Path.Combine(Path.GetFullPath(cacheFolder), Path.GetFileNameWithoutExtension(_loadedLogFileName)) + ".cache";
+
                 //Check for cache
-                var cacheFilePath = Path.Combine(Path.GetDirectoryName(_loadedLogFileName), Path.GetFileNameWithoutExtension(_loadedLogFileName)) + ".cache";
                 if (File.Exists(cacheFilePath))
                 {
                     Cursor.Current = Cursors.WaitCursor;
+                    btnStopLoading.Visible = false;
+                    resultLabel.Text = "Loading data from cache...";
+                    closePending = true;
+                    _loadCompleted = false;
                     progressBar.Visible = true;
                     progressBar.Value = 10;
                     btnViewLoadedLog.Enabled = false;
@@ -876,6 +892,7 @@ namespace LogParserApp
                         _parser = Parser.LoadFromCache(cacheFilePath);
                         if (_parser != null)
                         {
+                            _parser.CacheFilePath = cacheFilePath;
                             _parser.InitLogger();
                             _parser.AppLogger.LogLoadingStarted(true);
 
@@ -884,12 +901,8 @@ namespace LogParserApp
                             Thread.Sleep(300);
 
                             _parser.LogFileName = _loadedLogFileName;
-
-                            btnStopLoading.Visible = false;
-                            resultLabel.Text = "Loading data from cache...";
-                            closePending = true;
-                            _loadCompleted = false;
-
+                            _parser.IsFromCache = true;
+                           
                             RefreshGridViewAfterCacheLoaded();
                         }
 
@@ -1174,6 +1187,121 @@ namespace LogParserApp
             }
             else
                 WindowHelper.BringProcessToFront(_externalEditorProcess);
+        }
+
+        private void mnuItemCacheClearCurrent_Click(object sender, EventArgs e)
+        {
+            if (!File.Exists(_parser.CacheFilePath)) return;
+
+            if (MessageBox.Show("Hi, Yuri!"
+                            + Environment.NewLine                            
+                            + "Are you shure you want to delete active cache of this log?",                            
+                            "Clear active cache",
+                            MessageBoxButtons.YesNo,
+                            MessageBoxIcon.Question,
+                            MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+            {
+                
+                if (!_parser.IsFromCache)
+                    File.Delete(_parser.CacheFilePath);
+                else
+                {
+                    if (MessageBox.Show("Warning!"
+                            + Environment.NewLine
+                            + "Data source of the current view is the same"
+                            + Environment.NewLine 
+                            + "cache file, you're going to delete."
+                            + Environment.NewLine +"So, the view should be closed! Continue?",
+                            "Clear active cache",
+                            MessageBoxButtons.YesNo,
+                            MessageBoxIcon.Warning,
+                            MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+
+                    File.Delete(_parser.CacheFilePath);
+                    CloseView();
+                }                          
+            }
+        }
+
+        private void mnuItemCacheClearAll_Click(object sender, EventArgs e)
+        {
+            DirectoryInfo di = new DirectoryInfo(Path.GetDirectoryName(_parser.CacheFilePath));
+            var files = di.GetFiles();
+
+            if (files.Length == 0)
+            {
+                MessageBox.Show("There are no cache files found.", "Nothing to delete", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }        
+
+            if (MessageBox.Show("Hi, Yuri!"
+                                        + Environment.NewLine
+                                        + string.Format("Are you shure you want to delete {0} cache file(s)?", files.Length),
+                                        "Clear all cache files",
+                                        MessageBoxButtons.YesNo,
+                                        MessageBoxIcon.Warning,
+                                        MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+            {
+               
+
+                if (MessageBox.Show("Warning!"
+                        + Environment.NewLine
+                        + "All cache files in the pool will be deleted!"
+                        + Environment.NewLine
+                        + "Continue?",
+                        "Clear all cache files",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Warning,
+                        MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+                {
+                    foreach (FileInfo file in files)
+                    {
+                        if (_parser.IsFromCache &&  new Uri(file.FullName) == new Uri(_parser.CacheFilePath))
+                            continue;
+                            
+                        file.Delete();
+                    }
+                    CloseView();
+                }
+            }
+        }
+
+        private void CloseView()
+        {
+            if (_parser != null)
+            {
+                _parser.CacheFilePath = null;
+                _parser.LogFileName = null;
+            }
+            _loadedLogFileName = null;           
+            txtHeader.Text = string.Empty;
+            resultLabel.Text = string.Empty;
+            dataGV.DataSource = null;
+            dataGV.Rows.Clear();
+            dataGV.Columns.Clear();
+            dataGV.Refresh();
+            mnuItemLoad.Enabled = false;
+            mnuItemImportProfile.Enabled = false;
+            mnuItemGoToLine.Enabled = false;
+            mnuItemGoToLine.Enabled = false;
+            mnuItemCacheClearCurrent.Enabled = false;
+            mnuItemCacheClearAll.Enabled = false;            
+            calculateLabel.Text = string.Empty;
+            gridLabel.Text = string.Empty;
+            cmbShowDevice.Enabled = false;
+            lblShowDevice.Enabled = false;
+            cmbShowDevice.SelectedIndex = -1;
+
+            btnViewLoadedLog.Enabled = false;
+            btnViewAppLog.Enabled = false;
+            btnClearFilter.Enabled = false;
+            btnCustomFilter.Enabled = false;
+            btnStopLoading.Visible = false;
+            txtHeader.Text = string.Empty;
+            progressBar.Visible = false;
+            UpdateFormTitle();
+
+            mnuItemLoad.Enabled = true;
         }
 
         private void mnuItemGoToLine_Click(object sender, EventArgs e)

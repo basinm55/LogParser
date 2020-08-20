@@ -22,7 +22,11 @@ namespace LogParserApp
     public partial class Parser : IDisposable
     {       
         public string LogFileName { get; set; }
-       
+
+        public string CacheFilePath { get; set; }
+
+        public bool IsFromCache { get; set; }
+
         public ManualResetEvent Locker = new ManualResetEvent(true);
 
         public List<ParserObject> ObjectCollection { get; private set; }
@@ -70,13 +74,27 @@ namespace LogParserApp
        
 
         public void SaveToCache()
-        {  
+        {
+            if (IsFromCache) return;
+
+            string cacheFolder = null;
+            if (ConfigurationManager.AppSettings["CachePoolPath"] != null)
+                cacheFolder = ConfigurationManager.AppSettings["CachePoolPath"].ToString();
+
+            if (string.IsNullOrWhiteSpace(cacheFolder))
+                cacheFolder = Path.GetDirectoryName(Application.ExecutablePath);
+
+            if (!Directory.Exists(cacheFolder))
+                Directory.CreateDirectory(cacheFolder);
+
+            CacheFilePath = Path.Combine(cacheFolder, Path.GetFileNameWithoutExtension(LogFileName)) + ".cache";
+
             var settings = new SharpSerializerBinarySettings(BinarySerializationMode.Burst);
             var serializer = new SharpSerializer(settings);
-            var cacheFilePath = Path.Combine(Path.GetDirectoryName(LogFileName), Path.GetFileNameWithoutExtension(LogFileName)) + ".cache";
+            
 
             // serialize
-            using (Stream stream = new FileStream(cacheFilePath, FileMode.Create, FileAccess.Write))
+            using (Stream stream = new FileStream(CacheFilePath, FileMode.Create, FileAccess.Write))
             {
                 serializer.Serialize(this, stream);
             }                         
@@ -386,16 +404,21 @@ namespace LogParserApp
 
             AppLogIsActive = appLogIsActive;
 
-            AppLogger = new ParserLogger(appLogIsActive);
-            var appLogFile = ConfigurationManager.AppSettings["AppLog"].ToString();
-            appLogFile = string.IsNullOrEmpty(Path.GetDirectoryName(appLogFile)) ?
-                appLogFile = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), appLogFile) :
-                appLogFile;
+            if (AppLogger == null)
+                AppLogger = new ParserLogger(appLogIsActive);
 
-            if (File.Exists(appLogFile)) File.Delete(appLogFile);
+            if (ConfigurationManager.AppSettings["AppLog"] != null)
+            {
+                var appLogFile = ConfigurationManager.AppSettings["AppLog"].ToString();
+                appLogFile = string.IsNullOrEmpty(Path.GetDirectoryName(appLogFile)) ?
+                    appLogFile = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), appLogFile) :
+                    appLogFile;
 
-            AppLogger.TargetPath = appLogFile;
-            AppLogger.LoadingFilePath = LogFileName;
+                if (File.Exists(appLogFile)) File.Delete(appLogFile);
+
+                AppLogger.TargetPath = appLogFile;
+                AppLogger.LoadingFilePath = LogFileName;
+            }
         }
 
         private void SetColors()
