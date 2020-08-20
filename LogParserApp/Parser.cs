@@ -18,9 +18,10 @@ using Polenter.Serialization;
 
 namespace LogParserApp
 {    
+    [Serializable]
     public partial class Parser : IDisposable
     {       
-        private string _logFileName;
+        public string LogFileName { get; set; }
        
         public ManualResetEvent Locker = new ManualResetEvent(true);
 
@@ -28,7 +29,7 @@ namespace LogParserApp
         ParserObject _currentObj, _locatedObj, _lastCurrentObject;
         StateObject _lastStateObject = null;
 
-        public IDictionary<string, List<KeyValuePair<object, string>>> PropertyFilter { get; private set; }
+        public IDictionary<string, List<KeyValuePair<object, string>>> PropertyFilter { get; set; }
 
         private ScanFormatted _sf;
 
@@ -36,20 +37,22 @@ namespace LogParserApp
 
         private string _visualTimeFormat;
 
-        public int TotalLogLines { get; private set; }
-        public int CompletedLogLines { get; private set; }
+        public int TotalLogLines { get; set; }
+        public int CompletedLogLines { get; set; }
 
-        public ParserLogger AppLogger;
+        [ExcludeFromSerializationAttribute]
+        public ParserLogger AppLogger { get; set; }
 
-        public bool AppLogIsActive;
+        [ExcludeFromSerializationAttribute]
+        public bool AppLogIsActive { get; set; }
 
         public Parser(string logFileName)
         {
             if (string.IsNullOrWhiteSpace(logFileName) || !File.Exists(logFileName))
                 MessageBox.Show(string.Format("Hi, Youri! Unfortunately, the Log file: '{0}' does not exists!", logFileName));
             else
-            {                
-                _logFileName = logFileName;
+            {
+                LogFileName = logFileName;
                 _colorMng = new ParserColorManager();
                 ObjectCollection = new List<ParserObject>();
                 PropertyFilter = new Dictionary<string, List<KeyValuePair<object, string>>>();
@@ -57,48 +60,41 @@ namespace LogParserApp
             }
         }
 
-        public void SerializeObjectCollection()
-        {
-            //FastSerializer.Writer = SerializationWriter.GetWriter();
-            //FastSerializer.Writer.Write(ObjectCollection);
-            //using (var stream1 = new MemoryStream())
-            //{
-            //    BinaryFormatter formatter = new BinaryFormatter();
-            //    formatter.Serialize(stream1, ObjectCollection);
-            //    stream1.Position = 0;
+        public Parser()
+        {                
+            _colorMng = new ParserColorManager();
+            ObjectCollection = new List<ParserObject>();
+            PropertyFilter = new Dictionary<string, List<KeyValuePair<object, string>>>();
+            InitLogger();
+        }
+       
 
-            //    var deserialize = formatter.Deserialize(stream1) as List<ParserObject>;
-
-            //}
-            //var settings = new SharpSerializerBinarySettings(BinarySerializationMode.Burst);
-            //var serializer = new SharpSerializer(settings);
-            //var filename = "sharpSerializerExample.burst.txt";
+        public void SaveToCache()
+        {  
+            var settings = new SharpSerializerBinarySettings(BinarySerializationMode.Burst);
+            var serializer = new SharpSerializer(settings);
+            var cacheFilePath = Path.Combine(Path.GetDirectoryName(LogFileName), Path.GetFileNameWithoutExtension(LogFileName)) + ".cache";
 
             // serialize
+            using (Stream stream = new FileStream(cacheFilePath, FileMode.Create, FileAccess.Write))
+            {
+                serializer.Serialize(this, stream);
+            }                         
+        }
 
-            //using (Stream stream = new FileStream(filename, FileMode.Create, FileAccess.Write))
-            //{
-            //    serializer.Serialize(ObjectCollection, stream);
-            //}
-
-            //using (var stream = new FileStream(filename, FileMode.Open, FileAccess.Read))
-            //{
-            //    var x = (List<ParserObject>)serializer.Deserialize(stream);
-
-            //    //foreach (var e in x)
-            //    //{
-            //    //    e.DynObject = e.DynObjectDictionary.ToExpando();
-            //    //}
-            //}
-            
-
-            //var filename = "sharpSerializerExample.burst.txt";
-            //using (Stream stream = new FileStream(filename, FileMode.Create, FileAccess.Write))
-            //{            
-            //    BinaronConvert.Serialize(ObjectCollection, stream, new SerializerOptions { SkipNullValues = true });
-            //    stream.Position = 0;
-            //}
-
+        public static Parser LoadFromCache(string cacheFilePath)
+        {
+            Parser result = null;
+            var settings = new SharpSerializerBinarySettings(BinarySerializationMode.Burst);
+            var serializer = new SharpSerializer(settings);            
+            if (File.Exists(cacheFilePath))
+            { 
+                using (var stream = new FileStream(cacheFilePath, FileMode.Open, FileAccess.Read))
+                {
+                    result = (Parser)serializer.Deserialize(stream);
+                }
+            }
+            return result;
         }
 
         public void Run(XElement profile, BackgroundWorker worker, DoWorkEventArgs e)
@@ -177,7 +173,7 @@ namespace LogParserApp
 
         private List<string> ReadLogFileToList()
         {
-            return File.ReadLines(_logFileName).ToList();
+            return File.ReadLines(LogFileName).ToList();
         }
 
         private int ParseLogLine(List<string> list, int lineNumber, string line, XElement profile)
@@ -382,7 +378,7 @@ namespace LogParserApp
         }
 
 
-        private void InitLogger()
+        public void InitLogger()
         {
             bool appLogIsActive = true;
             if (ConfigurationManager.AppSettings["AppLogIsActive"] != null)
@@ -399,7 +395,7 @@ namespace LogParserApp
             if (File.Exists(appLogFile)) File.Delete(appLogFile);
 
             AppLogger.TargetPath = appLogFile;
-            AppLogger.LoadingFilePath = _logFileName;
+            AppLogger.LoadingFilePath = LogFileName;
         }
 
         private void SetColors()
@@ -451,7 +447,7 @@ namespace LogParserApp
             
         public void Dispose()
         {
-            _logFileName = null;
+            LogFileName = null;
             ObjectCollection.Clear();         
             TotalLogLines = 0;
         }

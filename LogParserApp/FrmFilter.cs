@@ -85,10 +85,13 @@ namespace LogParserApp
             values.Sort(CompareValues);
             foreach (var val in values)
             {
-                if (CurrentDevice == null && !lsbValues.Items.Contains(val.Key))             
-                    lsbValues.Items.Add(val.Key);
-                else if (val.Value == CurrentDevice && !lsbValues.Items.Contains(val.Key))
-                    lsbValues.Items.Add(val.Key);
+                if (val.Key != null)
+                {
+                    if (CurrentDevice == null && !lsbValues.Items.Contains(val.Key))
+                        lsbValues.Items.Add(val.Key);
+                    else if (val.Value == CurrentDevice && !lsbValues.Items.Contains(val.Key))
+                        lsbValues.Items.Add(val.Key);
+                }
             }                    
             gbConnect.Enabled = true;
 

@@ -117,19 +117,7 @@ namespace Polenter.Serialization.Core
             Type referenceType = typeof (IDictionary);
             return referenceType.IsAssignableFrom(type);
         }
-
-        /// <summary>
-        ///   Is type ExpandoObject
-        ///   MB
-        /// </summary>
-        /// <param name = "type"></param>
-        /// <returns></returns>
-        public static bool IsExpandoObject(Type type)
-        {
-            Type referenceType = typeof(ExpandoObject);
-            return referenceType.IsAssignableFrom(type);
-        }
-
+     
         /// <summary>
         ///   Is it array? It does not matter if singledimensional or multidimensional
         /// </summary>

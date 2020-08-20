@@ -61,12 +61,7 @@ namespace Polenter.Serialization.Serializing
         ///<summary>
         ///</summary>
         public bool IsDictionary { get; set; }
-
-
-        ///<summary>
-        ///</summary>
-        public bool IsExpandoObject { get; set; }
-
+     
         /// <summary>
         ///   Of what type are elements of Array, Collection or values in a Dictionary
         /// </summary>
@@ -177,15 +172,7 @@ namespace Polenter.Serialization.Serializing
                                     examinedType = examinedType.BaseType();
                                     // until key and element definition was found, or the base typ is an object
                                 } while (!elementTypeDefinitionFound && examinedType != null && examinedType != typeof(object));
-                            }
-                            else
-                            {
-                                typeInfo.IsExpandoObject = Tools.IsExpandoObject(type);
-                                if (typeInfo.IsExpandoObject)
-                                {
-                                    //MB TODO
-                                }
-                            }
+                            }   
                         }
                     }
                 }
@@ -213,11 +200,7 @@ namespace Polenter.Serialization.Serializing
                     // in Dictionary there are keys and values
                     typeInfo.KeyType = arguments[0];
                     typeInfo.ElementType = arguments[1];
-                }
-                else if (typeInfo.IsExpandoObject)
-                {
-                    //MB TODO
-                }
+                }  
                 else
                 {
                     // In Collection there are only items

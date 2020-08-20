@@ -144,12 +144,7 @@ namespace Polenter.Serialization.Serializing
             {
                 // Actually it would be enough to check if the typeinfo.IsEnumerable is true...
                 return new CollectionProperty(name, typeInfo.Type);
-            }
-            if (typeInfo.IsExpandoObject)
-            {
-                // Actually it would be enough to check if the typeinfo.IsExpandoObject is true...MB
-                //return new CollectionProperty(name, typeInfo.Type);
-            }
+            }   
 
             // If nothing was recognized, a complex type will be created
             return new ComplexProperty(name, typeInfo.Type);

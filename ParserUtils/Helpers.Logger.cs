@@ -37,22 +37,22 @@ namespace Helpers
             }
         }
 
-        public void LogLoadingStarted()
+        public void LogLoadingStarted(bool isFromCache = false)
         {
             if (!_isActive) return;
 
             if (!string.IsNullOrWhiteSpace(LoadingFilePath))
-                Log(string.Format("Load file {0} - started at {1}",
+                Log(string.Format(!isFromCache ?  "Load file {0} - started at {1}" : "Load {0} from cache - started at {1}",
                                 Path.GetFileName(Path.GetFileName(LoadingFilePath)),
                                 DateTime.Now.ToString("dd/MM/yy HH:mm:ss.fff")));
         }
 
-        public void LogLoadingCompleted()
+        public void LogLoadingCompleted(bool isFromCache = false)
         {
             if (!_isActive) return;
 
             if (!string.IsNullOrWhiteSpace(LoadingFilePath))
-                Log(string.Format("Load file {0} - completed at {1}",
+                Log(string.Format(!isFromCache ? "Load file {0} - completed at {1}" : "Load {0} from cache - completed at {1}",
                                 Path.GetFileName(Path.GetFileName(LoadingFilePath)),
                                 DateTime.Now.ToString("dd/MM/yy HH:mm:ss.fff")));
         }

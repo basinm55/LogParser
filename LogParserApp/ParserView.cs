@@ -22,6 +22,7 @@ namespace LogParserApp
         public ParserObject refObj { get; set; }
         public bool IsClickable { get; set; }
     }
+    
 
     public partial class ParserView
     {

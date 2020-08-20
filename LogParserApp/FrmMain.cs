@@ -17,6 +17,7 @@ using Helpers;
 using PatternValidator;
 using static Entities.Enums;
 using System.Data;
+using Polenter.Serialization;
 
 namespace LogParserApp
 {
@@ -82,8 +83,7 @@ namespace LogParserApp
             mnuItemGoToLine.Enabled = !string.IsNullOrEmpty(_loadedLogFileName);
 
             btnViewLoadedLog.Enabled = false;
-            btnViewAppLog.Enabled = false;
-            btnViewAppLog.Enabled = false;
+            btnViewAppLog.Enabled = false;            
             progressBar.Visible = false;            
 
             txtHeader.Text = string.Empty;
@@ -120,13 +120,14 @@ namespace LogParserApp
             }
         }
 
-        private void UpdateFormTitle()
+        private void UpdateFormTitle(bool isFromCache = false)
         {
             if (!string.IsNullOrWhiteSpace(_selectedProfileFileName))
             {                                              
                 Text = string.Format("LogParser - Profile: [{0}]", Path.GetFileName(_selectedProfileFileName));
                 if (!string.IsNullOrWhiteSpace(_loadedLogFileName))                  
-                    Text = Text + "   " +string.Format("Log File: [{0}]", Path.GetFileName(_loadedLogFileName));
+                    Text = Text + "   " +string.Format("Log File: [{0}] {1}", Path.GetFileName(_loadedLogFileName),
+                        isFromCache ? "(from cache)" : string.Empty);
                 
             }
             else
@@ -496,12 +497,11 @@ namespace LogParserApp
                     progressBar.Value = 80;                    
                     Application.DoEvents();
                     Thread.Sleep(300);
-
-                    //MB TODO:
-                    _parser.SerializeObjectCollection();
-
+                    
+                    _parser.SaveToCache();
 
                     RefreshGridView(_parser.ObjectCollection);
+                    UpdateCustomFilterExists(false);
                 }
                 finally
                 {
@@ -556,6 +556,39 @@ namespace LogParserApp
         }
 
         #endregion Background Worker
+
+
+        private void RefreshGridViewAfterCacheLoaded()
+        {               
+            CreateComboDeviceDataSource();
+            Application.DoEvents();
+            Thread.Sleep(300);
+
+            progressBar.Value = 60; ;
+            Application.DoEvents();
+            Thread.Sleep(300);
+
+            if (cmbShowDevice.Items.Count > 1)
+                cmbShowDevice.SelectedIndex = 0;
+            cmbShowDevice.Enabled = true;
+            lblShowDevice.Enabled = true;
+            mnuItemImportProfile.Enabled = true;
+            mnuItemLoad.Enabled = !string.IsNullOrEmpty(_selectedProfileFileName);
+            mnuItemGoToLine.Enabled = !string.IsNullOrEmpty(_loadedLogFileName);
+
+            btnViewLoadedLog.Enabled = true;
+            btnViewAppLog.Enabled = true;
+            UpdateFormTitle(true);
+
+            progressBar.Value = 80;
+            Application.DoEvents();
+            Thread.Sleep(300);                
+
+            RefreshGridView(_parser.ObjectCollection);
+            UpdateCustomFilterExists(false);
+        }
+   
+
 
 
         private void CreateComboDeviceDataSource()
@@ -821,25 +854,93 @@ namespace LogParserApp
             if (dlgLoadLog.ShowDialog() != DialogResult.Cancel)
             {
                 _loadedLogFileName = dlgLoadLog.FileName;
-                _parser = new Parser(_loadedLogFileName);
-                if (!bkgWorkerLoad.IsBusy)
+                if (string.IsNullOrWhiteSpace(_loadedLogFileName) || !File.Exists(_loadedLogFileName))
                 {
-                    txtHeader.Text = string.Empty;
-                    dataGV.DataSource = null;
-                    dataGV.Rows.Clear();
-                    dataGV.Refresh();
+                    MessageBox.Show(string.Format("Hi, Youri! Unfortunately, the Log file: '{0}' does not exists!", _loadedLogFileName));
+                    return;
+                }
 
-                    // Start the asynchronous operation.
-                    mnuItemLoad.Enabled = false;
-                    mnuItemImportProfile.Enabled = false;
-                    mnuItemGoToLine.Enabled = false;
-                    btnStopLoading.Visible = true;
-                    calculateLabel.Text = string.Empty;
-                    gridLabel.Text = string.Empty;
-                    cmbShowDevice.Enabled = false;
-                    lblShowDevice.Enabled = false;
-                    cmbShowDevice.SelectedIndex = -1;
-                    bkgWorkerLoad.RunWorkerAsync();
+                //Check for cache
+                var cacheFilePath = Path.Combine(Path.GetDirectoryName(_loadedLogFileName), Path.GetFileNameWithoutExtension(_loadedLogFileName)) + ".cache";
+                if (File.Exists(cacheFilePath))
+                {
+                    Cursor.Current = Cursors.WaitCursor;
+                    progressBar.Visible = true;
+                    progressBar.Value = 10;
+                    btnViewLoadedLog.Enabled = false;
+                    btnViewAppLog.Enabled = false;
+                    Application.DoEvents();
+                    Thread.Sleep(300);                    
+                    try
+                    {
+                        _parser = Parser.LoadFromCache(cacheFilePath);
+                        if (_parser != null)
+                        {
+                            _parser.InitLogger();
+                            _parser.AppLogger.LogLoadingStarted(true);
+
+                            progressBar.Value = 20;
+                            Application.DoEvents();
+                            Thread.Sleep(300);
+
+                            _parser.LogFileName = _loadedLogFileName;
+
+                            btnStopLoading.Visible = false;
+                            resultLabel.Text = "Loading data from cache...";
+                            closePending = true;
+                            _loadCompleted = false;
+
+                            RefreshGridViewAfterCacheLoaded();
+                        }
+
+                    }
+                    catch (Exception ex)
+                    {
+                        if (_parser != null)
+                            _parser.AppLogger.LogException(ex);
+                        throw ex;
+                    }
+                    finally
+                    {
+                        if (_parser != null)
+                            _parser.AppLogger.LogLoadingCompleted(true);
+                        resultLabel.Text = ("Ready");
+                        
+                        progressBar.Value = 100;
+                        Application.DoEvents();
+                        Thread.Sleep(500);
+
+                        progressBar.Visible = false;
+                        Cursor.Current = Cursors.Default;
+                        _loadCompleted = true;
+                        gbFilter.Enabled = true;
+                        btnViewLoadedLog.Enabled = true;
+                        btnViewAppLog.Enabled = true;
+                    }
+                }
+                else
+                {
+                    _parser = new Parser(_loadedLogFileName);
+
+                    if (!bkgWorkerLoad.IsBusy)
+                    {
+                        txtHeader.Text = string.Empty;
+                        dataGV.DataSource = null;
+                        dataGV.Rows.Clear();
+                        dataGV.Refresh();
+
+                        // Start the asynchronous operation.
+                        mnuItemLoad.Enabled = false;
+                        mnuItemImportProfile.Enabled = false;
+                        mnuItemGoToLine.Enabled = false;
+                        btnStopLoading.Visible = true;
+                        calculateLabel.Text = string.Empty;
+                        gridLabel.Text = string.Empty;
+                        cmbShowDevice.Enabled = false;
+                        lblShowDevice.Enabled = false;
+                        cmbShowDevice.SelectedIndex = -1;
+                        bkgWorkerLoad.RunWorkerAsync();
+                    }
                 }
             }
         }
