@@ -70,6 +70,7 @@
 			<Filter key="CUsbipRequest::CUsbipRequest" IsVisible ="1">
 				<ObjectClass>Request</ObjectClass>
 				<State>Created</State>
+				<Shape>Rectangle</Shape>
 				<Patterns>
 					<Pattern>[%*1d]%*4c.%*4c::%s [%*7s]CUsbipRequest::CUsbipRequest: type %s dev %s -> %s</Pattern>
 				</Patterns>
@@ -116,6 +117,7 @@
 			<Filter key="CUsbipRequest::Prepare" IsVisible ="1">
 				<ObjectClass>Request</ObjectClass>
 				<State>Queued</State>
+				<Shape>Rectangle</Shape>
 				<Patterns>
 					<Pattern>[%*1d]%*4c.%*4c::%s [%*7s]CUsbipRequest::Prepare:@%2s: %s trvil %s req %s</Pattern>
 					<Pattern>[%*1d]%*4c.%*4c::%s [%*7s]CUsbipRequest::Prepare:@%2s: %s %s req %s</Pattern>
@@ -162,6 +164,7 @@
 			<Filter key="CUsbipRequest::FeedRead" IsVisible ="1">
 				<ObjectClass>Request</ObjectClass>
 				<State>Sent</State>
+				<Shape>Rectangle</Shape>
 				<Patterns>
 					<Pattern>[%*1d]%*4c.%*4c::%s [%*7s]CUsbipRequest::FeedRead:@%s #%d %s %s len %d, req %s</Pattern>					
 				</Patterns>
@@ -206,6 +209,7 @@
 			<Filter key="CUsbipRequest::FeedWrite" IsVisible ="1">
 				<ObjectClass>Request</ObjectClass>
 				<State>Responded</State>
+				<Shape>Rectangle</Shape>
 				<Patterns>
 					<Pattern>[%*1d]%*4c.%*4c::%s [%*7s]CUsbipRequest::FeedWrite:%16s: %*s %d = %s</Pattern>
 				</Patterns>
@@ -243,6 +247,7 @@
 			<Filter key="CUsbipRequest::Complete" IsVisible ="1">
 				<ObjectClass>Request</ObjectClass>
 				<State>Completed</State>
+				<Shape>Rectangle</Shape>
 				<Patterns>
 					<Pattern>[%*1d]%*4c.%*4c::%s [%*7s]CUsbipRequest::Complete:@%s #%d %s done in %d ms, wdf %s = %x, req %s</Pattern>					
 				</Patterns>

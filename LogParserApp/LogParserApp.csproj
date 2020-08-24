@@ -48,6 +48,7 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FrmFilter.cs">
@@ -89,8 +90,8 @@
       <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="Documents\LogParser 2.0 development status.docx" />
-    <None Include="Documents\LogParser 2.0 User Manual.docx" />
+    <None Include="Documents\LogParser 2.1 development status.docx" />
+    <None Include="Documents\LogParser 2.1 User Manual.docx" />
     <None Include="LogFilesForTest\ECG-then-Spirometer-final-candidate.log" />
     <None Include="LogFilesForTest\MyTest.log" />
     <None Include="LogFilesForTest\MyTest2.log" />

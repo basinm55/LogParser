@@ -224,8 +224,12 @@ namespace LogParserApp
             gbOperator.Enabled = false;
             btnAdd.Enabled = false;
             btnRemove.Enabled = false;
-            saveFilterToolStripMenuItem.Enabled = false;
-            btnApply.Enabled = true;
+            saveFilterToolStripMenuItem.Enabled = false;           
+            if (CurrentFilter != null)
+            {
+                btnApply.Enabled = true;
+                CurrentFilter.FilterExpression = null;
+            }
             _isClearAll = dgvFilter.Rows.Count == 0;
         }
 

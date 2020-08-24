@@ -219,8 +219,8 @@ namespace LogParserApp
 
             cell.Style = new DataGridViewCellStyle
             {
-                BackColor = stateObj.State == State.Missing ? Color.Black : ColorTranslator.FromHtml(stateObj.Color),
-                ForeColor = stateObj.State == State.Missing ? Color.White : Color.Black,
+                BackColor = stateObj.State == State.Missing ? Color.White : ColorTranslator.FromHtml(stateObj.Color),
+                ForeColor = stateObj.State == State.Missing ? Color.Black : Color.Black,
                 Font = stateObj.State == State.Missing ?
                     new Font(Control.DefaultFont, FontStyle.Bold) :
                     new Font(Control.DefaultFont, FontStyle.Regular),

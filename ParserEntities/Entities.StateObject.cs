@@ -14,6 +14,8 @@ namespace Entities
     {        
         public State State { get; set; }
 
+        public Shape Shape { get; set; }
+
         public ObjectClass ObjectClass { get; set; }
 
         public DateTime Time { get; set; }

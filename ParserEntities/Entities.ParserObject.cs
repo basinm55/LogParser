@@ -187,13 +187,14 @@ namespace Entities
         }
           
 
-        public static StateObject CreateStateObject(this ParserObject baseObject, State state, int lineNumber, string line, string filterKey)
+        public static StateObject CreateStateObject(this ParserObject baseObject, State state, Shape shape, int lineNumber, string line, string filterKey)
         {
             var result = new StateObject();
             result.Parent = baseObject;
             result.LineNum = lineNumber;
             result.LogEntry = line;
             result.State = state;
+            result.Shape = shape;
             //result.Color = baseObject.BaseColor;
             result.FilterKey = filterKey;
             result.ObjectClass = baseObject.ObjectClass;                                        
@@ -218,7 +219,7 @@ namespace Entities
             result.Parent = baseObject;
             result.ObjectClass = ObjectClass.Missing;
             result.State = State.Missing;
-            result.Color = ColorTranslator.ToHtml(Color.Black);                        
+            result.Color = ColorTranslator.ToHtml(Color.White);                        
             return result;
         }
 

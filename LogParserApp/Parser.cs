@@ -78,8 +78,8 @@ namespace LogParserApp
             if (IsFromCache) return;
 
             string cacheFolder = null;
-            if (ConfigurationManager.AppSettings["CachePoolPath"] != null)
-                cacheFolder = ConfigurationManager.AppSettings["CachePoolPath"].ToString();
+            if (ConfigurationManager.AppSettings["CachePath"] != null)
+                cacheFolder = ConfigurationManager.AppSettings["CachePath"].ToString();
 
             if (string.IsNullOrWhiteSpace(cacheFolder))
                 cacheFolder = Path.GetDirectoryName(Application.ExecutablePath);
@@ -242,20 +242,27 @@ namespace LogParserApp
   
             var properties = filter.XPathSelectElements("Properties/Property");
             properties.OrderBy(e => e.Attribute("i").Value);               
-            var objectState = State.Unknown;
+            var objectState = State.Unknown;            
             var objStateStr = filter.Element("State") != null &&
                                         !string.IsNullOrWhiteSpace(filter.Element("State").Value)
                                         ? filter.Element("State").Value : null;
             if (!string.IsNullOrWhiteSpace(objStateStr))
                 objectState = Enum.IsDefined(typeof(State), objStateStr) ? objStateStr.ToEnum<State>() : State.Unknown;
 
+            var objectShape = Shape.Rectangle;
+            var objShapeStr = filter.Element("Shape") != null &&
+                                                    !string.IsNullOrWhiteSpace(filter.Element("Shape").Value)
+                                                    ? filter.Element("Shape").Value : null;
+            if (!string.IsNullOrWhiteSpace(objShapeStr))
+                objectShape = Enum.IsDefined(typeof(Shape), objShapeStr) ? objShapeStr.ToEnum<Shape>() : Shape.Rectangle;
+
             StateObject stateObj = null;
             var filterKey = filter.Attribute("key").Value;
 
             if (objectState != State.Unknown)
-                stateObj = _currentObj.CreateStateObject(objectState, lineNumber, line, filterKey);
+                stateObj = _currentObj.CreateStateObject(objectState, objectShape, lineNumber, line, filterKey);
             else
-                stateObj = _currentObj.CreateStateObject(State.Temporary, lineNumber, line, filterKey);
+                stateObj = _currentObj.CreateStateObject(State.Temporary, objectShape, lineNumber, line, filterKey);
 
             _lastStateObject = stateObj;
 

@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmMain));
             this.dataGV = new System.Windows.Forms.DataGridView();
             this.dlgLoadLog = new System.Windows.Forms.OpenFileDialog();
@@ -58,14 +58,14 @@
             this.mnuItemTools = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuItemImportProfile = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuItemEditCurrentProfile = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuItemClearCache = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuItemCacheClearCurrent = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuItemCacheClearAll = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuItemPatternValidator = new System.Windows.Forms.ToolStripMenuItem();
             this.dlgProfile = new System.Windows.Forms.OpenFileDialog();
             this.dgvInfo = new System.Windows.Forms.DataGridView();
             this.btnViewAppLog = new System.Windows.Forms.Button();
             this.btnViewLoadedLog = new System.Windows.Forms.Button();
-            this.clearCacheToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuItemCacheClearCurrent = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuItemCacheClearAll = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.dataGV)).BeginInit();
             this.gridCmStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
@@ -95,8 +95,8 @@
             this.dataGV.ReadOnly = true;
             this.dataGV.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             this.dataGV.RowHeadersVisible = false;
-            dataGridViewCellStyle6.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.dataGV.RowsDefaultCellStyle = dataGridViewCellStyle6;
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.dataGV.RowsDefaultCellStyle = dataGridViewCellStyle1;
             this.dataGV.RowTemplate.Height = 66;
             this.dataGV.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
             this.dataGV.Size = new System.Drawing.Size(1083, 622);
@@ -105,6 +105,7 @@
             this.dataGV.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dataGV_CellFormatting);
             this.dataGV.CellMouseLeave += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGV_CellMouseLeave);
             this.dataGV.CellMouseMove += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataGV_CellMouseMove);
+            this.dataGV.CellPainting += new System.Windows.Forms.DataGridViewCellPaintingEventHandler(this.dataGV_CellPainting);
             this.dataGV.CellStateChanged += new System.Windows.Forms.DataGridViewCellStateChangedEventHandler(this.dataGV_CellStateChanged);
             this.dataGV.SelectionChanged += new System.EventHandler(this.dataGV_SelectionChanged);
             // 
@@ -291,14 +292,14 @@
             this.mnuItemLoad.Image = global::LogParserApp.Properties.Resources.log;
             this.mnuItemLoad.Name = "mnuItemLoad";
             this.mnuItemLoad.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.L)));
-            this.mnuItemLoad.Size = new System.Drawing.Size(180, 22);
+            this.mnuItemLoad.Size = new System.Drawing.Size(175, 22);
             this.mnuItemLoad.Text = "Load LOG...";
             this.mnuItemLoad.Click += new System.EventHandler(this.mnuItemLoad_Click);
             // 
             // mnuItemExit
             // 
             this.mnuItemExit.Name = "mnuItemExit";
-            this.mnuItemExit.Size = new System.Drawing.Size(180, 22);
+            this.mnuItemExit.Size = new System.Drawing.Size(175, 22);
             this.mnuItemExit.Text = "Exit";
             this.mnuItemExit.Click += new System.EventHandler(this.mnuItemExit_Click);
             // 
@@ -315,7 +316,7 @@
             this.mnuItemGoToLine.Enabled = false;
             this.mnuItemGoToLine.Name = "mnuItemGoToLine";
             this.mnuItemGoToLine.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.G)));
-            this.mnuItemGoToLine.Size = new System.Drawing.Size(180, 22);
+            this.mnuItemGoToLine.Size = new System.Drawing.Size(167, 22);
             this.mnuItemGoToLine.Text = "Go to line";
             this.mnuItemGoToLine.Click += new System.EventHandler(this.mnuItemGoToLine_Click);
             // 
@@ -324,7 +325,7 @@
             this.mnuItemTools.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.mnuItemImportProfile,
             this.mnuItemEditCurrentProfile,
-            this.clearCacheToolStripMenuItem,
+            this.mnuItemClearCache,
             this.mnuItemPatternValidator});
             this.mnuItemTools.Name = "mnuItemTools";
             this.mnuItemTools.Size = new System.Drawing.Size(46, 20);
@@ -343,6 +344,31 @@
             this.mnuItemEditCurrentProfile.Size = new System.Drawing.Size(192, 22);
             this.mnuItemEditCurrentProfile.Text = "Edit current profile";
             this.mnuItemEditCurrentProfile.Click += new System.EventHandler(this.mnuItemEditCurrentProfile_Click);
+            // 
+            // mnuItemClearCache
+            // 
+            this.mnuItemClearCache.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.mnuItemCacheClearCurrent,
+            this.mnuItemCacheClearAll});
+            this.mnuItemClearCache.Name = "mnuItemClearCache";
+            this.mnuItemClearCache.Size = new System.Drawing.Size(192, 22);
+            this.mnuItemClearCache.Text = "Clear Cache...";
+            // 
+            // mnuItemCacheClearCurrent
+            // 
+            this.mnuItemCacheClearCurrent.Enabled = false;
+            this.mnuItemCacheClearCurrent.Name = "mnuItemCacheClearCurrent";
+            this.mnuItemCacheClearCurrent.Size = new System.Drawing.Size(180, 22);
+            this.mnuItemCacheClearCurrent.Text = "Clear current";
+            this.mnuItemCacheClearCurrent.Click += new System.EventHandler(this.mnuItemCacheClearCurrent_Click);
+            // 
+            // mnuItemCacheClearAll
+            // 
+            this.mnuItemCacheClearAll.Enabled = false;
+            this.mnuItemCacheClearAll.Name = "mnuItemCacheClearAll";
+            this.mnuItemCacheClearAll.Size = new System.Drawing.Size(180, 22);
+            this.mnuItemCacheClearAll.Text = "Clear All";
+            this.mnuItemCacheClearAll.Click += new System.EventHandler(this.mnuItemCacheClearAll_Click);
             // 
             // mnuItemPatternValidator
             // 
@@ -398,31 +424,6 @@
             this.btnViewLoadedLog.Text = "View loaded log";
             this.btnViewLoadedLog.UseVisualStyleBackColor = true;
             this.btnViewLoadedLog.Click += new System.EventHandler(this.btnViewLoadedLog_Click);
-            // 
-            // clearCacheToolStripMenuItem
-            // 
-            this.clearCacheToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mnuItemCacheClearCurrent,
-            this.mnuItemCacheClearAll});
-            this.clearCacheToolStripMenuItem.Name = "clearCacheToolStripMenuItem";
-            this.clearCacheToolStripMenuItem.Size = new System.Drawing.Size(192, 22);
-            this.clearCacheToolStripMenuItem.Text = "Clear Cache...";
-            // 
-            // mnuItemCacheClearCurrent
-            // 
-            this.mnuItemCacheClearCurrent.Enabled = false;
-            this.mnuItemCacheClearCurrent.Name = "mnuItemCacheClearCurrent";
-            this.mnuItemCacheClearCurrent.Size = new System.Drawing.Size(180, 22);
-            this.mnuItemCacheClearCurrent.Text = "Clear current";
-            this.mnuItemCacheClearCurrent.Click += new System.EventHandler(this.mnuItemCacheClearCurrent_Click);
-            // 
-            // mnuItemCacheClearAll
-            // 
-            this.mnuItemCacheClearAll.Enabled = false;
-            this.mnuItemCacheClearAll.Name = "mnuItemCacheClearAll";
-            this.mnuItemCacheClearAll.Size = new System.Drawing.Size(180, 22);
-            this.mnuItemCacheClearAll.Text = "Clear All";
-            this.mnuItemCacheClearAll.Click += new System.EventHandler(this.mnuItemCacheClearAll_Click);
             // 
             // FrmMain
             // 
@@ -494,9 +495,8 @@
         private System.Windows.Forms.ToolStripMenuItem mnuItemEditCurrentProfile;
         private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem mnuItemGoToLine;
-        private System.Windows.Forms.ToolStripMenuItem clearCacheToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem mnuItemCacheClearCurrent;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem mnuItemClearCache;
+        private System.Windows.Forms.ToolStripMenuItem mnuItemCacheClearCurrent;        
         private System.Windows.Forms.ToolStripMenuItem mnuItemCacheClearAll;
     }
 }
