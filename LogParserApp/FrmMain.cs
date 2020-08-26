@@ -522,6 +522,10 @@ namespace LogParserApp
                 _parser.LogFileName = null;
             }
             _loadedLogFileName = null;
+            _currentDevice = null;
+            if (_currentFilter != null)
+                _currentFilter.Clear();
+
             txtHeader.Text = string.Empty;
             resultLabel.Text = string.Empty;
             dataGV.DataSource = null;
@@ -589,45 +593,45 @@ namespace LogParserApp
 
             if (cmbShowDevice.SelectedValue != null || _currentDevice != null)
             {
-            if (cmbShowDevice.SelectedItem.GetType() != typeof(KeyValuePair<string, ParserObject>)) return;
-            UpdateDeviceDetails();
+                if (cmbShowDevice.SelectedItem.GetType() != typeof(KeyValuePair<string, ParserObject>)) return;
+                UpdateDeviceDetails();
 
-            //Filter by selected device
-            if (cmbShowDevice.SelectedIndex == 0)
-                _currentDevice = null;
-            else
-                _currentDevice = ((KeyValuePair<string, ParserObject>)cmbShowDevice.SelectedItem).Key;
+                //Filter by selected device
+                if (cmbShowDevice.SelectedIndex == 0)
+                    _currentDevice = null;
+                else
+                    _currentDevice = ((KeyValuePair<string, ParserObject>)cmbShowDevice.SelectedItem).Key;
 
-            gbFilter.Enabled = false;
-            Cursor.Current = Cursors.WaitCursor;                              
-            try
-            {
-                resultLabel.Text = "Prepare data for view...";
-                progressBar.Value = 60;
-                progressBar.Visible = true;
-                Application.DoEvents();
-                if (_currentFilter != null)
-                    _currentFilter.Clear();
-                RefreshGridView(_parser.ObjectCollection);
-                UpdateCustomFilterExists(false);
-            }
-            catch (Exception ex)
-            {
-                _parser.AppLogger.LogException(ex);
-                throw ex;
-            }
-            finally
-            { 
-                resultLabel.Text = ("Ready");
-                progressBar.Value = 100;
-                progressBar.Visible = false;
-                Application.DoEvents();
-                Cursor.Current = Cursors.Default;
-                progressBar.Value = 0;
-                gridLabel.Text = string.Format("  Total view rows: {0}", dataGV.Rows.Count.ToString());
-                gbFilter.Enabled = true;        
-            }
-        }                       
+                gbFilter.Enabled = false;
+                Cursor.Current = Cursors.WaitCursor;                              
+                try
+                {
+                    resultLabel.Text = "Prepare data for view...";
+                    progressBar.Value = 60;
+                    progressBar.Visible = true;
+                    Application.DoEvents();
+                    if (_currentFilter != null)
+                        _currentFilter.Clear();
+                    RefreshGridView(_parser.ObjectCollection);
+                    UpdateCustomFilterExists(false);
+                }
+                catch (Exception ex)
+                {
+                    _parser.AppLogger.LogException(ex);
+                    throw ex;
+                }
+                finally
+                { 
+                    resultLabel.Text = ("Ready");
+                    progressBar.Value = 100;
+                    progressBar.Visible = false;
+                    Application.DoEvents();
+                    Cursor.Current = Cursors.Default;
+                    progressBar.Value = 0;
+                    gridLabel.Text = string.Format("  Total view rows: {0}", dataGV.Rows.Count.ToString());
+                    gbFilter.Enabled = true;        
+                }
+            }                       
         }
 
         private void UpdateDeviceDetails()
@@ -1033,6 +1037,8 @@ namespace LogParserApp
                 if (string.IsNullOrWhiteSpace(cacheFolder))
                     cacheFolder = Path.GetDirectoryName(Application.ExecutablePath);
                 var cacheFilePath = Path.Combine(Path.GetFullPath(cacheFolder), Path.GetFileNameWithoutExtension(_loadedLogFileName)) + ".cache";
+
+                _currentDevice = null;
 
                 //Check for cache
                 if (_cacheEnabled && File.Exists(cacheFilePath))
