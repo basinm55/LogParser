@@ -76,5 +76,13 @@ namespace Entities
             Request = 2,
             Data = 3
         }
+
+        [Serializable]
+        public enum RefDirection
+        {            
+            None = 0,
+            Forward = 1,
+            Backward = 2
+        }
     }
 }

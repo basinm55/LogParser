@@ -223,13 +223,14 @@ namespace Entities
             return result;
         }
 
-        public static StateObject CreateArrowStateObject(this ParserObject baseObject, ParserObject referenceObject = null)
+        public static StateObject CreateArrowStateObject(this ParserObject baseObject, ParserObject referenceObject = null, RefDirection refDirection = RefDirection.None)
         {
             var result = new StateObject();
             result.Parent = baseObject;
             result.ObjectClass = ObjectClass.ViewArrow;
             result.State = State.ViewArrow;
             result.ReferenceObj = referenceObject;
+            result.ReferenceDirection = refDirection;
             result.Color = ColorTranslator.ToHtml(Color.White);            
             result.Description = null;
             if (referenceObject != null)

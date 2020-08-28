@@ -21,6 +21,7 @@ namespace LogParserApp
         public StateObject stateObj { get; set; }
         public ParserObject refObj { get; set; }
         public bool IsClickable { get; set; }
+        public string ToolTipText { get; set; }
     }
     
 
@@ -82,7 +83,7 @@ namespace LogParserApp
                 col.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
                 col.Width = 100;
                 col.DividerWidth = 10;                
-                dataGV.Columns.Add(col);                      
+                dataGV.Columns.Add(col);                
             }            
 
             if (data.Count > 0)
@@ -94,7 +95,8 @@ namespace LogParserApp
 
                 SetGridParameters(dataGV);
             }
-            dataGV.ClearSelection();       
+            dataGV.ClearSelection();
+            dataGV.AutoResizeColumns();
         }
 
         private static void CreateGridRow(ParserObject obj, DataGridView dataGV, string thisOfDevice, int maxDescLength)
@@ -121,8 +123,13 @@ namespace LogParserApp
                     if (visualStateCollection[j] != null)
                     {
                         if (visualStateCollection[j].State == State.ViewArrow)
-                            CreateForwardImageCell(visualStateCollection[j], row, i, obj.NextContinuedObj, obj.PrevInterruptedObj);
-                        else                          
+                        {
+                            if (visualStateCollection[j].ReferenceDirection == RefDirection.Backward)
+                                CreateArrowImageCell(visualStateCollection[j], row, i, null, obj.PrevInterruptedObj);
+                            else if (visualStateCollection[j].ReferenceDirection == RefDirection.Forward)
+                                CreateArrowImageCell(visualStateCollection[j], row, i, obj.NextContinuedObj, null);
+                        }
+                        else
                             CreateGridCell(visualStateCollection[j], row, i, maxDescLength);
                     }
 
@@ -131,7 +138,7 @@ namespace LogParserApp
             
         }     
 
-        private static void CreateForwardImageCell(StateObject stateObj, DataGridViewRow row, int cellIndex, ParserObject nextContinuedObj, ParserObject prevInterruptedObj)
+        private static void CreateArrowImageCell(StateObject stateObj, DataGridViewRow row, int cellIndex, ParserObject nextContinuedObj, ParserObject prevInterruptedObj)
         {
             var cell = new DataGridViewImageCell();
 
@@ -141,13 +148,31 @@ namespace LogParserApp
                 return;
             }
 
-            if (nextContinuedObj != null)
+            if (prevInterruptedObj != null)
+            {
+                var tag = new TagArrowInfo { refObj = prevInterruptedObj, stateObj = stateObj };
+                if (IsArrowClickable(tag))
+                {
+                    cell.Value = ImageExt.ColorReplace(Properties.Resources.forward_arrow, Color.White, ColorTranslator.FromHtml(prevInterruptedObj.BaseColor));
+                    tag.IsClickable = true;
+                    tag.ToolTipText = "To PREVIOUS state...";
+                    cell.Tag = tag;
+                }
+                else
+                {
+                    cell.Value = Properties.Resources.forward_arrow;
+                    tag.IsClickable = false;
+                    cell.Tag = new TagArrowInfo { refObj = null, stateObj = stateObj };
+                }
+            }
+            else if (nextContinuedObj != null)
             {  
                 var tag = new TagArrowInfo { refObj = nextContinuedObj, stateObj = stateObj };
                 if (IsArrowClickable(tag))
                 {                    
                     cell.Value = ImageExt.ColorReplace(Properties.Resources.forward_arrow, Color.White, ColorTranslator.FromHtml(nextContinuedObj.BaseColor));
                     tag.IsClickable = true;
+                    tag.ToolTipText = "To NEXT state...";
                     cell.Tag = tag;
                 }
                 else
@@ -157,23 +182,7 @@ namespace LogParserApp
                     cell.Tag = new TagArrowInfo { refObj = null, stateObj = stateObj };
                 }
 
-            }
-            else if (prevInterruptedObj != null)
-            {
-                var tag = new TagArrowInfo { refObj = prevInterruptedObj, stateObj = stateObj };
-                if (IsArrowClickable(tag))
-                {
-                    cell.Value = ImageExt.ColorReplace(Properties.Resources.forward_arrow, Color.White, ColorTranslator.FromHtml(prevInterruptedObj.BaseColor));
-                    tag.IsClickable = true;
-                    cell.Tag = tag;
-                }
-                else
-                {
-                    cell.Value = Properties.Resources.forward_arrow;
-                    tag.IsClickable = false;
-                    cell.Tag = new TagArrowInfo { refObj = null, stateObj = stateObj };
-                }       
-            }
+            }            
             else
             {
                 cell.Value = Properties.Resources.forward_arrow;

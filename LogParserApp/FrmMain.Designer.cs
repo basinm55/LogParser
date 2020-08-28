@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmMain));
             this.dataGV = new System.Windows.Forms.DataGridView();
             this.dlgLoadLog = new System.Windows.Forms.OpenFileDialog();
@@ -95,11 +95,11 @@
             this.dataGV.ReadOnly = true;
             this.dataGV.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             this.dataGV.RowHeadersVisible = false;
-            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.dataGV.RowsDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.dataGV.RowsDefaultCellStyle = dataGridViewCellStyle3;
             this.dataGV.RowTemplate.Height = 66;
             this.dataGV.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
-            this.dataGV.Size = new System.Drawing.Size(1083, 622);
+            this.dataGV.Size = new System.Drawing.Size(1151, 622);
             this.dataGV.TabIndex = 0;
             this.dataGV.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGV_CellClick);
             this.dataGV.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dataGV_CellFormatting);
@@ -134,7 +134,7 @@
             this.gridLabel});
             this.statusStrip.Location = new System.Drawing.Point(0, 767);
             this.statusStrip.Name = "statusStrip";
-            this.statusStrip.Size = new System.Drawing.Size(1421, 22);
+            this.statusStrip.Size = new System.Drawing.Size(1466, 22);
             this.statusStrip.TabIndex = 4;
             // 
             // progressBar
@@ -205,7 +205,7 @@
             this.groupBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBox1.Location = new System.Drawing.Point(12, 99);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(1072, 36);
+            this.groupBox1.Size = new System.Drawing.Size(1142, 36);
             this.groupBox1.TabIndex = 11;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Selected device details:";
@@ -220,7 +220,7 @@
             this.txtHeader.Location = new System.Drawing.Point(20, 120);
             this.txtHeader.Name = "txtHeader";
             this.txtHeader.ReadOnly = true;
-            this.txtHeader.Size = new System.Drawing.Size(1005, 13);
+            this.txtHeader.Size = new System.Drawing.Size(1128, 13);
             this.txtHeader.TabIndex = 7;
             this.txtHeader.Click += new System.EventHandler(this.txtHeader_Click);
             this.txtHeader.TextChanged += new System.EventHandler(this.txtHeader_TextChanged);
@@ -232,9 +232,9 @@
             // 
             this.gbFilter.Controls.Add(this.btnCustomFilter);
             this.gbFilter.Controls.Add(this.btnClearFilter);
-            this.gbFilter.Location = new System.Drawing.Point(760, 27);
+            this.gbFilter.Location = new System.Drawing.Point(807, 27);
             this.gbFilter.Name = "gbFilter";
-            this.gbFilter.Size = new System.Drawing.Size(325, 74);
+            this.gbFilter.Size = new System.Drawing.Size(347, 74);
             this.gbFilter.TabIndex = 12;
             this.gbFilter.TabStop = false;
             this.gbFilter.Text = "Filter";
@@ -244,9 +244,9 @@
             this.btnCustomFilter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnCustomFilter.Image = global::LogParserApp.Properties.Resources.filter;
             this.btnCustomFilter.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnCustomFilter.Location = new System.Drawing.Point(31, 25);
+            this.btnCustomFilter.Location = new System.Drawing.Point(18, 25);
             this.btnCustomFilter.Name = "btnCustomFilter";
-            this.btnCustomFilter.Size = new System.Drawing.Size(121, 30);
+            this.btnCustomFilter.Size = new System.Drawing.Size(145, 30);
             this.btnCustomFilter.TabIndex = 15;
             this.btnCustomFilter.Text = "Custom filter";
             this.btnCustomFilter.UseVisualStyleBackColor = true;
@@ -258,9 +258,9 @@
             this.btnClearFilter.Enabled = false;
             this.btnClearFilter.Image = global::LogParserApp.Properties.Resources.clearfilter;
             this.btnClearFilter.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnClearFilter.Location = new System.Drawing.Point(170, 25);
+            this.btnClearFilter.Location = new System.Drawing.Point(188, 25);
             this.btnClearFilter.Name = "btnClearFilter";
-            this.btnClearFilter.Size = new System.Drawing.Size(121, 30);
+            this.btnClearFilter.Size = new System.Drawing.Size(145, 30);
             this.btnClearFilter.TabIndex = 14;
             this.btnClearFilter.Text = "Clear filter";
             this.btnClearFilter.UseVisualStyleBackColor = true;
@@ -274,7 +274,7 @@
             this.mnuItemTools});
             this.mnuStripMain.Location = new System.Drawing.Point(0, 0);
             this.mnuStripMain.Name = "mnuStripMain";
-            this.mnuStripMain.Size = new System.Drawing.Size(1421, 24);
+            this.mnuStripMain.Size = new System.Drawing.Size(1466, 24);
             this.mnuStripMain.TabIndex = 16;
             this.mnuStripMain.Text = "menuStrip1";
             // 
@@ -358,7 +358,7 @@
             // 
             this.mnuItemCacheClearCurrent.Enabled = false;
             this.mnuItemCacheClearCurrent.Name = "mnuItemCacheClearCurrent";
-            this.mnuItemCacheClearCurrent.Size = new System.Drawing.Size(180, 22);
+            this.mnuItemCacheClearCurrent.Size = new System.Drawing.Size(142, 22);
             this.mnuItemCacheClearCurrent.Text = "Clear current";
             this.mnuItemCacheClearCurrent.Click += new System.EventHandler(this.mnuItemCacheClearCurrent_Click);
             // 
@@ -366,7 +366,7 @@
             // 
             this.mnuItemCacheClearAll.Enabled = false;
             this.mnuItemCacheClearAll.Name = "mnuItemCacheClearAll";
-            this.mnuItemCacheClearAll.Size = new System.Drawing.Size(180, 22);
+            this.mnuItemCacheClearAll.Size = new System.Drawing.Size(142, 22);
             this.mnuItemCacheClearAll.Text = "Clear All";
             this.mnuItemCacheClearAll.Click += new System.EventHandler(this.mnuItemCacheClearAll_Click);
             // 
@@ -391,12 +391,12 @@
             this.dgvInfo.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvInfo.ColumnHeadersVisible = false;
             this.dgvInfo.Enabled = false;
-            this.dgvInfo.Location = new System.Drawing.Point(1101, 141);
+            this.dgvInfo.Location = new System.Drawing.Point(1160, 141);
             this.dgvInfo.MultiSelect = false;
             this.dgvInfo.Name = "dgvInfo";
             this.dgvInfo.RowHeadersVisible = false;
             this.dgvInfo.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
-            this.dgvInfo.Size = new System.Drawing.Size(312, 623);
+            this.dgvInfo.Size = new System.Drawing.Size(294, 623);
             this.dgvInfo.TabIndex = 20;
             // 
             // btnViewAppLog
@@ -404,7 +404,7 @@
             this.btnViewAppLog.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnViewAppLog.Image = global::LogParserApp.Properties.Resources.applog;
             this.btnViewAppLog.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
-            this.btnViewAppLog.Location = new System.Drawing.Point(1187, 85);
+            this.btnViewAppLog.Location = new System.Drawing.Point(1232, 85);
             this.btnViewAppLog.Name = "btnViewAppLog";
             this.btnViewAppLog.Size = new System.Drawing.Size(153, 30);
             this.btnViewAppLog.TabIndex = 17;
@@ -417,7 +417,7 @@
             this.btnViewLoadedLog.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnViewLoadedLog.Image = global::LogParserApp.Properties.Resources.log;
             this.btnViewLoadedLog.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnViewLoadedLog.Location = new System.Drawing.Point(1187, 44);
+            this.btnViewLoadedLog.Location = new System.Drawing.Point(1232, 44);
             this.btnViewLoadedLog.Name = "btnViewLoadedLog";
             this.btnViewLoadedLog.Size = new System.Drawing.Size(153, 30);
             this.btnViewLoadedLog.TabIndex = 15;
@@ -429,7 +429,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1421, 789);
+            this.ClientSize = new System.Drawing.Size(1466, 789);
             this.Controls.Add(this.txtHeader);
             this.Controls.Add(this.dgvInfo);
             this.Controls.Add(this.btnViewAppLog);

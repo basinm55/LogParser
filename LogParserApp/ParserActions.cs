@@ -248,10 +248,15 @@ namespace LogParserApp
                             var foundStateCollection = foundInterruptedObj.StateCollection;
                             if (foundStateCollection != null && foundStateCollection.Count > 0)
                              {
-                                foundInterruptedLastState = foundStateCollection[foundStateCollection.Count - 1].State;
-                                if (ObjectCollection[ObjectCollection.Count - 1].GetThis() != thisVal ||
-                                                            objState < foundInterruptedLastState)                                  
-                                    isExistingFound = false;
+                                //foundInterruptedLastState = foundStateCollection[foundStateCollection.Count - 1].State;
+                                var foundStateObj = foundStateCollection.LastOrDefault(x => x.State >= 0);
+                                if (foundStateObj != null)
+                                {
+                                    foundInterruptedLastState = foundStateObj.State;
+                                    if (ObjectCollection[ObjectCollection.Count - 1].GetThis() != thisVal ||
+                                                                objState < foundInterruptedLastState)
+                                        isExistingFound = false;
+                                }
                             }
                         }
                     }

@@ -132,7 +132,7 @@ namespace LogParserApp
             {                                              
                 Text = string.Format("LogParser - Profile: [{0}]", Path.GetFileName(_selectedProfileFileName));
                 if (!string.IsNullOrWhiteSpace(_loadedLogFileName))                  
-                    Text = Text + "   " +string.Format("Log File: [{0} {1}]]", Path.GetFileName(_loadedLogFileName),
+                    Text = Text + "   " +string.Format("Log File: [{0} {1}]", Path.GetFileName(_loadedLogFileName),
                         isFromCache ? "(from cache)" : string.Empty);
                 
             }
@@ -690,7 +690,6 @@ namespace LogParserApp
             UpdateCustomFilterExists(false);
         }
                      
-
         private void RefreshGridView(List<ParserObject> data)
         {
             Cursor.Current = Cursors.WaitCursor;
@@ -944,11 +943,8 @@ namespace LogParserApp
                     var ti = tag as TagArrowInfo;
                     if (ti.IsClickable)
                     {
-                        (sender as DataGridView).Cursor = Cursors.Hand;
-                        if (ti.refObj.NextContinuedObj != null)
-                            dataGV.Rows[e.RowIndex].Cells[e.ColumnIndex].ToolTipText = "To PREVIOUS state...";
-                        else if (ti.refObj.PrevInterruptedObj != null)
-                            dataGV.Rows[e.RowIndex].Cells[e.ColumnIndex].ToolTipText = "To NEXT state...";
+                        (sender as DataGridView).Cursor = Cursors.Hand;                        
+                        dataGV.Rows[e.RowIndex].Cells[e.ColumnIndex].ToolTipText = ti.ToolTipText;                       
                     }          
                 }
                 return;

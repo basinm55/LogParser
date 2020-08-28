@@ -37,7 +37,9 @@ namespace Entities
         public ParserObject ReferenceObj { get; set; }
 
         public StateObject ReferenceStateObj { get; set; }
-                
+
+        public RefDirection ReferenceDirection { get; set; }
+
         public StringBuilder DataBuffer { get; set; }        
 
         //C'tor
