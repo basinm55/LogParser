@@ -83,7 +83,7 @@ namespace LogParserApp
 
             var searchValue = _currentObj.GetDynPropertyValue("this");
 
-            _locatedObj = ObjectCollection.FirstOrDefault(x => x != null && (string)x.GetDynPropertyValue("this") == (string)searchValue);
+            _locatedObj = ObjectCollection.FirstOrDefault(x => x != null && x.IsFindable && (string)x.GetDynPropertyValue("this") == (string)searchValue);
             if (_locatedObj == null && filter.Attribute("key") != null)
                 AppLogger.LogLine(string.Format("Object [{0}] for entry [{1}] cannot be located.", searchValue, filter.Attribute("key").Value), lineNumber);
         }
